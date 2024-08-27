@@ -5,5 +5,6 @@ import tailwind from "@astrojs/tailwind";
 
 export default defineConfig({
   site: "https://enkyuan.github.io",
+  base: "/enkyuan.github.io",
   integrations: [mdx(), sitemap(), tailwind()],
 });
