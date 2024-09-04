@@ -1,7 +1,7 @@
 ---
 title: "Griddy"
 description: "Basic API to emulate banking activity"
-date: "Oct 2034"
+date: "Oct 2023"
 demoURL: ""
 repoURL: "https://github.com/enkyuan/grddy"
 ---
