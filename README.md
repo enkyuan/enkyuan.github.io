@@ -11,4 +11,17 @@ this repo stores the code for my website, containing stuff i'm working on, some 
 
 ## usage
 
-...
+```bash
+# clone the repo
+git clone https://github.com/enkyuan/enkyuan.github.io.git
+
+# change directory
+cd enkyuan.github.io
+
+# install dependencies
+npm i
+
+# start the development server
+npm run dev
+```
+
