@@ -20,3 +20,8 @@ pnpm-debug.log*
 
 # macOS-specific files
 .DS_Store
+
+# media
+public/
+_deploy_netlify.svg
+_deploy_vercel.svg
