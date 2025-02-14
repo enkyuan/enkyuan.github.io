@@ -6,8 +6,7 @@ const Blog = () => {
         <p className="text-lg leading-relaxed">
           this is a log of what i'm doing at the moment--perhaps it's insightful
           to those of you who read through this. do let me know if there's
-          anything of interest or a particular topic that might be worth
-          discussing.
+          anything of interest that might be worth discussing.
         </p>
       </div>
     </div>

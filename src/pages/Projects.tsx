@@ -6,31 +6,30 @@ const Projects = () => {
         <div className="border-2 border-gray-100 rounded-sm p-4">
           <div className="flex flex-row justify-between">
             <h2 className="text-xl font-semibold mb-2">rofl</h2>
-            <a href="#" className="text-blue-500 hover:underline">
+            <a
+              href="https://github.com/enkyuan/rofl"
+              className="text-blue-500 hover:underline"
+            >
               repo
             </a>
           </div>
           <p className="text-md text-gray-700 mb-4">
-            real-time consequence reasoning engine for conversations
+            real-time liquidity optimization engine
           </p>
           <ul className="text-sm space-y-4 ml-6 text-gray-700">
             <li>
-              - tri-agent system to predict the best responses to the most
-              likely replies and evaluate conversation in the context of a goal
+              - aggregates market data from coinbase, kraken, and other major
+              crypto exchanges to identify optimal positions
             </li>
             <li>
-              - parallel processing enables the simulation hundreds of
-              conversations through 6 layers of conversation depth using Llama
-              3.3 70B, in ~10 seconds
+              - polling with data from bitfinex and okx to identify recent bids
+              and approximate asks
             </li>
             <li>
-              - monte carlo simulation uses probability-weighted simulations to
-              optimize responses
+              - queueing system to manage orders and execute trades based on
+              consensus algorithm
             </li>
-            <li>
-              - imessage integration in a live chat editor, showing branching
-              conversation trees with analysis in real-time
-            </li>
+            <li>- wallet integrations for access to funds and transactions</li>
           </ul>
           <p className="text-sm text-gray-700 mt-4">
             more updates coming soon™
@@ -45,7 +44,7 @@ const Projects = () => {
             </a>
           </div>
           <p className="text-md text-gray-700 mb-4">
-            real-time consequence reasoning engine for conversations
+            indexing platform for books, articles, and written content
           </p>
           <ul className="text-sm space-y-4 ml-6 text-gray-700">
             <li>
@@ -79,7 +78,7 @@ const Projects = () => {
             </a>
           </div>
           <p className="text-md text-gray-700 mb-4">
-            real-time consequence reasoning engine for conversations
+            bootstrapped compiler for C
           </p>
           <ul className="text-sm space-y-4 ml-6 text-gray-700">
             <li>

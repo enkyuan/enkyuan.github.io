@@ -11,7 +11,7 @@ const Navigation = () => {
 
   return (
     <nav className="mb-8">
-      <ul className="flex space-x-6">
+      <ul className="flex space-x-4">
         <li>
           <Link
             to="/"
