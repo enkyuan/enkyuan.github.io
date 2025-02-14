@@ -1,0 +1,12 @@
+@import 'tailwindcss';
+
+/* Tailwind 4 uses a simpler import syntax */
+:root {
+  font-family: Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  background-color: #FFFFFF;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
