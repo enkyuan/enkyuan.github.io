@@ -5,13 +5,14 @@ const Projects = () => {
       <div className="grid gap-8">
         <div className="border-2 border-gray-100 rounded-sm p-4">
           <div className="flex flex-row justify-between">
-            <h2 className="text-xl font-semibold mb-2">rofl</h2>
-            <a
-              href="https://github.com/enkyuan/rofl"
-              className="text-blue-500 hover:underline"
-            >
-              repo
-            </a>
+            <h2 className="text-xl font-semibold mb-2">
+              <a
+                href="https://github.com/enkyuan/rofl"
+                className="underline underline-offset-4"
+              >
+                rofl
+              </a>
+            </h2>
           </div>
           <p className="text-md text-gray-700 mb-4">
             real-time liquidity optimization engine
@@ -38,10 +39,14 @@ const Projects = () => {
 
         <div className="border-2 border-gray-100 rounded-sm p-4">
           <div className="flex flex-row justify-between">
-            <h2 className="text-xl font-semibold mb-2">postmark</h2>
-            <a href="#" className="text-blue-500 hover:underline">
-              repo
-            </a>
+            <h2 className="text-xl font-semibold mb-2">
+              <a
+                href="https://www.github.com/enkyuan/postmark"
+                className="underline underline-offset-4"
+              >
+                postmark
+              </a>
+            </h2>
           </div>
           <p className="text-md text-gray-700 mb-4">
             indexing platform for books, articles, and written content
@@ -72,10 +77,14 @@ const Projects = () => {
 
         <div className="border-2 border-gray-100 rounded-sm p-4">
           <div className="flex flex-row justify-between">
-            <h2 className="text-xl font-semibold mb-2">c4</h2>
-            <a href="#" className="text-blue-500 hover:underline">
-              repo
-            </a>
+            <h2 className="text-xl font-semibold mb-2">
+              <a
+                href="https://github.com/enkyuan/c4"
+                className="underline underline-offset-4"
+              >
+                c4
+              </a>
+            </h2>
           </div>
           <p className="text-md text-gray-700 mb-4">
             bootstrapped compiler for C

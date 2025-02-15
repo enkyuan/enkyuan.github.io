@@ -27,20 +27,14 @@ const Home = () => {
 
       <section>
         <h2 className="text-xl font-bold mb-4">sidequests:</h2>
-        <ul className="text-sm pl-5 space-y-2">
-          <li>- learning to speak mandarin through immersion </li>
-          <li>- studying Hanzi (writing chinese characters) using Anki </li>
-          <li>
-            - reading as much as possible from
-            <ul className="list-disc pl-9 space-y-2">
-              <li> classical literature</li>
-              <li> greek/roman philosophy</li>
-              <li> research</li>
-            </ul>
-          </li>
+        <ul className="text-sm pl-4 space-y-2">
+          <li>- learning to speak Mandarin through immersion </li>
+          <li>- studying Hanzi (writing Chinese) using Anki </li>
+          <li>- configuring my fedora asahi setup</li>
           <li>- hitting the gym </li>
           <li>- playing violin</li>
           <li>- grinding chess</li>
+          <li>- hiking</li>
         </ul>
       </section>
 

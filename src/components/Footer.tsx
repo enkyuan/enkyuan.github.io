@@ -2,7 +2,7 @@ import { sitemap } from "../sitemap";
 
 const Footer = () => {
   return (
-    <div className="md:py-0 sm:py-0">
+    <div className="md:py-4 sm:py-0">
       <div className="flex flex-col items-end justify-between gap-4 md:h-16 md:flex-row sm:h-4">
         <p className="text-balance text-center text-sm leading-loose text-muted-foreground md:text-left">
           Built by{" "}
