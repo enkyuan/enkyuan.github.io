@@ -28,22 +28,19 @@ const Home = () => {
       <section>
         <h2 className="text-xl font-bold mb-4">sidequests:</h2>
         <ul className="text-sm pl-4 space-y-2">
-          <li>- learning to speak Mandarin through immersion </li>
-          <li>- studying Hanzi (writing Chinese) using Anki </li>
-          <li>- configuring my fedora asahi setup</li>
+          <li>- learning Mandarin through immersion </li>
+          <li>- studying Hanzi using Anki </li>
+          <li>- ricing Fedora (Asahi)</li>
           <li>- hitting the gym </li>
-          <li>- playing violin</li>
-          <li>- grinding chess</li>
           <li>- hiking</li>
         </ul>
       </section>
 
       <section>
-        <h2 className="text-xl font-bold mb-4">thinking about:</h2>
-        <ul className="text-sm space-y-1">
-          <li>- personal agency</li>
-          <li>- stoicism, and philosophy in general</li>
-          <li>- what im going to do with my life</li>
+        <h2 className="text-xl font-bold mb-4">cooking:</h2>
+        <ul className="text-sm pl-4 space-y-2">
+          <li>- haystack</li>
+          <li>- lume</li>
         </ul>
       </section>
 
@@ -51,8 +48,7 @@ const Home = () => {
         <h2 className="text-xl font-bold mb-4">get in touch:</h2>
         <div className="text-sm flex flex-col gap-2 space-x-4 space-y-2">
           <div>
-            id love to hear any insights, ideas, or anything informal. reach out
-            to me via email (below) or my socials.
+            reach out via email (below) or my socials.
           </div>
           <div>yuan.enkng [at] gmail [dot] com</div>
           <div className="flex flex-row gap-2">

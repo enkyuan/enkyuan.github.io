@@ -5,4 +5,5 @@ import tailwindcss from "@tailwindcss/vite";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  base: "/enkyuan.github.io", // Add base URL for GitHub Pages
 });

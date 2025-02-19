@@ -41,44 +41,6 @@ const Projects = () => {
           <div className="flex flex-row justify-between">
             <h2 className="text-xl font-semibold mb-2">
               <a
-                href="https://www.github.com/enkyuan/postmark"
-                className="underline underline-offset-4"
-              >
-                postmark
-              </a>
-            </h2>
-          </div>
-          <p className="text-md text-gray-700 mb-4">
-            indexing platform for books, articles, and written content
-          </p>
-          <ul className="text-sm space-y-4 ml-6 text-gray-700">
-            <li>
-              - tri-agent system to predict the best responses to the most
-              likely replies and evaluate conversation in the context of a goal
-            </li>
-            <li>
-              - parallel processing enables the simulation hundreds of
-              conversations through 6 layers of conversation depth using Llama
-              3.3 70B, in ~10 seconds
-            </li>
-            <li>
-              - monte carlo simulation uses probability-weighted simulations to
-              optimize responses
-            </li>
-            <li>
-              - imessage integration in a live chat editor, showing branching
-              conversation trees with analysis in real-time
-            </li>
-          </ul>
-          <p className="text-sm text-gray-700 mt-4">
-            more updates coming soon™
-          </p>
-        </div>
-
-        <div className="border-2 border-gray-100 rounded-sm p-4">
-          <div className="flex flex-row justify-between">
-            <h2 className="text-xl font-semibold mb-2">
-              <a
                 href="https://github.com/enkyuan/c4"
                 className="underline underline-offset-4"
               >
@@ -91,21 +53,20 @@ const Projects = () => {
           </p>
           <ul className="text-sm space-y-4 ml-6 text-gray-700">
             <li>
-              - tri-agent system to predict the best responses to the most
-              likely replies and evaluate conversation in the context of a goal
+              - implements a recursive descent parser with precedence climbing for
+              efficient expression parsing and abstract syntax tree generation
             </li>
             <li>
-              - parallel processing enables the simulation hundreds of
-              conversations through 6 layers of conversation depth using Llama
-              3.3 70B, in ~10 seconds
+              - features robust error handling and recovery mechanisms for improved
+              developer experience during compilation
             </li>
             <li>
-              - monte carlo simulation uses probability-weighted simulations to
-              optimize responses
+              - performs semantic analysis and type checking with support for C11
+              standard features and common extensions
             </li>
             <li>
-              - imessage integration in a live chat editor, showing branching
-              conversation trees with analysis in real-time
+              - generates optimized x86_64 assembly output with basic block
+              analysis and register allocation
             </li>
           </ul>
           <p className="text-sm text-gray-700 mt-4">

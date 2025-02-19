@@ -2,9 +2,9 @@ import { sitemap } from "../sitemap";
 
 const Footer = () => {
   return (
-    <div className="md:py-4 sm:py-0">
-      <div className="flex flex-col items-end justify-between gap-4 md:h-16 md:flex-row sm:h-4">
-        <p className="text-balance text-center text-sm leading-loose text-muted-foreground md:text-left">
+    <div className="py-4">
+      <div className="flex flex-col items-start justify-between gap-4 md:flex-row">
+        <p className="w-full text-balance text-sm leading-loose text-muted-foreground">
           Built by{" "}
           <a
             href={sitemap.links.personal}
