@@ -39,7 +39,7 @@ const Home = () => {
       <section>
         <h2 className="text-xl font-bold mb-4">cooking:</h2>
         <ul className="text-sm pl-4 space-y-2">
-          <li>- haystack</li>
+          <li>- nullspace</li>
           <li>- lume</li>
         </ul>
       </section>
