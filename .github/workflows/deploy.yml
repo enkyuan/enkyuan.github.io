@@ -13,8 +13,7 @@ jobs:
   deploy:
     environment:
       name: github-pages
-      
-  build:
+    
     runs-on: ubuntu-latest
 
     steps:
