@@ -121,7 +121,7 @@ const next = (current + 1) % pages.length;
 		color: var(--yellow);
 		text-align: left;
 		margin-top: 3.5rem;
-		margin-bottom: 1.5rem;
+		margin-bottom: 0.8rem;
 	}
 	section {
 		margin-bottom: 3.5rem;

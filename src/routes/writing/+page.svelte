@@ -50,6 +50,6 @@ const next = (current + 1) % pages.length;
         font-size: 2.2rem;
         color: var(--green);
         text-align: left;
-        margin-bottom: 1.5rem;
+        margin-bottom: 0.8rem;
     }
 </style>
