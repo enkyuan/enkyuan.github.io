@@ -1,0 +1,172 @@
+@import "tailwindcss";
+@import "@fontsource/geist/400.css";
+@import "@fontsource/geist/500.css";
+@import "@fontsource/geist/600.css";
+@import "@fontsource/geist/700.css";
+@plugin '@tailwindcss/typography';
+
+:root {
+	--fg: #dfe0ea;
+	--bg: #191b20;
+	--none: #191b20;
+	--dark: #16181d;
+	--comment: #4d5264;
+	--popup-back: #515761;
+	--cursor-fg: #dfe0ea;
+	--context: #515761;
+	--cursor-bg: #aeafad;
+	--accent: #bbbbbb;
+	--diff-add: #8cd881;
+	--diff-change: #6caec0;
+	--cl-bg: #707891;
+	--diff-text: #568bb4;
+	--line-fg: #555b6c;
+	--line-bg: #1e2026;
+	--gutter-bg: #1e2026;
+	--non-text: #606978;
+	--selection-bg: #5e697e;
+	--selection-fg: #495163;
+	--vsplit-fg: #cccccc;
+	--vsplit-bg: #21252d;
+	--visual-select-bg: #272932;
+	--red-key-w: #e85a84;
+	--red-err: #d95555;
+	--green-func: #94dd8e;
+	--green: #94dd8e;
+	--blue-type: #7eb7e6;
+	--black1: #272932;
+	--black: #16181d;
+	--white1: #cfd0d7;
+	--white: #dfe0ea;
+	--gray-punc: #515669;
+	--gray2: #6e7380;
+	--gray1: #343842;
+	--gray: #21252d;
+	--orange: #e0828d;
+	--orange-wr: #e39a65;
+	--pink: #d895c7;
+	--yellow: #e9d26c;
+	--font-body: "Geist";
+	--font-mono: "Geist Mono", "Geist";
+	--color-bg-0: rgb(202, 216, 228);
+	--color-bg-1: hsl(209, 36%, 86%);
+	--color-bg-2: hsl(224, 44%, 95%);
+	--color-theme-1: #ff3e00;
+	--color-theme-2: #4075a6;
+	--color-text: rgba(0, 0, 0, 0.7);
+	--column-width: 42rem;
+	--column-margin-top: 4rem;
+	font-family: var(--font-body);
+	color: var(--fg);
+	background: var(--bg);
+}
+
+body {
+	min-height: 100vh;
+	margin: 0;
+	background-color: var(--bg);
+	color: var(--fg);
+	font-family: var(--font-body);
+	background-attachment: fixed;
+	background-size: 100vw 100vh;
+	background-image: radial-gradient(
+			50% 50% at 50% 50%,
+			rgba(255, 255, 255, 0.75) 0%,
+			rgba(255, 255, 255, 0) 100%
+		),
+		linear-gradient(
+			180deg,
+			var(--color-bg-0) 0%,
+			var(--color-bg-1) 15%,
+			var(--color-bg-2) 50%
+		);
+}
+
+h1,
+h2,
+p {
+	font-weight: 400;
+	color: var(--fg);
+	font-family: var(--font-body);
+}
+
+p {
+	line-height: 1.5;
+}
+
+a {
+	color: var(--blue-type);
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+	color: var(--accent);
+}
+
+h1 {
+	font-size: 2rem;
+	text-align: center;
+}
+
+h2 {
+	font-size: 1rem;
+}
+
+pre {
+	font-size: 16px;
+	font-family: var(--font-mono);
+	background-color: var(--line-bg);
+	border-radius: 3px;
+	box-shadow: 2px 2px 6px var(--gray1);
+	padding: 0.5em;
+	overflow-x: auto;
+	color: var(--fg);
+}
+
+.text-column {
+	display: flex;
+	max-width: 48rem;
+	flex: 0.6;
+	flex-direction: column;
+	justify-content: center;
+	margin: 0 auto;
+	color: var(--fg);
+	font-family: var(--font-body);
+}
+
+input,
+button {
+	font-size: inherit;
+	font-family: var(--font-body);
+	color: var(--fg);
+	background: var(--line-bg);
+	border: 1px solid var(--gray2);
+}
+
+button:focus:not(:focus-visible) {
+	outline: none;
+}
+
+::selection {
+	background: var(--selection-bg);
+	color: var(--selection-fg);
+}
+
+@media (min-width: 720px) {
+	h1 {
+		font-size: 2.4rem;
+	}
+}
+
+.visually-hidden {
+	border: 0;
+	clip: rect(0 0 0 0);
+	height: auto;
+	margin: 0;
+	overflow: hidden;
+	padding: 0;
+	position: absolute;
+	width: 1px;
+	white-space: nowrap;
+}
