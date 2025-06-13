@@ -16,6 +16,12 @@
         <p>The page you're looking for doesn't exist or has been moved.</p>
         <p><a href="%sveltekit.base%/">Return to Home</a></p>
     </div>
+    <script>
+        // If the user lands on a non-root path, redirect to the SPA root and let SvelteKit handle it
+        if (location.pathname !== '/' && !location.pathname.startsWith('/favicon')) {
+            location.replace('%sveltekit.base%/' + '?redirect=' + encodeURIComponent(location.pathname + location.search + location.hash));
+        }
+    </script>
 </body>
 
 </html>
