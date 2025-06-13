@@ -9,10 +9,10 @@ export const load: PageLoad = () => {
     return {
         metadata: {
             title: 'Enkang Yuan',
-            description: 'Personal website of Enkang Yuan, software engineer and student at Purdue.',
+            description: 'my corner of the internet',
             openGraph: {
                 title: 'Enkang Yuan',
-                description: 'Personal website of Enkang Yuan, software engineer and student at Purdue.',
+                description: 'my corner of the internet',
                 url: `${base}`,
                 type: 'website',
                 image: `${base}/favicon/favicon-96x96.png`
@@ -20,7 +20,7 @@ export const load: PageLoad = () => {
             twitter: {
                 card: 'summary',
                 title: 'Enkang Yuan',
-                description: 'Personal website of Enkang Yuan, software engineer and student at Purdue.',
+                description: 'my corner of the internet',
                 image: `${base}/favicon/favicon-96x96.png`
             }
         }
