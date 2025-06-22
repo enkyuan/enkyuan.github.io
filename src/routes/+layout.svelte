@@ -1,10 +1,10 @@
 <script lang="ts">
-    import "../app.css";
-    import { page } from "$app/state";
-    import Sidebar from "../lib/components/navigation/sidebar.svelte";
-    import Hamburger from "../lib/components/navigation/hamburger.svelte";
+import "../app.css";
+import { page } from "$app/state";
+import Sidebar from "../lib/components/navigation/sidebar.svelte";
+import Hamburger from "../lib/components/navigation/hamburger.svelte";
 
-    export const prerender = true;
+export const prerender = true;
 </script>
 
 <div class="desktop-only">
