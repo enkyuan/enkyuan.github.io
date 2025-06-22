@@ -100,6 +100,7 @@ function toggle() {
 		flex-direction: column;
 		justify-content: flex-end;
 		padding: 3rem 2rem;
+		padding-bottom: calc(3rem + env(safe-area-inset-bottom));
 		box-shadow: 4px 0 16px rgba(0, 0, 0, 0.2);
 	}
 	.main-links {
