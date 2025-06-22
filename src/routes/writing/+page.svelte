@@ -2,13 +2,19 @@
 import Button from "../../lib/components/ui/button.svelte";
 import ArrowRight from "../../lib/components/icons/arrow-right.svelte";
 import { pages, labels } from "$lib/constants";
+import { sidebarState } from "$lib/stores/sidebar.svelte";
 
-let current = 2;
-const next = (current + 1) % pages.length;
+const current = 1;
+const next = 2;
 </script>
 
-<div class="top-center-btn">
-    <Button href={pages[next]} variant="primary">
+<div class="top-center-responsive-btn">
+    <Button
+        href={pages[next]}
+        variant="primary"
+        onmouseenter={() => sidebarState.setHovered(next)}
+        onmouseleave={() => sidebarState.setHovered(null)}
+    >
         {labels[current]}
         <span slot="icon"><ArrowRight /></span>
     </Button>
@@ -21,15 +27,18 @@ const next = (current + 1) % pages.length;
 </div>
 
 <style>
-    .top-center-btn {
-        width: 100vw;
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        position: absolute;
-        top: 2rem;
-        left: 0;
-        z-index: 20;
+    .top-center-responsive-btn {
+        display: none;
+    }
+    @media (min-width: 1024px) {
+        .top-center-responsive-btn {
+            position: absolute;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            display: block;
+        }
     }
     .geist-bg-full {
         min-height: 100vh;
@@ -51,5 +60,15 @@ const next = (current + 1) % pages.length;
         color: var(--green);
         text-align: left;
         margin-bottom: 0.8rem;
+    }
+
+    @media (max-width: 768px) {
+        .page-content {
+            max-width: 90vw;
+            margin-top: 4rem;
+        }
+        .geist-header {
+            font-size: 1.6rem;
+        }
     }
 </style>

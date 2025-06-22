@@ -2,6 +2,7 @@
 import { fly } from "svelte/transition";
 export let text: string = "";
 export let placement: "right" | "left" | "top" | "bottom" = "right";
+export let disabled: boolean = false;
 let show = false;
 
 // Map placement to fly transition direction
@@ -16,7 +17,7 @@ const flyConfig = {
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <span
     class="tooltip-wrapper"
-    on:mouseenter={() => (show = true)}
+    on:mouseenter={() => (show = !disabled)}
     on:mouseleave={() => (show = false)}
 >
     <slot />

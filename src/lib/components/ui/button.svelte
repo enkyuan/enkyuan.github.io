@@ -19,6 +19,7 @@ export let type: "button" | "submit" | "reset" = "button";
         class="btn {variant} {size} {disabled ? 'disabled' : ''}"
         tabindex={disabled ? -1 : 0}
         aria-disabled={disabled}
+        {...$$restProps}
     >
         <span class="btn-inner">
             {#if loading}
@@ -33,6 +34,7 @@ export let type: "button" | "submit" | "reset" = "button";
         {type}
         class="btn {variant} {size} {disabled ? 'disabled' : ''}"
         disabled={disabled || loading}
+        {...$$restProps}
     >
         <span class="btn-inner">
             {#if loading}
@@ -152,7 +154,7 @@ export let type: "button" | "submit" | "reset" = "button";
         min-height: 48px;
     }
     .btn.icon {
-        padding: 0.5em;
+        padding: 0;
         width: 40px;
         height: 40px;
         justify-content: center;

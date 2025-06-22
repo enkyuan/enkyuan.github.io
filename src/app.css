@@ -153,9 +153,35 @@ button:focus:not(:focus-visible) {
 	color: var(--selection-fg);
 }
 
-@media (min-width: 720px) {
+.desktop-only {
+	display: none;
+}
+
+.mobile-only {
+	display: block;
+}
+
+@media (min-width: 768px) {
+	.desktop-only {
+		display: flex;
+	}
+
+	.mobile-only {
+		display: none;
+	}
+
 	h1 {
 		font-size: 2.4rem;
+	}
+
+	.text-column {
+		padding: 0 2rem;
+	}
+}
+
+@media (min-width: 1024px) {
+	.text-column {
+		padding: 0;
 	}
 }
 
@@ -169,4 +195,19 @@ button:focus:not(:focus-visible) {
 	position: absolute;
 	width: 1px;
 	white-space: nowrap;
+}
+
+.top-center-responsive-btn {
+	display: none;
+}
+
+@media (min-width: 1024px) {
+	.top-center-responsive-btn {
+		position: absolute;
+		top: 2rem;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 10;
+		display: block;
+	}
 }

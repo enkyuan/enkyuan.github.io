@@ -4,13 +4,19 @@ import ArrowRight from "../lib/components/icons/arrow-right.svelte";
 import Mail from "../lib/components/icons/mail.svelte";
 import Twitter from "../lib/components/icons/twitter.svelte";
 import { pages, labels } from "$lib/constants";
+import { sidebarState } from "$lib/stores/sidebar.svelte";
 
-let current = 0;
-const next = (current + 1) % pages.length;
+const current = 0;
+const next = 1;
 </script>
 
-<div class="top-center-btn">
-	<Button href={pages[next]} variant="primary">
+<div class="top-center-responsive-btn">
+	<Button
+		href={pages[next]}
+		variant="primary"
+		onmouseenter={() => sidebarState.setHovered(next)}
+		onmouseleave={() => sidebarState.setHovered(null)}
+	>
 		{labels[current]}
 		<span slot="icon"><ArrowRight /></span>
 	</Button>
@@ -83,16 +89,20 @@ const next = (current + 1) % pages.length;
 </div>
 
 <style>
-	.top-center-btn {
-		width: 100vw;
-		display: flex;
-		justify-content: center;
-		align-items: flex-start;
-		position: absolute;
-		top: 2rem;
-		left: 0;
-		z-index: 20;
+	.top-center-responsive-btn {
+		display: none;
 	}
+	@media (min-width: 1024px) {
+		.top-center-responsive-btn {
+			position: absolute;
+			top: 2rem;
+			left: 50%;
+			transform: translateX(-50%);
+			z-index: 10;
+			display: block;
+		}
+	}
+
 	.geist-bg-full {
 		min-height: 100vh;
 		background: var(--bg);
@@ -153,5 +163,39 @@ const next = (current + 1) % pages.length;
 	}
 	.blue-text {
 		color: var(--diff-change);
+	}
+
+	@media (max-width: 1024px) {
+		.page-content {
+			max-width: 80vw;
+			margin-top: 6rem;
+		}
+		.geist-header {
+			font-size: 2rem;
+		}
+		.geist-subheader {
+			font-size: 1.4rem;
+			margin-top: 2.5rem;
+		}
+		section p {
+			font-size: 1.2rem;
+		}
+	}
+
+	@media (max-width: 768px) {
+		.page-content {
+			max-width: 90vw;
+			margin-top: 4rem;
+		}
+		.geist-header {
+			font-size: 1.6rem;
+		}
+		.geist-subheader {
+			font-size: 1rem;
+			margin-top: 2rem;
+		}
+		section p {
+			font-size: 1rem;
+		}
 	}
 </style>
