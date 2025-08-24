@@ -6,7 +6,7 @@ import { base } from "$app/paths";
 
 export const navigationLinks = [
 	{ component: NoteIcon, label: "whoami", href: `${base}/` },
-	{ component: GlobeIcon, label: "works", href: `${base}/works` },
+	{ component: GlobeIcon, label: "crafts", href: `${base}/crafts` },
 	{
 		component: StickyNoteIcon,
 		label: "writing",
