@@ -76,7 +76,7 @@ const next = 1;
 					<Mail size={24} color="var(--orange)" />
 				</span>
 				<span class="orange-text">email</span>
-				<a href="mailto:hey@enkyuan.me">hey@enkyuan.me</a>
+				<a href="mailto:yuan.enkng@gmail.com">yuan.enkng@gmail.com</a>
 				or via
 				<span class="icon blue-text">
 					<Twitter size={24} color="var(--diff-change)" class="" />
