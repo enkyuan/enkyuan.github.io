@@ -3,6 +3,8 @@ import "../app.css";
 import { page } from "$app/state";
 import Sidebar from "../lib/components/navigation/sidebar.svelte";
 import Hamburger from "../lib/components/navigation/hamburger.svelte";
+import TooltipProvider from "../lib/providers/tooltip.svelte";
+import LinkPreviewProvider from "$lib/providers/link-preview.svelte";
 
 export const prerender = true;
 </script>
@@ -16,6 +18,8 @@ export const prerender = true;
 </div>
 
 <main>
+    <TooltipProvider />
+    <LinkPreviewProvider />
     <slot />
 </main>
 
