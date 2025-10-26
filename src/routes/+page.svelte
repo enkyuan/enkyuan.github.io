@@ -4,6 +4,7 @@ import Tooltip from "../lib/components/ui/tooltip.svelte";
 import ArrowRight from "../lib/components/icons/arrow-right.svelte";
 import Mail from "../lib/components/icons/mail.svelte";
 import Twitter from "../lib/components/icons/twitter.svelte";
+import LinkPreview from "../lib/components/ui/link-preview.svelte";
 import { pages, labels } from "$lib/constants";
 import { sidebarState } from "$lib/stores/sidebar.svelte";
 
@@ -12,15 +13,15 @@ const next = 1;
 </script>
 
 <div class="top-center-responsive-btn">
-	<Button
-		href={pages[next]}
-		variant="primary"
-		onmouseenter={() => sidebarState.setHovered(next)}
-		onmouseleave={() => sidebarState.setHovered(null)}
-	>
-		{labels[current]}
-		<span slot="icon"><ArrowRight /></span>
-	</Button>
+    <Button
+        href={pages[next]}
+        variant="primary"
+        onmouseenter={() => sidebarState.setHovered(next)}
+        onmouseleave={() => sidebarState.setHovered(null)}
+    >
+        {labels[current]}
+        <span slot="icon"><ArrowRight /></span>
+    </Button>
 </div>
 
 <div class="geist-bg-full">
@@ -144,113 +145,113 @@ const next = 1;
 </div>
 
 <style>
-	.top-center-responsive-btn {
-		display: none;
-	}
-	@media (min-width: 1024px) {
-		.top-center-responsive-btn {
-			position: absolute;
-			top: 2rem;
-			left: 50%;
-			transform: translateX(-50%);
-			z-index: 10;
-			display: block;
-		}
-	}
+    .top-center-responsive-btn {
+        display: none;
+    }
+    @media (min-width: 1024px) {
+        .top-center-responsive-btn {
+            position: absolute;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            display: block;
+        }
+    }
 
-	.geist-bg-full {
-		min-height: 100vh;
-		background: var(--bg);
-		width: 100vw;
-		margin: 0;
-		padding: 0;
-		box-sizing: border-box;
-	}
-	.page-content {
-		max-width: 60vw;
-		margin: 8.5rem auto 0 auto;
-		padding: 0 1.5rem;
-	}
-	.geist-header {
-		font-family: "Geist", var(--font-body), sans-serif;
-		font-weight: 700;
-		font-size: 2.2rem;
-		color: var(--green);
-		text-align: left;
-		margin-bottom: 2.5rem;
-	}
-	.geist-subheader {
-		font-family: "Geist", var(--font-body), sans-serif;
-		font-weight: 600;
-		font-size: 1.8rem;
-		color: var(--yellow);
-		text-align: left;
-		margin-top: 3.5rem;
-		margin-bottom: 0.8rem;
-	}
-	section {
-		margin-bottom: 3.5rem;
-	}
-	section p {
-		font-size: 1.4rem;
-		line-height: 1.6;
-		margin: 0;
-	}
-	section p a {
-		color: var(--blue-type);
-		text-decoration: none;
-		transition: color 0.2s ease;
-	}
-	section p a:hover {
-		color: var(--pink);
-		text-decoration: none;
-	}
-	.icon {
-		display: inline-block;
-		vertical-align: middle;
-		margin: 0 0.01em;
-	}
-	.icon:first-child :global(svg) {
-		transform: rotate(-20deg);
-	}
-	.orange-text {
-		color: var(--orange);
-	}
-	.blue-text {
-		color: var(--diff-change);
-	}
+    .geist-bg-full {
+        min-height: 100vh;
+        background: var(--bg);
+        width: 100vw;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    .page-content {
+        max-width: 60vw;
+        margin: 8.5rem auto 0 auto;
+        padding: 0 1.5rem;
+    }
+    .geist-header {
+        font-family: "Geist", var(--font-body), sans-serif;
+        font-weight: 700;
+        font-size: 2.2rem;
+        color: var(--green);
+        text-align: left;
+        margin-bottom: 2.5rem;
+    }
+    .geist-subheader {
+        font-family: "Geist", var(--font-body), sans-serif;
+        font-weight: 600;
+        font-size: 1.8rem;
+        color: var(--yellow);
+        text-align: left;
+        margin-top: 3.5rem;
+        margin-bottom: 0.8rem;
+    }
+    section {
+        margin-bottom: 3.5rem;
+    }
+    section p {
+        font-size: 1.4rem;
+        line-height: 1.6;
+        margin: 0;
+    }
+    section p a {
+        color: var(--blue-type);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+    section p a:hover {
+        color: var(--pink);
+        text-decoration: none;
+    }
+    .icon {
+        display: inline-block;
+        vertical-align: middle;
+        margin: 0 0.01em;
+    }
+    .icon:first-child :global(svg) {
+        transform: rotate(-20deg);
+    }
+    .orange-text {
+        color: var(--orange);
+    }
+    .blue-text {
+        color: var(--diff-change);
+    }
 
-	@media (max-width: 1024px) {
-		.page-content {
-			max-width: 80vw;
-			margin-top: 6rem;
-		}
-		.geist-header {
-			font-size: 2rem;
-		}
-		.geist-subheader {
-			font-size: 1.4rem;
-			margin-top: 2.5rem;
-		}
-		section p {
-			font-size: 1.2rem;
-		}
-	}
+    @media (max-width: 1024px) {
+        .page-content {
+            max-width: 80vw;
+            margin-top: 6rem;
+        }
+        .geist-header {
+            font-size: 2rem;
+        }
+        .geist-subheader {
+            font-size: 1.4rem;
+            margin-top: 2.5rem;
+        }
+        section p {
+            font-size: 1.2rem;
+        }
+    }
 
-	@media (max-width: 768px) {
-		.page-content {
-			max-width: 90vw;
-			margin-top: 4rem;
-		}
-		.geist-header {
-			font-size: 1.6rem;
-		}
-		.geist-subheader {
-			font-size: 1rem;
-			margin-top: 2rem;
-		}
-		section p {
-			font-size: 1rem;
-		}
-	}
+    @media (max-width: 768px) {
+        .page-content {
+            max-width: 90vw;
+            margin-top: 4rem;
+        }
+        .geist-header {
+            font-size: 1.6rem;
+        }
+        .geist-subheader {
+            font-size: 1rem;
+            margin-top: 2rem;
+        }
+        section p {
+            font-size: 1rem;
+        }
+    }
 </style>

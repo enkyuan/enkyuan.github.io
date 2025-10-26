@@ -36,12 +36,12 @@ let {
 }: Props = $props();
 
 let mounted = false;
-let tooltipElement: HTMLElement | null = null;
+let tooltipElement: HTMLElement | null = $state(null);
 let wrapperElement: HTMLElement | null = null;
 let timeoutId: number | null = null;
-let computedPlacement: "right" | "left" | "top" | "bottom" = "right";
-let imageLoaded = false;
-let imageFailed = false;
+let computedPlacement: "right" | "left" | "top" | "bottom" = $state("right");
+let imageLoaded = $state(false);
+let imageFailed = $state(false);
 
 // Generate unique ID for this tooltip instance
 const tooltipId = `tooltip-${Math.random().toString(36).substr(2, 9)}`;
@@ -149,8 +149,8 @@ function activateTooltip() {
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <span
-    class="tooltip-wrapper"
     bind:this={wrapperElement}
+    class="tooltip-wrapper"
     onmouseenter={handleMouseEnter}
     onmouseleave={handleMouseLeave}
     role="tooltip"
@@ -410,6 +410,7 @@ function activateTooltip() {
         line-height: 1.3;
         display: -webkit-box;
         -webkit-line-clamp: 2;
+        line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -421,6 +422,7 @@ function activateTooltip() {
         line-height: 1.4;
         display: -webkit-box;
         -webkit-line-clamp: 2;
+        line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -459,6 +461,7 @@ function activateTooltip() {
         .preview-description {
             font-size: 0.8em;
             -webkit-line-clamp: 1;
+            line-clamp: 1;
         }
     }
 
