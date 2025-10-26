@@ -1,5 +1,6 @@
 <script lang="ts">
 import Button from "../lib/components/ui/button.svelte";
+import Tooltip from "../lib/components/ui/tooltip.svelte";
 import ArrowRight from "../lib/components/icons/arrow-right.svelte";
 import Mail from "../lib/components/icons/mail.svelte";
 import Twitter from "../lib/components/icons/twitter.svelte";
@@ -28,33 +29,69 @@ const next = 1;
 		<h2 class="geist-subheader">[about]</h2>
 		<section>
 			<p>
-				i'm currently working with my friend <a
-					href="https://www.abhaysrivatsa.com/"
-					target="_blank"
-					rel="noopener">abhay</a
+				i'm currently working with my friend <Tooltip
+					variant="link-preview"
+					placement="auto"
+					delay={300}
+					previewTitle="Abhay Srivatsa"
+					previewDescription="Software engineer & designer building innovative products"
+					previewUrl="abhaysrivatsa.com"
 				>
+					<a
+						href="https://www.abhaysrivatsa.com/"
+						target="_blank"
+						rel="noopener">abhay</a
+					>
+				</Tooltip>
 				to ship
-				<a
-					href="https://github.com/kamui-fin/readspace"
-					target="_blank"
-					rel="noopener">readspace</a
-				>, a personal newsstand in your pocket—it automatically fetches
+				<Tooltip
+					variant="link-preview"
+					placement="auto"
+					delay={300}
+					previewTitle="readspace"
+					previewDescription="A personal newsstand for blogs, newsletters & feeds. Stay informed without the noise."
+					previewUrl="github.com/kamui-fin/readspace"
+				>
+					<a
+						href="https://github.com/kamui-fin/readspace"
+						target="_blank"
+						rel="noopener">readspace</a
+					>
+				</Tooltip>, a personal newsstand in your pocket—it automatically fetches
 				articles and snippets from all your favorite blogs, newsletters,
 				and social feeds so you stay informed without the noise. a
 				chrome extension, mobile app, and hosted version are in the
 				works, but it's available for self-hosting. contributions are
 				welcome! i've worked briefly at
-				<a
-					href="https://www.gather-connect.com/"
-					target="_blank"
-					rel="noopener">gather</a
+				<Tooltip
+					variant="link-preview"
+					placement="auto"
+					delay={300}
+					previewTitle="Gather"
+					previewDescription="Social connection platform bringing people together"
+					previewUrl="gather-connect.com"
 				>
+					<a
+						href="https://www.gather-connect.com/"
+						target="_blank"
+						rel="noopener">gather</a
+					>
+				</Tooltip>
 				migrating their platform to react native and did some research for
-				<a
-					href="https://www.linkedin.com/company/aeromedlab/"
-					target="_blank"
-					rel="noopener">aeromed labs</a
-				>. currently studying ce @ purdue.
+				<Tooltip
+					variant="link-preview"
+					placement="auto"
+					delay={300}
+					previewTitle="AeroMed Labs"
+					previewDescription="Medical research & innovation for aerospace applications"
+					previewUrl="linkedin.com/company/aeromedlab"
+				>
+					<a
+						href="https://www.linkedin.com/company/aeromedlab/"
+						target="_blank"
+						rel="noopener">aeromed labs</a
+					>
+				</Tooltip>. currently studying ce @ purdue.
 			</p>
 		</section>
 		<h2 class="geist-subheader side">[sidequests]</h2>
@@ -76,13 +113,31 @@ const next = 1;
 					<Mail size={24} color="var(--orange)" />
 				</span>
 				<span class="orange-text">email</span>
-				<a href="mailto:yuan.enkng@gmail.com">yuan.enkng@gmail.com</a>
+				<Tooltip
+					variant="link-preview"
+					placement="auto"
+					delay={300}
+					previewTitle="Email Me"
+					previewDescription="Send me an email - I usually respond within 24 hours"
+					previewUrl="yuan.enkng@gmail.com"
+				>
+					<a href="mailto:yuan.enkng@gmail.com">yuan.enkng@gmail.com</a>
+				</Tooltip>
 				or via
 				<span class="icon blue-text">
 					<Twitter size={24} color="var(--diff-change)" class="" />
 				</span>
 				<span class="blue-text">twitter</span> dms at
-				<a href="https://x.com/enkyuan">@enkyuan</a>.
+				<Tooltip
+					variant="link-preview"
+					placement="auto"
+					delay={300}
+					previewTitle="@enkyuan on Twitter"
+					previewDescription="Follow me for updates on my projects and tech thoughts"
+					previewUrl="x.com/enkyuan"
+				>
+					<a href="https://x.com/enkyuan">@enkyuan</a>
+				</Tooltip>.
 			</p>
 		</section>
 	</div>
