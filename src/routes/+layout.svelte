@@ -5,8 +5,6 @@ import Sidebar from "../lib/components/navigation/sidebar.svelte";
 import Hamburger from "../lib/components/navigation/hamburger.svelte";
 import TooltipProvider from "../lib/providers/tooltip.svelte";
 import LinkPreviewProvider from "$lib/providers/link-preview.svelte";
-
-export const prerender = true;
 </script>
 
 <div class="desktop-only">
