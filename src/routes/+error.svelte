@@ -1,12 +1,16 @@
 <script lang="ts">
 import { page } from "$app/state";
+import { goto } from "$app/navigation";
+import Button from "../lib/components/ui/button.svelte";
 </script>
 
 <div class="error-container">
     <div class="error-content">
-        <h1>{page.status}</h1>
-        <p>{page.error?.message}</p>
-        <p><a href="/">Return to Home</a></p>
+        <h2>{page.status}</h2>
+        <h3 class="font-medium">{page.error?.message}</h3>
+        <div style="margin-top: 1.5rem;">
+            <Button onclick={() => goto("/")}>Return home</Button>
+        </div>
     </div>
 </div>
 
@@ -27,29 +31,9 @@ import { page } from "$app/state";
     .error-content {
         text-align: center;
         color: var(--fg);
-    }
-
-    h1 {
-        font-size: 3rem;
-        font-weight: 700;
-        color: var(--fg);
-    }
-
-    p {
-        font-size: 1.2rem;
-        margin-top: 0.5rem;
-        color: var(--comment);
-    }
-
-    a {
-        color: var(--blue-type);
-        text-decoration: none;
-        margin-top: 1.5rem;
-        display: inline-block;
-    }
-
-    a:hover {
-        text-decoration: none;
-        color: var(--pink);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
     }
 </style>

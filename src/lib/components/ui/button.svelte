@@ -26,7 +26,9 @@ export const type: "button" | "submit" | "reset" = "button";
                 <span class="loader"></span>
             {/if}
             <slot />
-            <span class="btn-icon"><slot name="icon" /></span>
+            {#if $$slots.icon}
+                <span class="btn-icon"><slot name="icon" /></span>
+            {/if}
         </span>
     </a>
 {:else}
@@ -41,7 +43,9 @@ export const type: "button" | "submit" | "reset" = "button";
                 <span class="loader"></span>
             {/if}
             <slot />
-            <span class="btn-icon"><slot name="icon" /></span>
+            {#if $$slots.icon}
+                <span class="btn-icon"><slot name="icon" /></span>
+            {/if}
         </span>
     </button>
 {/if}
@@ -83,18 +87,19 @@ export const type: "button" | "submit" | "reset" = "button";
     .btn .btn-inner {
         display: flex;
         align-items: center;
+        justify-content: center;
         gap: 0.5em;
     }
 
     /* Variants */
     .btn.primary {
-        background: color-mix(in srgb, var(--gray) 70%, transparent 30%);
-        color: var(--fg);
-        border: 1.5px solid var(--gray1);
+        background: rgba(229, 231, 235, 0.7); /* gray-200 with opacity */
+        color: #000000; /* black text */
+        border: 1.5px solid #e5e7eb; /* gray-200 */
     }
     .btn.primary:hover:not(.disabled) {
-        background: color-mix(in srgb, var(--gray) 85%, transparent 15%);
-        filter: brightness(1.1);
+        background: rgba(229, 231, 235, 0.85); /* darker gray-200 */
+        filter: brightness(0.95);
     }
     .btn.secondary {
         background: var(--gray1);
