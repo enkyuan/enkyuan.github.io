@@ -19,7 +19,7 @@ interface Props {
 	children?: import("svelte").Snippet;
 }
 
-let {
+const {
 	text = "",
 	placement = "auto",
 	variant = "default",
@@ -36,19 +36,19 @@ let {
 }: Props = $props();
 
 let mounted = false;
-let tooltipElement: HTMLElement | null = $state(null);
-let wrapperElement: HTMLElement | null = null;
+const tooltipElement: HTMLElement | null = $state(null);
+const wrapperElement: HTMLElement | null = null;
 let timeoutId: number | null = null;
 let computedPlacement: "right" | "left" | "top" | "bottom" = $state("right");
-let imageLoaded = $state(false);
-let imageFailed = $state(false);
+const imageLoaded = $state(false);
+const imageFailed = $state(false);
 
 // Generate unique ID for this tooltip instance
 const tooltipId = `tooltip-${Math.random().toString(36).substr(2, 9)}`;
 
 // Reactive state: this tooltip should show if it's the active one
-let show = $derived(tooltipState.activeTooltip?.id === tooltipId);
-let isTransitioning = $derived(tooltipState.isTransitioning);
+const show = $derived(tooltipState.activeTooltip?.id === tooltipId);
+const isTransitioning = $derived(tooltipState.isTransitioning);
 
 onMount(() => {
 	mounted = true;

@@ -4,7 +4,7 @@ import Button from "../ui/button.svelte";
 import { sidebarState } from "$lib/stores/sidebar.svelte";
 import { navigationLinks } from "$lib/stores/navigation";
 
-let { pathname } = $props();
+const { pathname } = $props();
 </script>
 
 <nav class="sidebar">

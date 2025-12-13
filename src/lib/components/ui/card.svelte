@@ -1,7 +1,7 @@
 <script lang="ts">
-export let variant: "default" | "bordered" | "elevated" = "default";
-export let padding: "none" | "sm" | "md" | "lg" = "md";
-export let hoverable: boolean = false;
+export const variant: "default" | "bordered" | "elevated" = "default";
+export const padding: "none" | "sm" | "md" | "lg" = "md";
+export const hoverable = false;
 </script>
 
 <div class="card {variant} {padding} {hoverable ? 'hoverable' : ''}" {...$$restProps}>

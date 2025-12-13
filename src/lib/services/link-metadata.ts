@@ -15,8 +15,9 @@ const metadataCache = new Map<string, LinkMetadata>();
  */
 export async function fetchLinkMetadata(url: string): Promise<LinkMetadata> {
 	// Check cache first
-	if (metadataCache.has(url)) {
-		return metadataCache.get(url)!;
+	const cached = metadataCache.get(url);
+	if (cached) {
+		return cached;
 	}
 
 	try {

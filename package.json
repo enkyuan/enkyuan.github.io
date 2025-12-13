@@ -29,6 +29,7 @@
 	},
 	"trustedDependencies": ["@biomejs/biome", "@tailwindcss/oxide"],
 	"dependencies": {
-		"@fontsource/geist": "^5.2.6"
+		"@fontsource/geist": "^5.2.6",
+		"react-grab": "^0.0.87"
 	}
 }

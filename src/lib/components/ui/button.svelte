@@ -1,16 +1,16 @@
 <script lang="ts">
-export let variant:
+export const variant:
 	| "primary"
 	| "secondary"
 	| "outline"
 	| "ghost"
 	| "link"
 	| "destructive" = "primary";
-export let size: "sm" | "md" | "lg" | "icon" = "md";
-export let disabled: boolean = false;
-export let loading: boolean = false;
-export let href: string | undefined = undefined;
-export let type: "button" | "submit" | "reset" = "button";
+export const size: "sm" | "md" | "lg" | "icon" = "md";
+export const disabled = false;
+export const loading = false;
+export const href: string | undefined = undefined;
+export const type: "button" | "submit" | "reset" = "button";
 </script>
 
 {#if href}

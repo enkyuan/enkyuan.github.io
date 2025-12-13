@@ -2,9 +2,9 @@
 import { linkPreviewStore } from "$lib/stores/link-preview.svelte";
 
 export let href: string;
-export let placement: "top" | "bottom" | "left" | "right" = "top";
-export let delay: number = 500;
-export let disabled: boolean = false;
+export const placement: "top" | "bottom" | "left" | "right" = "top";
+export const delay = 500;
+export const disabled = false;
 
 let element: HTMLElement;
 

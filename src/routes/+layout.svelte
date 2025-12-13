@@ -1,33 +1,22 @@
 <script lang="ts">
 import "../app.css";
-import { page } from "$app/state";
-import Sidebar from "../lib/components/navigation/sidebar.svelte";
-import Hamburger from "../lib/components/navigation/hamburger.svelte";
-import TooltipProvider from "../lib/providers/tooltip.svelte";
-import LinkPreviewProvider from "$lib/providers/link-preview.svelte";
+import { onMount } from "svelte";
+import { dev } from "$app/environment";
+
+onMount(() => {
+	if (dev) {
+		import("react-grab");
+	}
+});
 </script>
 
-<div class="desktop-only">
-    <Sidebar pathname={page.url.pathname} />
-</div>
-
-<div class="mobile-only">
-    <Hamburger />
-</div>
-
 <main>
-    <TooltipProvider />
-    <LinkPreviewProvider />
-    <slot />
+	<slot />
 </main>
 
 <style>
-    main {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        width: 100vw;
-        max-width: 100vw;
-        box-sizing: border-box;
-    }
+	main {
+		width: 100%;
+		min-height: 100vh;
+	}
 </style>
