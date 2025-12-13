@@ -1,5 +1,5 @@
 <script lang="ts">
-    import ExternalLink from "../icons/external-link.svelte";
+import ExternalLink from "../icons/external-link.svelte";
 
 const {
 	href,
@@ -15,13 +15,13 @@ const {
 	class?: string;
 } = $props();
 
-    const isExternal = $derived(
-        external !== undefined
-            ? external
-            : href.startsWith("http://") ||
-                  href.startsWith("https://") ||
-                  href.startsWith("//"),
-    );
+const isExternal = $derived(
+	external !== undefined
+		? external
+		: href.startsWith("http://") ||
+				href.startsWith("https://") ||
+				href.startsWith("//"),
+);
 </script>
 
 <a

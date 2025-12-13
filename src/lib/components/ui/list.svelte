@@ -1,71 +1,71 @@
 <script lang="ts">
-    import Link from "./link.svelte";
-    import ArrowRight from "../icons/arrow-right.svelte";
+import Link from "./link.svelte";
+import ArrowRight from "../icons/arrow-right.svelte";
 
-    interface LinkItem {
-        text: string;
-        href: string;
-    }
+interface LinkItem {
+	text: string;
+	href: string;
+}
 
-    interface ListItem {
-        text: string;
-        link_text?: string;
-        link_href?: string;
-        links?: LinkItem[];
-    }
+interface ListItem {
+	text: string;
+	link_text?: string;
+	link_href?: string;
+	links?: LinkItem[];
+}
 
-    const { items, class: className = "" } = $props<{
-        items: ListItem[];
-        class?: string;
-    }>();
+const { items, class: className = "" } = $props<{
+	items: ListItem[];
+	class?: string;
+}>();
 
-    function processTextWithLinks(
-        text: string,
-        links: LinkItem[],
-    ): (string | LinkItem)[] {
-        const result: (string | LinkItem)[] = [];
-        let lastIndex = 0;
+function processTextWithLinks(
+	text: string,
+	links: LinkItem[],
+): (string | LinkItem)[] {
+	const result: (string | LinkItem)[] = [];
+	let lastIndex = 0;
 
-        // Sort links by position in text (earliest first)
-        const linkPositions = links
-            .map((link) => ({
-                link,
-                index: text.indexOf(link.text),
-            }))
-            .filter((lp) => lp.index >= 0)
-            .sort((a, b) => a.index - b.index);
+	// Sort links by position in text (earliest first)
+	const linkPositions = links
+		.map((link) => ({
+			link,
+			index: text.indexOf(link.text),
+		}))
+		.filter((lp) => lp.index >= 0)
+		.sort((a, b) => a.index - b.index);
 
-        for (const { link, index } of linkPositions) {
-            // Add text before the link
-            if (index > lastIndex) {
-                result.push(text.slice(lastIndex, index));
-            }
-            // Add the link
-            result.push(link);
-            lastIndex = index + link.text.length;
-        }
+	for (const { link, index } of linkPositions) {
+		// Add text before the link
+		if (index > lastIndex) {
+			result.push(text.slice(lastIndex, index));
+		}
+		// Add the link
+		result.push(link);
+		lastIndex = index + link.text.length;
+	}
 
-        // Add remaining text after the last link
-        if (lastIndex < text.length) {
-            result.push(text.slice(lastIndex));
-        }
+	// Add remaining text after the last link
+	if (lastIndex < text.length) {
+		result.push(text.slice(lastIndex));
+	}
 
-        return result.length > 0 ? result : [text];
-    }
+	return result.length > 0 ? result : [text];
+}
 
-    function processTextWithArrow(text: string): (string | "arrow")[] {
-        const parts = text.split(" -> ");
-        if (parts.length === 1) return [text];
+function processTextWithArrow(text: string): (string | "arrow")[] {
+	const parts = text.split(" -> ");
+	if (parts.length === 1) return [text];
 
-        const result: (string | "arrow")[] = [];
-        for (let i = 0; i < parts.length; i++) {
-            result.push(parts[i]);
-            if (i < parts.length - 1) {
-                result.push("arrow");
-            }
-        }
-        return result;
-    }
+	const result: (string | "arrow")[] = [];
+	for (let i = 0; i < parts.length; i++) {
+		result.push(parts[i]);
+		if (i < parts.length - 1) {
+			result.push("arrow");
+		}
+	}
+	return result;
+}
 </script>
 
 <ul class="list-disc list-outside space-y-1.5 text-xs md:text-sm text-gray-700 pl-5 {className}">

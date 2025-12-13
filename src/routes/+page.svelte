@@ -1,14 +1,14 @@
 <script lang="ts">
-    import Container from "../lib/components/ui/container.svelte";
-    import Header from "../lib/components/ui/header.svelte";
-    import Section from "../lib/components/ui/section.svelte";
-    import Divider from "../lib/components/ui/divider.svelte";
-    import Heading from "../lib/components/ui/heading.svelte";
-    import Text from "../lib/components/ui/text.svelte";
-    import List from "../lib/components/ui/list.svelte";
-    import Link from "../lib/components/ui/link.svelte";
-    import { experiences } from "../lib/constants/experiences";
-    import { socials } from "../lib/constants/socials";
+import Container from "../lib/components/ui/container.svelte";
+import Header from "../lib/components/ui/header.svelte";
+import Section from "../lib/components/ui/section.svelte";
+import Divider from "../lib/components/ui/divider.svelte";
+import Heading from "../lib/components/ui/heading.svelte";
+import Text from "../lib/components/ui/text.svelte";
+import List from "../lib/components/ui/list.svelte";
+import Link from "../lib/components/ui/link.svelte";
+import { experiences } from "../lib/constants/experiences";
+import { socials } from "../lib/constants/socials";
 </script>
 
 <Container>
