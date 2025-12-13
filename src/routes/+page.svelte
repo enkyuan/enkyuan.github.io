@@ -35,7 +35,7 @@ import { socials } from "../lib/constants/socials";
 	<Section title="Connect" mb="mb-0">
 		<div class="flex gap-5">
 			{#each socials as link}
-				<Link href={link.href} text={link.text} />
+				<Link href={link.href} text={link.text} class="text-sm" />
 			{/each}
 		</div>
 	</Section>

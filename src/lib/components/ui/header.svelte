@@ -9,7 +9,7 @@ const { name, title, link_href, link_text, class: className = "" } = $props();
 	<div class="flex items-center gap-2 mb-5 justify-between">
 		<p class="text-sm md:text-sm text-gray-600">{title}</p>
 		{#if link_href && link_text}
-			<Link href={link_href} text={link_text} />
+			<Link href={link_href} text={link_text} class="text-sm" />
 		{/if}
 	</div>
 </div>
