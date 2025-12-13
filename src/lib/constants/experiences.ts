@@ -21,7 +21,7 @@ export const experiences = [
 	},
 	{
 		company: "Drone Calibration Lab",
-		dates: "2024 – 2025",
+		dates: "2023 – 2024",
 		description:
 			"Worked as an researcher to build a delivery system that handles medical supplies on the battlefield.",
 		achievements: [
