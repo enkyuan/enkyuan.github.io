@@ -3,7 +3,7 @@ export const experiences = [
 		company: "Readspace",
 		dates: "2025 – Present",
 		description:
-			"Designing and building a personal newsstand in your pocket that fetches articles and snippets from blogs, newsletters, and social feeds of personal interest so users stay informed without the noise.",
+			"Designing and building a personal newsstand that fits in the pocket, fetching articles and snippets from blogs, newsletters, and social feeds of personal interest so users stay informed without the noise.",
 		achievements: [
 			{
 				text: "Implemented a custom design system based on Showtime's Universal Design System",
