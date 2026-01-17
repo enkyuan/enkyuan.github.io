@@ -16,7 +16,7 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest   # you can pin a specific version here, e.g. "1.4.9" :contentReference[oaicite:0]{index=0}
+          bun-version: latest # you can pin a specific version here, e.g. "1.4.9" :contentReference[oaicite:0]{index=0}
 
       # Cache Bun’s dependencies
       - name: Cache Bun cache
@@ -32,7 +32,7 @@ jobs:
 
       - name: Build
         env:
-          BASE_PATH: '/${{ github.event.repository.name }}'
+          BASE_PATH: "/${{ github.event.repository.name }}"
         run: bun run build
 
       - name: Upload Artifacts

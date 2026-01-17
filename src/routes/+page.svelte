@@ -14,7 +14,7 @@ import { socials } from "../lib/constants/socials";
 <Container>
     <Header
         name="Enkang Yuan"
-        title="Product Engineer"
+        title="Student"
         link_href="/crafts"
         link_text="See my work"
     />
