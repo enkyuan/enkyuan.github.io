@@ -1,7 +1,7 @@
 export const experiences = [
 	{
 		company: "Readspace",
-		dates: "2025 – Present",
+		dates: "2025 – 2026",
 		description:
 			"Designing and building a personal newsstand that fits in the pocket, fetching articles and snippets from blogs, newsletters, and social feeds of personal interest so users stay informed without the noise.",
 		achievements: [
