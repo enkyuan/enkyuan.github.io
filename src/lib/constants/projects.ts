@@ -1,45 +1,22 @@
 export const projects = [
   {
-    name: "Modal",
+    name: "Milo",
     dates: "2025",
     description: "Agentic voice assistant to help you work smarter.",
     achievements: [
       {
-        text: "Integrated Soniox with Redis Streams and Cartesia as part of the speech-to-text -> text-to-speech pipeline to transcribe audio from the user and send it to the agent for context and workflow orchestration",
+        text: "Developed system that separates real-time speech interaction from long-running workflow execution using Soniox, Redis Streams, FastAPI, and TaskIQ",
         link_text: "Soniox",
         link_href: "https://soniox.com",
       },
       {
-        text: "Added Google Workspace and Spotify APIs to interact with the user's calendar, emails, documents, and music",
+        text: "Built an event-driven backend that routes transcribed user requests into agent workflows for calendar, email, document, and Spotify actions",
       },
       {
-        text: "Designed and built the mobile app for the agentic voice assistant with SwiftUI",
-      },
-    ],
-  },
-  {
-    name: "Ato",
-    dates: "2024",
-    description: "A better alternative to Todoist, Things3, and other task management tools.",
-    achievements: [
-      {
-        text: "Built the web client with Tanstack Router and IntentUI",
-        links: [
-          {
-            text: "Tanstack Router",
-            href: "https://tanstack.com/router/latest",
-          },
-          {
-            text: "IntentUI",
-            href: "https://intentui.com",
-          },
-        ],
+        text: "Integrated Google Workspace and Spotify APIs with OAuth-based authentication to let the agent retrieve user context and execute personalized actions across third-party services",
       },
       {
-        text: "Added a custom block-based WYSIWYG editor for creating and editing tasks, managing spaces, projects, and everything in between",
-      },
-      {
-        text: "Implemented a server with Go and Chi Router for handling data and business logic",
+        text: "Designed the client experience for a voice-first assistant, including real-time transcription, conversational feedback, and workflow-triggering interactions",
       },
     ],
   },

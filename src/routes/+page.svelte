@@ -7,6 +7,7 @@ import Heading from "../lib/components/ui/heading.svelte";
 import Text from "../lib/components/ui/text.svelte";
 import List from "../lib/components/ui/list.svelte";
 import Link from "../lib/components/ui/link.svelte";
+import LiveClock from "../lib/components/ui/live-clock.svelte";
 import { experiences } from "../lib/constants/experiences";
 import { socials } from "../lib/constants/socials";
 </script>
@@ -43,10 +44,15 @@ import { socials } from "../lib/constants/socials";
     </Section>
 
 	<Section title="Connect" mb="mb-0">
-		<div class="flex gap-5">
-			{#each socials as link}
-				<Link href={link.href} text={link.text} class="text-sm" />
-			{/each}
+		<div>
+			<div class="flex flex-wrap items-baseline gap-5">
+				{#each socials as link}
+					<Link href={link.href} text={link.text} class="text-sm" />
+				{/each}
+			</div>
+			<div class="mt-8">
+				<LiveClock showLeader />
+			</div>
 		</div>
 	</Section>
 </Container>

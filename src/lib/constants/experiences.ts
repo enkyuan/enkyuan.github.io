@@ -29,7 +29,7 @@ export const experiences = [
         text: "Wrote documentation on simulations and data analysis",
       },
       {
-        text: "Implemented simulations with PyBullet for handling various objects and environments to help train the prototype",
+        text: "Implemented simulations with PyBullet for handling various objects and environments to help train the prototype in realistic environments",
       },
     ],
   },

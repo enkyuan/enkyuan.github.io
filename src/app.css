@@ -15,6 +15,8 @@ body {
   height: 100vh;
   margin: 0;
   font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1,
