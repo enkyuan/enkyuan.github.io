@@ -1,6 +1,5 @@
 <script lang="ts">
 import { onDestroy, onMount } from "svelte";
-import { scale } from "svelte/transition";
 
 const { showLeader = false } = $props<{ showLeader?: boolean }>();
 
@@ -11,6 +10,43 @@ let datetime = $state("");
 let reducedMotion = $state(false);
 /** Skip the first keyed transition so the clock doesn’t animate on page load */
 let allowSecondMotion = $state(false);
+type ClockSegment = {
+	key: "hours" | "minutes" | "seconds";
+	value: string;
+};
+
+type NumberSwapParams = {
+	delay?: number;
+	duration?: number;
+	easing?: (t: number) => number;
+	start?: number;
+	blur?: number;
+	distance?: number;
+	direction?: -1 | 1;
+};
+
+/**
+ * Number-flow-inspired digit swap: directional vertical roll + blur + opacity.
+ */
+function numberSwap(_node: Element, params: NumberSwapParams = {}) {
+	const {
+		delay = 0,
+		duration = 180,
+		easing = (t: number) => t,
+		start = 0.94,
+		blur: blurPx = 8,
+		distance = 1,
+		direction = -1,
+	} = params;
+
+	return {
+		delay,
+		duration,
+		easing,
+		css: (t: number, u: number) =>
+			`opacity:${0.15 + 0.85 * t};transform:translate3d(0, ${direction * u * distance}em, 0) scale(${start + (1 - start) * t});filter:blur(${u * blurPx}px);`,
+	};
+}
 
 /**
  * Y at linear time `t` for CSS `cubic-bezier(x1,y1,x2,y2)` (used by animate-text specs).
@@ -83,12 +119,10 @@ onDestroy(() => {
 });
 
 /** Spec enter/exit durations scaled for a 1s cadence (base 600ms / 400ms) */
-const enterMs = $derived(reducedMotion || !allowSecondMotion ? 0 : 220);
-const exitMs = $derived(reducedMotion || !allowSecondMotion ? 0 : 160);
-/** `micro-scale-fade` swap.overlap_ms=0 + micro_delay_ms=20 — animate-text skill */
-const enterDelayMs = $derived(
-	reducedMotion || !allowSecondMotion ? 0 : exitMs + 20,
-);
+const enterMs = $derived(reducedMotion || !allowSecondMotion ? 0 : 260);
+const exitMs = $derived(reducedMotion || !allowSecondMotion ? 0 : 180);
+const motionEnabled = $derived(!reducedMotion && allowSecondMotion);
+const enterDelayMs = $derived(0);
 /** Convert animation time to visible dot ticks (keep count high enough for smooth time flow). */
 const leaderTickCount = $derived(
 	reducedMotion || !allowSecondMotion ? 1 : Math.max(18, Math.round(enterMs / 12)),
@@ -97,12 +131,17 @@ const leaderTravelPx = $derived(leaderTickCount * 6);
 const leaderMotionStyle = $derived(
 	`animation-duration:${enterMs}ms;animation-delay:${enterDelayMs}ms;animation-timing-function:steps(${leaderTickCount}, end);--clock-dot-travel:${leaderTravelPx}px`,
 );
+const segments = $derived<ClockSegment[]>([
+	{ key: "hours", value: hours },
+	{ key: "minutes", value: minutes },
+	{ key: "seconds", value: seconds },
+]);
 </script>
 
 <div class:live-clock-row={showLeader}>
 	{#if showLeader}
 		<span class="clock-leader" aria-hidden="true">
-			{#if !reducedMotion && allowSecondMotion}
+			{#if motionEnabled}
 				{#key seconds}
 					<span
 						class="clock-leader-motion"
@@ -118,35 +157,42 @@ const leaderMotionStyle = $derived(
 		{datetime}
 		title="Your local time"
 	>
-		<span class="block w-full text-center">{hours}</span>
-		<span class="block w-full text-center select-none text-gray-300" aria-hidden="true"
-			>:</span
-		>
-		<span class="block w-full text-center">{minutes}</span>
-		<span class="block w-full text-center select-none text-gray-300" aria-hidden="true"
-			>:</span
-		>
-		<span class="relative block w-full text-center leading-none">
-			<span class="invisible block">{seconds}</span>
-			{#key seconds}
-				<span
-					class="absolute inset-0 block leading-none"
-					in:scale={{
-						delay: enterDelayMs,
-						duration: enterMs,
-						start: 0.96,
-						opacity: 0,
-						easing: easeMicroScaleFadeIn,
-					}}
-					out:scale={{
-						duration: exitMs,
-						start: 0.96,
-						opacity: 0,
-						easing: easeMicroScaleFadeOut,
-					}}
-				>{seconds}</span>
-			{/key}
-		</span>
+		{#each segments as segment, index (segment.key)}
+			<span class="grid w-full grid-cols-2 justify-items-center text-center leading-none">
+				{#each Array.from(segment.value) as digit, digitIndex}
+					<span class="relative block w-[1ch] overflow-hidden leading-none">
+						<span class="invisible block">0</span>
+						{#key `${segment.key}:${digitIndex}:${digit}`}
+							<span
+								class="absolute inset-0 block leading-none"
+								in:numberSwap={{
+									delay: enterDelayMs,
+									duration: enterMs,
+									start: 0.94,
+									blur: 9,
+									distance: 1.05,
+									direction: -1,
+									easing: easeMicroScaleFadeIn,
+								}}
+								out:numberSwap={{
+									duration: exitMs,
+									start: 0.94,
+									blur: 9,
+									distance: 1.05,
+									direction: 1,
+									easing: easeMicroScaleFadeOut,
+								}}
+							>{digit}</span>
+						{/key}
+					</span>
+				{/each}
+			</span>
+			{#if index < segments.length - 1}
+				<span class="block w-full text-center select-none text-gray-300" aria-hidden="true"
+					>:</span
+				>
+			{/if}
+		{/each}
 	</time>
 </div>
 
