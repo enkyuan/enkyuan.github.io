@@ -121,16 +121,7 @@ onDestroy(() => {
 /** Spec enter/exit durations scaled for a 1s cadence (base 600ms / 400ms) */
 const enterMs = $derived(reducedMotion || !allowSecondMotion ? 0 : 260);
 const exitMs = $derived(reducedMotion || !allowSecondMotion ? 0 : 180);
-const motionEnabled = $derived(!reducedMotion && allowSecondMotion);
 const enterDelayMs = $derived(0);
-/** Convert animation time to visible dot ticks (keep count high enough for smooth time flow). */
-const leaderTickCount = $derived(
-	reducedMotion || !allowSecondMotion ? 1 : Math.max(18, Math.round(enterMs / 12)),
-);
-const leaderTravelPx = $derived(leaderTickCount * 6);
-const leaderMotionStyle = $derived(
-	`animation-duration:${enterMs}ms;animation-delay:${enterDelayMs}ms;animation-timing-function:steps(${leaderTickCount}, end);--clock-dot-travel:${leaderTravelPx}px`,
-);
 const segments = $derived<ClockSegment[]>([
 	{ key: "hours", value: hours },
 	{ key: "minutes", value: minutes },
@@ -140,16 +131,7 @@ const segments = $derived<ClockSegment[]>([
 
 <div class:live-clock-row={showLeader}>
 	{#if showLeader}
-		<span class="clock-leader" aria-hidden="true">
-			{#if motionEnabled}
-				{#key seconds}
-					<span
-						class="clock-leader-motion"
-						style={leaderMotionStyle}
-					></span>
-				{/key}
-			{/if}
-		</span>
+		<span class="clock-leader" aria-hidden="true"></span>
 	{/if}
 
 	<time
@@ -212,31 +194,9 @@ const segments = $derived<ClockSegment[]>([
 		align-self: center;
 		overflow: hidden;
 		background-image: radial-gradient(circle, #e5e7eb 1px, transparent 1px);
-		background-size: 6px 2px;
+		background-size: 8px 2px;
 		background-position: 0 0;
 		background-repeat: repeat-x;
 	}
 
-	.clock-leader-motion {
-		position: absolute;
-		inset: 0;
-		background-image: radial-gradient(circle, #9ca3af 1px, transparent 1px);
-		background-size: 6px 2px;
-		background-position: 0 0;
-		background-repeat: repeat-x;
-		animation-name: clock-dots-tick;
-		animation-fill-mode: both;
-	}
-
-	@keyframes clock-dots-tick {
-		from {
-			background-position: 0 0;
-			opacity: 0.35;
-		}
-
-		to {
-			background-position: var(--clock-dot-travel, 6px) 0;
-			opacity: 0.78;
-		}
-	}
 </style>

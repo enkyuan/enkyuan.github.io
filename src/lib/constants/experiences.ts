@@ -1,5 +1,15 @@
 export const experiences = [
   {
+    company: "T-Mobile",
+    dates: "Present",
+    description: "Continuous Delivery Platform",
+    achievements: [
+      {
+        text: "Working on CI/CD pipelines + internal services for engineers"
+      }
+    ]
+  },
+  {
     company: "Readspace",
     dates: "2025 – 2026",
     description:
