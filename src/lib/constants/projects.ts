@@ -2,7 +2,8 @@ export const projects = [
   {
     name: "AgentKit",
     dates: "2025",
-    description: "Embeddable SDK for building production-grade agentic platforms with text and voice.",
+    description:
+      "Embeddable SDK for building production-grade agentic platforms with text and voice.",
     achievements: [
       {
         text: "Designed a layered, infra-free core SDK with an in-memory event bus and store, letting developers build and test ReAct-loop agents locally before wiring in Redis and a database",

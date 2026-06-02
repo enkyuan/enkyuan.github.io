@@ -5,9 +5,9 @@ export const experiences = [
     description: "Continuous Delivery Platform",
     achievements: [
       {
-        text: "Working on CI/CD pipelines + internal services for engineers"
-      }
-    ]
+        text: "Working on CI/CD pipelines + internal services for engineers",
+      },
+    ],
   },
   {
     company: "Readspace",
