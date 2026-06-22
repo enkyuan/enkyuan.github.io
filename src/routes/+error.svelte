@@ -104,11 +104,22 @@
         gridCols = Math.floor((availW + dotGap) / (dotSize + dotGap));
     }
 
+    let fontsReady = $state(false);
+
     onMount(() => {
         measureGrid();
         ready = true;
         const ro = new ResizeObserver(() => measureGrid());
         if (fieldEl) ro.observe(fieldEl);
+
+        if (typeof document !== "undefined" && document.fonts) {
+            document.fonts.ready.then(() => {
+                fontsReady = true;
+            });
+        } else {
+            fontsReady = true;
+        }
+
         return () => ro.disconnect();
     });
 
@@ -118,9 +129,13 @@
 
     let charRowOffset = 1;
 
+    let repeatsInTrack = $derived(
+        repeatUnit > 0 ? Math.ceil(gridCols / repeatUnit) + 1 : 0,
+    );
+    let totalCols = $derived(repeatsInTrack * repeatUnit);
+
     let carvedMap = $derived.by(() => {
-        if (gridCols === 0) return [];
-        const totalCols = gridCols * 3;
+        if (gridCols === 0 || repeatUnit === 0) return [];
         const emptyRow = new Array(totalCols).fill(false);
 
         const unitTemplates: boolean[][] = [];
@@ -151,7 +166,7 @@
 </script>
 
 <div class="error-container">
-    <div class="error-content">
+    <div class="error-content" class:visible={fontsReady}>
         <h3 class="error-label">{errorMessage}</h3>
         <div style="margin-top: 0.5rem;">
             <Button onclick={() => goto("/")}>Return home</Button>
@@ -166,7 +181,7 @@
                     style="animation-duration: {Math.max(
                         12,
                         repeatUnit * 0.3,
-                    )}s"
+                    )}s; --shift: -{(1 / repeatsInTrack) * 100}%"
                 >
                     {#each carvedMap as row}
                         <div class="dot-row">
@@ -204,6 +219,12 @@
         gap: 1rem;
         flex: 1;
         justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .error-content.visible {
+        opacity: 1;
     }
 
     .error-label {
@@ -218,6 +239,7 @@
     .dot-field {
         --dot-size: 12px;
         --dot-gap: 8px;
+        --dot-rows: 14;
         width: 100%;
         flex-shrink: 0;
         overflow: hidden;
@@ -225,6 +247,10 @@
         margin-top: auto;
         opacity: 0;
         transition: opacity 0.3s ease;
+        min-height: calc(
+            var(--dot-rows) * var(--dot-size) +
+                (var(--dot-rows) - 1) * var(--dot-gap) + 2.5rem
+        );
     }
 
     .dot-field.visible {
@@ -267,7 +293,7 @@
             transform: translateX(0);
         }
         100% {
-            transform: translateX(-33.333%);
+            transform: translateX(var(--shift, -33.333%));
         }
     }
 
