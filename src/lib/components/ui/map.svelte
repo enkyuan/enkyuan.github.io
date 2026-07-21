@@ -2,6 +2,7 @@
 	import { onMount, tick } from "svelte";
 	import Badge from "$lib/components/ui/badge.svelte";
 	import Flags from "$lib/components/ui/flags.svelte";
+	import "./map.css";
 	import {
 		createLocationGradient,
 		createWorldGrid,
@@ -24,7 +25,6 @@
 	const LOADER_GRID = 12;
 	const LOADER_DOTS = Array.from({ length: LOADER_GRID }, (_, index) => index);
 	const LOADER_STEP = 34 / LOADER_GRID;
-
 	let locationState: LocationState = $state("locating");
 	let place = $state("Current location");
 	let countryCode = $state("");
@@ -210,51 +210,51 @@
 				>
 					{#key locationState}
 						<div class="pill-state">
-						{#if locationState === "located" && latitude !== undefined && longitude !== undefined}
-							<Flags {countryCode} />
-							<div class="pill-copy">
-								<h1 id="location-title">{place}</h1>
-								<p class="coordinates">
-									{formatCoordinate(latitude, "N", "S", 3)} · {formatCoordinate(longitude, "E", "W", 3)}
-								</p>
-							</div>
-						{:else if locationState === "error"}
-							<span class="error-field" aria-hidden="true">
-								<svg viewBox="0 0 34 34" focusable="false">
-									{#each LOADER_DOTS as row}
-										{#each LOADER_DOTS as column}
-											{#if isLoadingDotVisible(row, column)}
-												<circle
-													class:error-mark={isErrorDotVisible(row, column)}
-													cx={column * LOADER_STEP + LOADER_STEP / 2}
-													cy={row * LOADER_STEP + LOADER_STEP / 2}
-													r="1.15"
-												/>
-											{/if}
+							{#if locationState === "located" && latitude !== undefined && longitude !== undefined}
+								<Flags {countryCode} />
+								<div class="pill-copy">
+									<h1 id="location-title">{place}</h1>
+									<p class="coordinates">
+										{formatCoordinate(latitude, "N", "S", 3)} · {formatCoordinate(longitude, "E", "W", 3)}
+									</p>
+								</div>
+							{:else if locationState === "error"}
+								<span class="error-field" aria-hidden="true">
+									<svg viewBox="0 0 34 34" focusable="false">
+										{#each LOADER_DOTS as row}
+											{#each LOADER_DOTS as column}
+												{#if isLoadingDotVisible(row, column)}
+													<circle
+														class:error-mark={isErrorDotVisible(row, column)}
+														cx={column * LOADER_STEP + LOADER_STEP / 2}
+														cy={row * LOADER_STEP + LOADER_STEP / 2}
+														r="1.15"
+													/>
+												{/if}
+											{/each}
 										{/each}
-									{/each}
-								</svg>
-							</span>
-							<h1 id="location-title">Location not found</h1>
-						{:else}
-							<span class="loading-field" aria-hidden="true">
-								<svg viewBox="0 0 34 34" focusable="false">
-									{#each LOADER_DOTS as row}
-										{#each LOADER_DOTS as column}
-											{#if isLoadingDotVisible(row, column)}
-												<circle
-													cx={column * LOADER_STEP + LOADER_STEP / 2}
-													cy={row * LOADER_STEP + LOADER_STEP / 2}
-													r="1.15"
-													style={`--loader-delay:${loadingDotDelay(row, column)}ms`}
-												/>
-											{/if}
+									</svg>
+								</span>
+								<h1 id="location-title">Location not found</h1>
+							{:else}
+								<span class="loading-field" aria-hidden="true">
+									<svg viewBox="0 0 34 34" focusable="false">
+										{#each LOADER_DOTS as row}
+											{#each LOADER_DOTS as column}
+												{#if isLoadingDotVisible(row, column)}
+													<circle
+														cx={column * LOADER_STEP + LOADER_STEP / 2}
+														cy={row * LOADER_STEP + LOADER_STEP / 2}
+														r="1.15"
+														style={`--loader-delay:${loadingDotDelay(row, column)}ms`}
+													/>
+												{/if}
+											{/each}
 										{/each}
-									{/each}
-								</svg>
-							</span>
-							<h1 id="location-title">Finding your spot on the map…</h1>
-						{/if}
+									</svg>
+								</span>
+								<h1 id="location-title">Finding your spot on the map…</h1>
+							{/if}
 						</div>
 					{/key}
 				</Badge>
@@ -263,303 +263,3 @@
 	</div>
 	<p class="sr-only" aria-live="polite">{statusMessage}</p>
 </section>
-
-<style>
-	.map {
-		position: relative;
-		isolation: isolate;
-		padding-top: clamp(2.75rem, 7vh, 4.25rem);
-		padding-bottom: clamp(2.75rem, 6vh, 3.5rem);
-	}
-
-	.map-stage {
-		position: relative;
-	}
-
-	.map-grid {
-		display: grid;
-		grid-template-columns: repeat(64, minmax(0, 1fr));
-		grid-template-rows: repeat(32, minmax(0, 1fr));
-		gap: clamp(2px, 0.45vw, 3px);
-		width: 100%;
-		aspect-ratio: 2 / 1;
-	}
-
-	.map-cell {
-		aspect-ratio: 1;
-		border-radius: clamp(1px, 0.24vw, 2px);
-		background: var(--cell-color);
-		transition: transform 220ms var(--ease-out);
-	}
-
-	.animate .map-cell {
-		animation: map-cell-enter 300ms var(--ease-out) var(--cell-delay) backwards;
-	}
-
-	.map-cell.location-cell {
-		transform: scale(1.08);
-	}
-
-	.animate .map-cell.location-anchor {
-		z-index: 2;
-		animation: location-cell-drop 420ms var(--ease-out) 60ms both;
-	}
-
-	.location-badge-anchor {
-		position: absolute;
-		z-index: 3;
-		width: fit-content;
-		max-width: calc(100% - 1.5rem);
-		bottom: clamp(0.75rem, 3vw, 1.5rem);
-		left: clamp(1rem, 7vw, 3.5rem);
-	}
-
-	.location-badge-anchor.located {
-		top: var(--anchor-y);
-		bottom: auto;
-		left: var(--anchor-x);
-	}
-
-	.location-badge-anchor.bottom-state {
-		position: fixed;
-		top: auto;
-		right: auto;
-		bottom: max(1.5rem, env(safe-area-inset-bottom));
-		left: 50%;
-		z-index: 20;
-		transform: translateX(-50%);
-	}
-
-	.location-badge-anchor.located.opens-right.opens-below {
-		transform: translate(14px, 12px);
-	}
-
-	.location-badge-anchor.located.opens-left.opens-below {
-		transform: translate(calc(-100% - 14px), 12px);
-	}
-
-	.location-badge-anchor.located.opens-right.opens-above {
-		transform: translate(14px, calc(-100% - 12px));
-	}
-
-	.location-badge-anchor.located.opens-left.opens-above {
-		transform: translate(calc(-100% - 14px), calc(-100% - 12px));
-	}
-
-	.shared-pill {
-		width: fit-content;
-		max-width: 100%;
-		transform-origin: center;
-		view-transition-name: location-pill;
-	}
-
-	:global(.location-badge) {
-		position: relative;
-		overflow: hidden;
-	}
-
-	.pill-state {
-		display: flex;
-		min-width: max-content;
-		align-items: center;
-		gap: 10px;
-	}
-
-	.pill-copy {
-		min-width: 0;
-	}
-
-	.location-badge-anchor h1,
-	.coordinates {
-		margin: 0;
-	}
-
-	.location-badge-anchor h1 {
-		font-family: "Portfolio Rounded", sans-serif;
-		font-size: 0.875rem;
-		font-weight: 400;
-		letter-spacing: -0.015em;
-		line-height: 1.2;
-		white-space: nowrap;
-	}
-
-	.loading-field,
-	.error-field {
-		display: block;
-		flex: 0 0 34px;
-		width: 34px;
-		height: 34px;
-		transform: translateY(-0.5px);
-	}
-
-	.loading-field svg,
-	.error-field svg {
-		display: block;
-		width: 100%;
-		height: 100%;
-	}
-
-	.loading-field circle {
-		fill: currentColor;
-		opacity: 0.16;
-		animation: loading-dot 900ms var(--ease-out) infinite;
-		animation-delay: calc(var(--loader-delay) - 900ms);
-	}
-
-	.error-field {
-		border-radius: 50%;
-	}
-
-	.error-field circle {
-		fill: rgba(255, 184, 186, 0.42);
-	}
-
-	.error-field circle.error-mark {
-		fill: #ff5c63;
-	}
-
-	.coordinates {
-		margin-top: 0.18rem;
-		color: rgba(247, 248, 250, 0.62);
-		font-size: 0.75rem;
-		letter-spacing: -0.01em;
-		line-height: 1.2;
-		white-space: nowrap;
-	}
-
-	:global(::view-transition-group(location-pill)) {
-		animation-duration: 520ms;
-		animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-	}
-
-	:global(::view-transition-image-pair(location-pill)) {
-		isolation: auto;
-	}
-
-	:global(::view-transition-old(location-pill)),
-	:global(::view-transition-new(location-pill)) {
-		mix-blend-mode: normal;
-	}
-
-	:global(::view-transition-old(location-pill)) {
-		animation: liquid-pill-out 180ms cubic-bezier(0.4, 0, 1, 1) both;
-	}
-
-	:global(::view-transition-new(location-pill)) {
-		animation: liquid-pill-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
-	}
-
-	.sr-only {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		margin: -1px;
-		padding: 0;
-		overflow: hidden;
-		clip: rect(0, 0, 0, 0);
-		white-space: nowrap;
-		border: 0;
-	}
-
-	@keyframes map-cell-enter {
-		from {
-			opacity: 0;
-			transform: scale(0.72);
-		}
-
-		to {
-			opacity: 1;
-			transform: scale(1);
-		}
-	}
-
-	@keyframes location-cell-drop {
-		from {
-			opacity: 0;
-			transform: translateY(-18px) scale(0.92);
-		}
-
-		to {
-			opacity: 1;
-			transform: translateY(0) scale(1.08);
-		}
-	}
-
-	@keyframes loading-dot {
-		0%,
-		60%,
-		100% {
-			opacity: 0.16;
-		}
-
-		30% {
-			opacity: 0.88;
-		}
-	}
-
-	@keyframes liquid-pill-out {
-		to {
-			opacity: 0;
-			filter: blur(4px);
-			transform: scale(0.94, 0.88);
-		}
-	}
-
-	@keyframes liquid-pill-in {
-		from {
-			opacity: 0;
-			filter: blur(5px);
-			transform: scale(0.9, 1.08);
-		}
-
-		62% {
-			opacity: 1;
-			filter: blur(0);
-			transform: scale(1.015, 0.985);
-		}
-
-		to {
-			opacity: 1;
-			filter: blur(0);
-			transform: scale(1);
-		}
-	}
-
-	@media (max-width: 560px) {
-		.map {
-			padding-top: 2.5rem;
-			padding-bottom: 3rem;
-		}
-
-		.location-badge-anchor {
-			max-width: calc(100% - 1rem);
-			bottom: 0.5rem;
-			left: 0.5rem;
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.map-cell,
-		.map-cell.location-anchor,
-		.location-badge-anchor {
-			animation: none;
-			transition-duration: 0ms;
-		}
-
-		.loading-field circle {
-			animation: loading-dot-reduced 1.4s ease-in-out infinite;
-			animation-delay: calc(var(--loader-delay) - 1.4s);
-		}
-	}
-
-	@keyframes loading-dot-reduced {
-		0%,
-		100% {
-			opacity: 0.35;
-		}
-
-		50% {
-			opacity: 1;
-		}
-	}
-</style>

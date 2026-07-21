@@ -1,6 +1,7 @@
 <script lang="ts">
 import { tick } from "svelte";
 import About from "$lib/components/about.svelte";
+import PortfolioPanel from "$lib/components/portfolio-panel.svelte";
 import Map from "$lib/components/ui/map.svelte";
 import { experiences } from "$lib/constants/experiences";
 import { projects } from "$lib/constants/projects";
@@ -12,6 +13,8 @@ const tabs: { id: Tab; label: string }[] = [
 	{ id: "timeline", label: "Timeline" },
 	{ id: "work", label: "Works" },
 ];
+const timelineEntries = experiences.map(({ company, ...entry }) => ({ title: company, ...entry }));
+const workEntries = projects.map(({ name, ...entry }) => ({ title: name, ...entry }));
 
 let activeTab = $state<Tab>("name");
 let suppressTransition = $state(false);
@@ -29,10 +32,6 @@ async function selectTab(tab: Tab, fromKeyboard = false) {
 			suppressTransition = false;
 		});
 	}
-}
-
-function staggerDelay(entryIndex: number, itemIndex: number) {
-	return Math.min(entryIndex * 70 + itemIndex * 35, 280);
 }
 
 function handleTabKeydown(event: KeyboardEvent, index: number) {
@@ -93,87 +92,19 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 		</div>
 
 		{#if activeTab === "timeline"}
-			<div
-				class="tab-panel"
-				class:animate-content={animateContent}
+			<PortfolioPanel
 				id="timeline-panel"
-				role="tabpanel"
-				aria-labelledby="timeline-tab"
-			>
-				{#each experiences as experience, entryIndex}
-					<article class="timeline-entry">
-						<p
-							class="entry-date stagger-item"
-							style={`--stagger-delay: ${staggerDelay(entryIndex, 0)}ms`}
-						>
-							{experience.dates}
-						</p>
-						<div class="entry-copy">
-							<h2
-								class="stagger-item"
-								style={`--stagger-delay: ${staggerDelay(entryIndex, 1)}ms`}
-							>
-								{experience.company}
-							</h2>
-							<p
-								class="stagger-item"
-								style={`--stagger-delay: ${staggerDelay(entryIndex, 2)}ms`}
-							>
-								{experience.description}
-							</p>
-							{#each experience.achievements as achievement, itemIndex}
-								<p
-									class="stagger-item"
-									style={`--stagger-delay: ${staggerDelay(entryIndex, itemIndex + 3)}ms`}
-								>
-									{achievement.text}
-								</p>
-							{/each}
-						</div>
-					</article>
-				{/each}
-			</div>
+				labelledBy="timeline-tab"
+				entries={timelineEntries}
+				animate={animateContent}
+			/>
 		{:else if activeTab === "work"}
-			<div
-				class="tab-panel"
-				class:animate-content={animateContent}
+			<PortfolioPanel
 				id="work-panel"
-				role="tabpanel"
-				aria-labelledby="work-tab"
-			>
-				{#each projects as project, entryIndex}
-					<article class="timeline-entry">
-						<p
-							class="entry-date stagger-item"
-							style={`--stagger-delay: ${staggerDelay(entryIndex, 0)}ms`}
-						>
-							{project.dates}
-						</p>
-						<div class="entry-copy">
-							<h2
-								class="stagger-item"
-								style={`--stagger-delay: ${staggerDelay(entryIndex, 1)}ms`}
-							>
-								{project.name}
-							</h2>
-							<p
-								class="stagger-item"
-								style={`--stagger-delay: ${staggerDelay(entryIndex, 2)}ms`}
-							>
-								{project.description}
-							</p>
-							{#each project.achievements as achievement, itemIndex}
-								<p
-									class="stagger-item"
-									style={`--stagger-delay: ${staggerDelay(entryIndex, itemIndex + 3)}ms`}
-								>
-									{achievement.text}
-								</p>
-							{/each}
-						</div>
-					</article>
-				{/each}
-			</div>
+				labelledBy="work-tab"
+				entries={workEntries}
+				animate={animateContent}
+			/>
 		{/if}
 	</div>
 </div>
@@ -300,26 +231,6 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 		animation-delay: 250ms;
 	}
 
-	.tab-panel {
-		padding-top: clamp(3rem, 7vh, 4.25rem);
-	}
-
-	.animate-content .stagger-item {
-		animation: content-enter 260ms var(--ease-out) var(--stagger-delay, 0ms) both;
-	}
-
-	@keyframes content-enter {
-		from {
-			opacity: 0;
-			transform: translateY(0.45rem);
-		}
-
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
-
 	@keyframes secondary-tab-enter {
 		from {
 			opacity: 0;
@@ -328,51 +239,6 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 		to {
 			opacity: 1;
 		}
-	}
-
-	.timeline-entry {
-		display: grid;
-		grid-template-columns: 6.5rem minmax(0, 1fr);
-		gap: 1.25rem;
-		margin-bottom: clamp(2.75rem, 7vh, 4.5rem);
-	}
-
-	.timeline-entry:last-child {
-		margin-bottom: 0;
-	}
-
-	.entry-date {
-		margin: 0;
-		color: rgba(23, 25, 29, 0.47);
-		font-size: 0.975rem;
-		line-height: 1.5;
-		letter-spacing: -0.012em;
-	}
-
-	.entry-copy {
-		min-width: 0;
-	}
-
-	.entry-copy h2,
-	.entry-copy p {
-		margin: 0;
-		font-size: 1rem;
-		line-height: 1.45;
-		letter-spacing: -0.018em;
-		text-wrap: pretty;
-	}
-
-	.entry-copy h2 {
-		font-weight: 500;
-	}
-
-	.entry-copy p {
-		color: rgba(23, 25, 29, 0.9);
-	}
-
-	.entry-copy h2 + p,
-	.entry-copy p + p {
-		margin-top: 1.15rem;
 	}
 
 	.suppress-transition .tab-list button {
@@ -394,16 +260,6 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 		.tab-list {
 			gap: 1.1rem;
 		}
-
-		.timeline-entry {
-			grid-template-columns: 1fr;
-			gap: 0.8rem;
-			margin-bottom: 3.25rem;
-		}
-
-		.entry-date {
-			font-size: 0.875rem;
-		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {
@@ -412,10 +268,6 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 		}
 
 		.secondary-tab {
-			animation: none;
-		}
-
-		.animate-content .stagger-item {
 			animation: none;
 		}
 	}

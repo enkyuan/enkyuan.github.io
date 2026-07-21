@@ -1,30 +1,24 @@
 <script lang="ts">
-	import { socials } from "$lib/constants/socials";
-
-	const email = socials.find(({ text }) => text === "Email");
-	const x = socials.find(({ text }) => text === "Twitter");
+	import { about } from "$lib/constants/about";
 </script>
 
 <section class="about" aria-labelledby="about-title">
-	<p class="map-note">
-		this map is drawn from a 64 × 32 grid. the coordinates you share place one continuous
-		gradient near you; this page doesn't store or send them.
-	</p>
+	<p class="map-note">{about.mapNote}</p>
 
 	<div class="about-copy">
-		<h2 id="about-title">hey, i'm enkang</h2>
+		<h2 id="about-title">{about.heading}</h2>
 		<p>
-			i'm currently an
-			<span class="role-highlight">associate software engineer @ t-mobile</span>.
+			{about.rolePrefix}
+			<span class="role-highlight">{about.role}</span>.
 		</p>
-		{#if email && x}
+		{#if about.contacts.email && about.contacts.x}
 			<p class="contact-copy">
-				you can reach out to me via
-				<a href={email.href} aria-label="Email Enkang">email</a>
+				{about.contactPrefix}
+				<a href={about.contacts.email.href} aria-label="Email Enkang">email</a>
 				<span aria-hidden="true">+</span>
 				<a
 					class="social-icon"
-					href={x.href}
+					href={about.contacts.x.href}
 					target="_blank"
 					rel="noreferrer"
 					aria-label="Enkang on X"

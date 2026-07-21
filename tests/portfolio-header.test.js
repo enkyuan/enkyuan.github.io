@@ -5,6 +5,12 @@ const page = await Bun.file(new URL("../src/routes/+page.svelte", import.meta.ur
 const mapComponent = await Bun.file(
   new URL("../src/lib/components/ui/map.svelte", import.meta.url),
 ).text();
+const mapStyles = await Bun.file(
+  new URL("../src/lib/components/ui/map.css", import.meta.url),
+).text();
+const portfolioPanelComponent = await Bun.file(
+  new URL("../src/lib/components/portfolio-panel.svelte", import.meta.url),
+).text();
 const flagsComponent = await Bun.file(
   new URL("../src/lib/components/ui/flags.svelte", import.meta.url),
 ).text();
@@ -13,6 +19,9 @@ const badgeComponent = await Bun.file(
 ).text();
 const aboutComponent = await Bun.file(
   new URL("../src/lib/components/about.svelte", import.meta.url),
+).text();
+const aboutConstants = await Bun.file(
+  new URL("../src/lib/constants/about.ts", import.meta.url),
 ).text();
 const appStyles = await Bun.file(new URL("../src/app.css", import.meta.url)).text();
 
@@ -52,18 +61,24 @@ test("removes the Connect section without leaving stale styles", () => {
 });
 
 test("staggers Timeline and Works content without animating keyboard navigation", () => {
-  expect(page).toContain("function staggerDelay(entryIndex: number, itemIndex: number)");
-  expect(page).toContain("Math.min(entryIndex * 70 + itemIndex * 35, 280)");
-  expect(page).toContain("{#each experiences as experience, entryIndex}");
-  expect(page).toContain("{#each projects as project, entryIndex}");
-  expect(page.match(/class:animate-content=\{animateContent\}/g)).toHaveLength(2);
+  expect(page).toContain('import PortfolioPanel from "$lib/components/portfolio-panel.svelte";');
+  expect(page).toContain("entries={timelineEntries}");
+  expect(page).toContain("entries={workEntries}");
+  expect(page.match(/animate=\{animateContent\}/g)).toHaveLength(3);
   expect(page).toContain("animateContent = !fromKeyboard");
-  expect(page).toContain(
+  expect(portfolioPanelComponent).toContain(
+    "function staggerDelay(entryIndex: number, itemIndex: number)",
+  );
+  expect(portfolioPanelComponent).toContain("Math.min(entryIndex * 70 + itemIndex * 35, 280)");
+  expect(portfolioPanelComponent).toContain("{#each entries as entry, entryIndex}");
+  expect(portfolioPanelComponent).toContain("class:animate-content={animate}");
+  expect(page).toContain("animateContent = !fromKeyboard");
+  expect(portfolioPanelComponent).toContain(
     "animation: content-enter 260ms var(--ease-out) var(--stagger-delay, 0ms) both;",
   );
-  expect(page).toContain("transform: translateY(0.45rem)");
-  expect(page).toContain("@media (prefers-reduced-motion: reduce)");
-  expect(page).toContain("animation: none");
+  expect(portfolioPanelComponent).toContain("transform: translateY(0.45rem)");
+  expect(portfolioPanelComponent).toContain("@media (prefers-reduced-motion: reduce)");
+  expect(portfolioPanelComponent).toContain("animation: none");
 });
 
 test("renders the current-location map in the name tab", () => {
@@ -76,12 +91,13 @@ test("renders the current-location map in the name tab", () => {
 test("follows the map with a concise introduction and contact links", () => {
   expect(page).toContain('import About from "$lib/components/about.svelte";');
   expect(page).toContain("<Map animate={animateContent} />\n\t\t\t<About />");
-  expect(mapComponent).toContain("padding-bottom: clamp(2.75rem, 6vh, 3.5rem);");
-  expect(aboutComponent).toContain("this map is drawn from a 64 × 32 grid");
-  expect(aboutComponent).toContain("hey, i'm enkang");
-  expect(aboutComponent).toContain("associate software engineer @ t-mobile");
-  expect(aboutComponent).toContain('text === "Email"');
-  expect(aboutComponent).toContain('text === "Twitter"');
+  expect(mapStyles).toContain("padding-bottom: clamp(2.75rem, 6vh, 3.5rem);");
+  expect(aboutComponent).toContain('import { about } from "$lib/constants/about";');
+  expect(aboutConstants).toContain("this map is drawn from a 64 × 32 grid");
+  expect(aboutConstants).toContain("hey, i'm enkang");
+  expect(aboutConstants).toContain("associate software engineer @ t-mobile");
+  expect(aboutConstants).toContain('text === "Email"');
+  expect(aboutConstants).toContain('text === "Twitter"');
   expect(aboutComponent).toContain('aria-label="Email Enkang"');
   expect(aboutComponent).toContain('aria-label="Enkang on X"');
 });
@@ -135,6 +151,7 @@ test("locates automatically and presents the coordinates in a rounded pill", () 
   expect(mapComponent).toContain('import { onMount, tick } from "svelte";');
   expect(mapComponent).toContain('import Badge from "$lib/components/ui/badge.svelte";');
   expect(mapComponent).toContain('import Flags from "$lib/components/ui/flags.svelte";');
+  expect(mapComponent).toContain('import "./map.css";');
   expect(mapComponent).toContain('from "$lib/map";');
   expect(mapComponent).toContain("onMount(() => {");
   expect(mapComponent).toContain("locate();");
@@ -146,22 +163,22 @@ test("locates automatically and presents the coordinates in a rounded pill", () 
   expect(mapComponent).not.toContain(".map-cell.location-anchor::after");
   expect(mapComponent).not.toContain("@keyframes location-pin-drop");
   expect(mapComponent).toContain("class:location-anchor={cell.id === highlightedCells[0]}");
-  expect(mapComponent).toContain("@keyframes location-cell-drop");
+  expect(mapStyles).toContain("@keyframes location-cell-drop");
   expect(mapComponent).toContain("<Flags {countryCode} />");
   expect(mapComponent).not.toContain("countryCodeToFlag");
   expect(mapComponent).not.toContain("US_FLAG");
-  expect(mapComponent).not.toContain(".map-cell.location-cell {\n\t\tbackground: linear-gradient");
+  expect(mapStyles).not.toContain(".map-cell.location-cell {\n\tbackground: linear-gradient");
   expect(badgeComponent).toContain("border-radius: 999px;");
   expect(mapComponent).not.toContain("Use current location");
 });
 
 test("keeps pending and failed location states at one viewport-bottom anchor", () => {
   expect(mapComponent).toContain('class:bottom-state={locationState !== "located"}');
-  expect(mapComponent).toContain(".location-badge-anchor.bottom-state {");
-  expect(mapComponent).toContain("position: fixed;");
-  expect(mapComponent).toContain("bottom: max(1.5rem, env(safe-area-inset-bottom));");
-  expect(mapComponent).toContain("left: 50%;");
-  expect(mapComponent).toContain("transform: translateX(-50%);");
+  expect(mapStyles).toContain(".location-badge-anchor.bottom-state {");
+  expect(mapStyles).toContain("position: fixed;");
+  expect(mapStyles).toContain("bottom: max(1.5rem, env(safe-area-inset-bottom));");
+  expect(mapStyles).toContain("left: 50%;");
+  expect(mapStyles).toContain("transform: translateX(-50%);");
   expect(mapComponent).toContain('class:locating={locationState === "locating"}');
   expect(mapComponent).toContain("const LOADER_GRID = 12;");
   expect(mapComponent).toContain('class="loading-field"');
@@ -169,18 +186,18 @@ test("keeps pending and failed location states at one viewport-bottom anchor", (
   expect(mapComponent).toContain('<svg viewBox="0 0 34 34" focusable="false">');
   expect(mapComponent).toContain("isLoadingDotVisible(row, column)");
   expect(mapComponent).toContain('r="1.15"');
-  expect(mapComponent).toContain("flex: 0 0 34px;");
-  expect(mapComponent).toContain("@keyframes loading-dot");
-  expect(mapComponent).toContain("animation-delay: calc(var(--loader-delay) - 900ms);");
+  expect(mapStyles).toContain("flex: 0 0 34px;");
+  expect(mapStyles).toContain("@keyframes loading-dot");
+  expect(mapStyles).toContain("animation-delay: calc(var(--loader-delay) - 900ms);");
   expect(mapComponent).toContain("startViewTransition?:");
   expect(mapComponent).toContain('class="shared-pill" bind:this={sharedPill}');
   expect(mapComponent).toContain("sharedPill.animate(");
   expect(mapComponent).toContain("firstRect.width / lastRect.width");
   expect(mapComponent).toContain('filter: "blur(4px)"');
-  expect(mapComponent).toContain("view-transition-name: location-pill;");
-  expect(mapComponent).toContain("::view-transition-group(location-pill)");
-  expect(mapComponent).toContain("@keyframes liquid-pill-in");
-  expect(mapComponent).toContain("transform: scale(1.015, 0.985);");
+  expect(mapStyles).toContain("view-transition-name: location-pill;");
+  expect(mapStyles).toContain("::view-transition-group(location-pill)");
+  expect(mapStyles).toContain("@keyframes liquid-pill-in");
+  expect(mapStyles).toContain("transform: scale(1.015, 0.985);");
   expect(mapComponent).not.toContain("in:fade");
   expect(mapComponent).not.toContain("out:fade");
   expect(mapComponent).toContain('window.matchMedia("(prefers-reduced-motion: reduce)")');
@@ -193,10 +210,10 @@ test("keeps loading pending and renders location failures as a dot-matrix X", ()
   expect(mapComponent).toContain("isErrorDotVisible(row, column)");
   expect(mapComponent).toContain("class:error-mark={isErrorDotVisible(row, column)}");
   expect(mapComponent).toContain("Math.abs(x - y) <= 1");
-  expect(mapComponent).toContain("fill: rgba(255, 184, 186, 0.42);");
-  expect(mapComponent).toContain("fill: #ff5c63;");
+  expect(mapStyles).toContain("fill: rgba(255, 184, 186, 0.42);");
+  expect(mapStyles).toContain("fill: #ff5c63;");
   expect(mapComponent).toContain('<h1 id="location-title">Location not found</h1>');
-  expect(mapComponent).toContain("border-radius: 50%;");
+  expect(mapStyles).toContain("border-radius: 50%;");
   expect(mapComponent).not.toContain("RetryIcon");
   expect(mapComponent).not.toContain("retry-button");
 });
