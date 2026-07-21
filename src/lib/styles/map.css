@@ -33,6 +33,10 @@
   transform: scale(1.08);
 }
 
+.map-cell.location-anchor {
+  anchor-name: --current-location;
+}
+
 .animate .map-cell.location-anchor {
   z-index: 2;
   animation: location-cell-drop 420ms var(--ease-out) 60ms both;
@@ -93,7 +97,7 @@
 
 .pill-state {
   display: flex;
-  min-width: max-content;
+  min-width: 0;
   align-items: center;
   gap: 10px;
 }
@@ -108,11 +112,13 @@
 }
 
 .pill-state h1 {
+  overflow: hidden;
   font-family: "Portfolio Rounded", sans-serif;
   font-size: 0.875rem;
   font-weight: 400;
   letter-spacing: -0.015em;
   line-height: 1.2;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -153,11 +159,33 @@
 
 .coordinates {
   margin-top: 0.18rem;
+  overflow: hidden;
   color: oklch(0.979 0.003 264.542 / 0.62);
   font-size: 0.75rem;
   letter-spacing: -0.01em;
   line-height: 1.2;
+  text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+@supports (anchor-name: --current-location) and (position-area: bottom right) {
+  .location-badge-anchor.located {
+    inset: auto;
+    max-width: calc(100% - 1rem);
+    margin: 12px 14px;
+    position-anchor: --current-location;
+    position-area: bottom right;
+    position-try-fallbacks:
+      flip-inline,
+      flip-block,
+      flip-block flip-inline,
+      bottom,
+      top;
+  }
+
+  .location-badge-anchor.located:is(.opens-right, .opens-left):is(.opens-below, .opens-above) {
+    transform: none;
+  }
 }
 
 .sr-only {

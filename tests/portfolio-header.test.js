@@ -306,3 +306,19 @@ test("positions the location pill from exact coordinates and the resolved map qu
   expect(locationHook).toContain("enableHighAccuracy: true");
   expect(locationHook).toContain("maximumAge: 0");
 });
+
+test("keeps the located badge beside its rendered marker and inside every map edge", () => {
+  expect(mapStyles).toContain("anchor-name: --current-location;");
+  expect(mapStyles).toContain("@supports (anchor-name: --current-location)");
+  expect(mapStyles).toContain("position-anchor: --current-location;");
+  expect(mapStyles).toContain("position-area: bottom right;");
+  expect(mapStyles).toContain("flip-inline,");
+  expect(mapStyles).toContain("flip-block,");
+  expect(mapStyles).toContain("flip-block flip-inline,");
+  expect(mapStyles).toContain("bottom,");
+  expect(mapStyles).toContain("top;");
+  expect(mapStyles).toContain("inset: auto;");
+  expect(mapStyles).toContain("max-width: calc(100% - 1rem);");
+  expect(mapStyles).toContain("min-width: 0;");
+  expect(mapStyles).toContain("text-overflow: ellipsis;");
+});
