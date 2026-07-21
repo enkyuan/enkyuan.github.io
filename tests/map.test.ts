@@ -22,6 +22,18 @@ test("builds a recognizable world grid with unique cells", () => {
   expect(Math.max(...cells.map((cell) => cell.row))).toBeLessThan(WORLD_GRID_ROWS);
 });
 
+test("keeps Alaska and Greenland distinct at the arctic grid resolution", () => {
+  const ids = new Set(createWorldGrid().map((cell) => cell.id));
+
+  for (const landCell of ["3-4", "4-3", "5-3", "6-2", "1-24", "2-24", "3-24", "4-24"]) {
+    expect(ids.has(landCell), `${landCell} should be land`).toBeTrue();
+  }
+
+  for (const waterCell of ["3-1", "3-21", "4-22", "4-26", "4-30", "6-5"]) {
+    expect(ids.has(waterCell), `${waterCell} should be water`).toBeFalse();
+  }
+});
+
 test("anchors location highlights to land for cities on different continents", () => {
   const cells = createWorldGrid();
   const chicago = findLocationCluster(cells, 41.88, -87.63);
