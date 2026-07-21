@@ -13,11 +13,13 @@ const tabs: { id: Tab; label: string }[] = [
 
 let activeTab = $state<Tab>("name");
 let suppressTransition = $state(false);
+let animateContent = $state(true);
 let tabButtons: HTMLButtonElement[] = [];
 
 async function selectTab(tab: Tab, fromKeyboard = false) {
 	if (tab === activeTab) return;
 	suppressTransition = fromKeyboard;
+	animateContent = !fromKeyboard;
 	activeTab = tab;
 	await tick();
 	if (fromKeyboard) {
@@ -25,6 +27,10 @@ async function selectTab(tab: Tab, fromKeyboard = false) {
 			suppressTransition = false;
 		});
 	}
+}
+
+function staggerDelay(entryIndex: number, itemIndex: number) {
+	return Math.min(entryIndex * 70 + itemIndex * 35, 280);
 }
 
 function handleTabKeydown(event: KeyboardEvent, index: number) {
@@ -77,18 +83,39 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 		{#if activeTab === "timeline"}
 			<div
 				class="tab-panel"
+				class:animate-content={animateContent}
 				id="timeline-panel"
 				role="tabpanel"
 				aria-labelledby="timeline-tab"
 			>
-				{#each experiences as experience}
+				{#each experiences as experience, entryIndex}
 					<article class="timeline-entry">
-						<p class="entry-date">{experience.dates}</p>
+						<p
+							class="entry-date stagger-item"
+							style={`--stagger-delay: ${staggerDelay(entryIndex, 0)}ms`}
+						>
+							{experience.dates}
+						</p>
 						<div class="entry-copy">
-							<h2>{experience.company}</h2>
-							<p>{experience.description}</p>
-							{#each experience.achievements as achievement}
-								<p>{achievement.text}</p>
+							<h2
+								class="stagger-item"
+								style={`--stagger-delay: ${staggerDelay(entryIndex, 1)}ms`}
+							>
+								{experience.company}
+							</h2>
+							<p
+								class="stagger-item"
+								style={`--stagger-delay: ${staggerDelay(entryIndex, 2)}ms`}
+							>
+								{experience.description}
+							</p>
+							{#each experience.achievements as achievement, itemIndex}
+								<p
+									class="stagger-item"
+									style={`--stagger-delay: ${staggerDelay(entryIndex, itemIndex + 3)}ms`}
+								>
+									{achievement.text}
+								</p>
 							{/each}
 						</div>
 					</article>
@@ -97,18 +124,39 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 		{:else if activeTab === "work"}
 			<div
 				class="tab-panel"
+				class:animate-content={animateContent}
 				id="work-panel"
 				role="tabpanel"
 				aria-labelledby="work-tab"
 			>
-				{#each projects as project}
+				{#each projects as project, entryIndex}
 					<article class="timeline-entry">
-						<p class="entry-date">{project.dates}</p>
+						<p
+							class="entry-date stagger-item"
+							style={`--stagger-delay: ${staggerDelay(entryIndex, 0)}ms`}
+						>
+							{project.dates}
+						</p>
 						<div class="entry-copy">
-							<h2>{project.name}</h2>
-							<p>{project.description}</p>
-							{#each project.achievements as achievement}
-								<p>{achievement.text}</p>
+							<h2
+								class="stagger-item"
+								style={`--stagger-delay: ${staggerDelay(entryIndex, 1)}ms`}
+							>
+								{project.name}
+							</h2>
+							<p
+								class="stagger-item"
+								style={`--stagger-delay: ${staggerDelay(entryIndex, 2)}ms`}
+							>
+								{project.description}
+							</p>
+							{#each project.achievements as achievement, itemIndex}
+								<p
+									class="stagger-item"
+									style={`--stagger-delay: ${staggerDelay(entryIndex, itemIndex + 3)}ms`}
+								>
+									{achievement.text}
+								</p>
 							{/each}
 						</div>
 					</article>
@@ -245,6 +293,22 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 		padding-top: clamp(3rem, 7vh, 4.25rem);
 	}
 
+	.animate-content .stagger-item {
+		animation: content-enter 260ms var(--ease-out) var(--stagger-delay, 0ms) both;
+	}
+
+	@keyframes content-enter {
+		from {
+			opacity: 0;
+			transform: translateY(0.45rem);
+		}
+
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
 	.timeline-entry {
 		display: grid;
 		grid-template-columns: 6.5rem minmax(0, 1fr);
@@ -324,6 +388,10 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 	@media (prefers-reduced-motion: reduce) {
 		.tab-list button {
 			transition-duration: 0ms;
+		}
+
+		.animate-content .stagger-item {
+			animation: none;
 		}
 	}
 </style>

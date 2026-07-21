@@ -29,3 +29,18 @@ test("removes the Connect section without leaving stale styles", () => {
   expect(page).not.toContain("social-links");
   expect(page).not.toContain("LiveClock");
 });
+
+test("staggers Timeline and Works content without animating keyboard navigation", () => {
+  expect(page).toContain("function staggerDelay(entryIndex: number, itemIndex: number)");
+  expect(page).toContain("Math.min(entryIndex * 70 + itemIndex * 35, 280)");
+  expect(page).toContain("{#each experiences as experience, entryIndex}");
+  expect(page).toContain("{#each projects as project, entryIndex}");
+  expect(page.match(/class:animate-content=\{animateContent\}/g)).toHaveLength(2);
+  expect(page).toContain("animateContent = !fromKeyboard");
+  expect(page).toContain(
+    "animation: content-enter 260ms var(--ease-out) var(--stagger-delay, 0ms) both;",
+  );
+  expect(page).toContain("transform: translateY(0.45rem)");
+  expect(page).toContain("@media (prefers-reduced-motion: reduce)");
+  expect(page).toContain("animation: none");
+});
