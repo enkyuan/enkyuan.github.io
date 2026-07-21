@@ -7,8 +7,8 @@ const mapComponent = await Bun.file(
 ).text();
 const mapStyles = await Bun.file(new URL("../src/lib/styles/map.css", import.meta.url)).text();
 const mapHook = await Bun.file(new URL("../src/lib/hooks/use-map.ts", import.meta.url)).text();
-const mapLocationHook = await Bun.file(
-  new URL("../src/lib/hooks/use-map-location.svelte.ts", import.meta.url),
+const locationHook = await Bun.file(
+  new URL("../src/lib/hooks/use-location.ts", import.meta.url),
 ).text();
 const portfolioEntryStyles = await Bun.file(
   new URL("../src/routes/portfolio-entries.css", import.meta.url),
@@ -150,15 +150,16 @@ test("uses one rounded type system across the map note and personal introduction
 });
 
 test("locates automatically and presents the coordinates in a rounded pill", () => {
-  expect(mapComponent).toContain(
-    'import { useMapLocation } from "$lib/hooks/use-map-location.svelte";',
-  );
+  expect(mapComponent).toContain('import { useLocation } from "$lib/hooks/use-location";');
   expect(mapComponent).toContain('import Badge from "$lib/components/ui/badge.svelte";');
   expect(mapComponent).toContain('import Flags from "$lib/components/ui/flags.svelte";');
   expect(mapComponent).toContain('import "$lib/styles/map.css";');
   expect(mapComponent).toContain('from "$lib/hooks/use-map";');
-  expect(mapLocationHook).toContain("onMount(() => {");
-  expect(mapLocationHook).toContain("void locate();");
+  expect(locationHook).toContain("export function useLocation(");
+  expect(locationHook).toContain("const location = writable<Location>(");
+  expect(locationHook).not.toContain("$state");
+  expect(locationHook).toContain("onMount(() => {");
+  expect(locationHook).toContain("void locate();");
   expect(mapHook).toContain("export function createWorldGrid()");
   expect(mapComponent).toContain('class="map"');
   expect(mapComponent).toContain('class="location-badge"');
@@ -168,10 +169,10 @@ test("locates automatically and presents the coordinates in a rounded pill", () 
   expect(mapComponent).not.toContain(".map-cell.location-anchor::after");
   expect(mapComponent).not.toContain("@keyframes location-pin-drop");
   expect(mapComponent).toContain(
-    "class:location-anchor={cell.id === location.highlightedCells[0]}",
+    "class:location-anchor={cell.id === $location.highlightedCells[0]}",
   );
   expect(mapStyles).toContain("@keyframes location-cell-drop");
-  expect(mapComponent).toContain("<Flags countryCode={location.countryCode} />");
+  expect(mapComponent).toContain("<Flags countryCode={$location.countryCode} />");
   expect(mapComponent).not.toContain("countryCodeToFlag");
   expect(mapComponent).not.toContain("US_FLAG");
   expect(mapStyles).not.toContain(".map-cell.location-cell {\n\tbackground: linear-gradient");
@@ -180,13 +181,13 @@ test("locates automatically and presents the coordinates in a rounded pill", () 
 });
 
 test("keeps pending and failed location states at one viewport-bottom anchor", () => {
-  expect(mapComponent).toContain('class:bottom-state={location.state !== "located"}');
+  expect(mapComponent).toContain('class:bottom-state={$location.state !== "located"}');
   expect(mapStyles).toContain(".location-badge-anchor.bottom-state {");
   expect(mapStyles).toContain("position: fixed;");
   expect(mapStyles).toContain("bottom: max(1.5rem, env(safe-area-inset-bottom));");
   expect(mapStyles).toContain("left: 50%;");
   expect(mapStyles).toContain("transform: translateX(-50%);");
-  expect(mapComponent).toContain('class:locating={location.state === "locating"}');
+  expect(mapComponent).toContain('class:locating={$location.state === "locating"}');
   expect(mapComponent).toContain("const LOADER_GRID = 12;");
   expect(mapComponent).toContain('class="loading-field"');
   expect(mapComponent).toContain("Finding your spot on the map…");
@@ -196,23 +197,23 @@ test("keeps pending and failed location states at one viewport-bottom anchor", (
   expect(mapStyles).toContain("flex: 0 0 34px;");
   expect(mapStyles).toContain("@keyframes loading-dot");
   expect(mapStyles).toContain("animation-delay: calc(var(--loader-delay) - 900ms);");
-  expect(mapLocationHook).toContain("startViewTransition?:");
+  expect(locationHook).toContain("startViewTransition?:");
   expect(mapComponent).toContain('class="shared-pill" bind:this={sharedPill}');
-  expect(mapLocationHook).toContain("sharedPill.animate(");
-  expect(mapLocationHook).toContain("firstRect.width / lastRect.width");
-  expect(mapLocationHook).toContain('filter: "blur(4px)"');
+  expect(locationHook).toContain("sharedPill.animate(");
+  expect(locationHook).toContain("firstRect.width / lastRect.width");
+  expect(locationHook).toContain('filter: "blur(4px)"');
   expect(mapStyles).toContain("view-transition-name: location-pill;");
   expect(mapStyles).toContain("::view-transition-group(location-pill)");
   expect(mapStyles).toContain("@keyframes liquid-pill-in");
   expect(mapStyles).toContain("transform: scale(1.015, 0.985);");
   expect(mapComponent).not.toContain("in:fade");
   expect(mapComponent).not.toContain("out:fade");
-  expect(mapLocationHook).toContain('window.matchMedia("(prefers-reduced-motion: reduce)")');
+  expect(locationHook).toContain('window.matchMedia("(prefers-reduced-motion: reduce)")');
 });
 
 test("keeps loading pending and renders location failures as a dot-matrix X", () => {
-  expect(mapLocationHook).toContain("{ enableHighAccuracy: true, maximumAge: 0 }");
-  expect(mapLocationHook).not.toContain("timeout:");
+  expect(locationHook).toContain("{ enableHighAccuracy: true, maximumAge: 0 }");
+  expect(locationHook).not.toContain("timeout:");
   expect(mapComponent).toContain('class="error-field"');
   expect(mapComponent).toContain("isErrorDotVisible(row, column)");
   expect(mapComponent).toContain("class:error-mark={isErrorDotVisible(row, column)}");
@@ -228,11 +229,11 @@ test("keeps loading pending and renders location failures as a dot-matrix X", ()
 test("keeps one visitor location session mounted and only makes failed badges interactive", () => {
   expect(page).toContain('hidden={activeTab !== "name"}');
   expect(mapComponent).toContain(
-    'onclick={location.state === "error" ? () => void locate() : undefined}',
+    'onclick={$location.state === "error" ? () => void locate() : undefined}',
   );
-  expect(mapComponent).not.toContain('disabled={location.state === "locating"}');
+  expect(mapComponent).not.toContain('disabled={$location.state === "locating"}');
   expect(mapComponent).toContain(
-    'ariaLabel={location.state === "error" ? "Try finding your location again" : undefined}',
+    'ariaLabel={$location.state === "error" ? "Try finding your location again" : undefined}',
   );
   expect(mapComponent).toContain('"Try finding your location again"');
   expect(mapComponent).not.toContain('"Refresh your current location"');
@@ -275,6 +276,6 @@ test("positions the location pill from exact coordinates and the resolved map qu
   expect(mapComponent).toContain("class:opens-left");
   expect(mapComponent).toContain("class:opens-below");
   expect(mapComponent).toContain("class:opens-above");
-  expect(mapLocationHook).toContain("enableHighAccuracy: true");
-  expect(mapLocationHook).toContain("maximumAge: 0");
+  expect(locationHook).toContain("enableHighAccuracy: true");
+  expect(locationHook).toContain("maximumAge: 0");
 });

@@ -1,4 +1,5 @@
 import { onMount, tick } from "svelte";
+import { get, writable } from "svelte/store";
 import {
   createLocationGradient,
   findLocationCluster,
@@ -6,15 +7,15 @@ import {
   type MapCell,
 } from "$lib/hooks/use-map";
 
-export type MapLocationState = "locating" | "located" | "error";
+export type LocationState = "locating" | "located" | "error";
 
 type SharedViewTransition = { finished: Promise<void> };
 type ViewTransitionDocument = Document & {
   startViewTransition?: (update: () => Promise<void>) => SharedViewTransition;
 };
 
-type MapLocation = {
-  state: MapLocationState;
+type Location = {
+  state: LocationState;
   place: string;
   countryCode: string;
   latitude?: number;
@@ -24,12 +25,12 @@ type MapLocation = {
   statusMessage: string;
 };
 
-export function useMapLocation(
+export function useLocation(
   cells: readonly MapCell[],
   shouldAnimate: () => boolean,
   getSharedPill: () => HTMLDivElement | undefined,
 ) {
-  const location = $state<MapLocation>({
+  const location = writable<Location>({
     state: "locating",
     place: "Current location",
     countryCode: "",
@@ -37,7 +38,7 @@ export function useMapLocation(
     highlightedCellColors: new Map(),
     statusMessage: "Finding your spot on the map.",
   });
-  let prefersReducedMotion = $state(false);
+  let prefersReducedMotion = false;
   let sharedPillAnimation: Animation | undefined;
 
   onMount(() => {
@@ -53,17 +54,18 @@ export function useMapLocation(
     return () => reducedMotion.removeEventListener("change", updateMotionPreference);
   });
 
-  async function updateLocationState(update: () => void) {
+  async function updateLocationState(update: (current: Location) => Location) {
+    const applyUpdate = () => location.update(update);
     const viewTransitionDocument = document as ViewTransitionDocument;
     if (!shouldAnimate() || prefersReducedMotion) {
-      update();
+      applyUpdate();
       await tick();
       return;
     }
 
     if (viewTransitionDocument.startViewTransition) {
       const transition = viewTransitionDocument.startViewTransition(async () => {
-        update();
+        applyUpdate();
         await tick();
       });
       await transition.finished.catch(() => undefined);
@@ -72,7 +74,7 @@ export function useMapLocation(
 
     const sharedPill = getSharedPill();
     const firstRect = sharedPill?.getBoundingClientRect();
-    update();
+    applyUpdate();
     await tick();
     const lastRect = sharedPill?.getBoundingClientRect();
     if (!sharedPill || !firstRect || !lastRect || lastRect.width === 0 || lastRect.height === 0)
@@ -99,45 +101,54 @@ export function useMapLocation(
 
   async function locate() {
     if (!("geolocation" in navigator)) {
-      await updateLocationState(() => {
-        location.state = "error";
-        location.statusMessage = "Location is not available in this browser.";
-      });
+      await updateLocationState((current) => ({
+        ...current,
+        state: "error",
+        statusMessage: "Location is not available in this browser.",
+      }));
       return;
     }
 
-    if (location.state === "locating") {
-      location.statusMessage = "Finding your spot on the map.";
+    if (get(location).state === "locating") {
+      location.update((current) => ({
+        ...current,
+        statusMessage: "Finding your spot on the map.",
+      }));
     } else {
-      await updateLocationState(() => {
-        location.state = "locating";
-        location.statusMessage = "Finding your spot on the map.";
-      });
+      await updateLocationState((current) => ({
+        ...current,
+        state: "locating",
+        statusMessage: "Finding your spot on the map.",
+      }));
     }
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        void updateLocationState(() => {
+        void updateLocationState((current) => {
           const latitude = position.coords.latitude;
           const longitude = position.coords.longitude;
           const nearest = nearestLocation(latitude, longitude);
           const cluster = findLocationCluster(cells, latitude, longitude);
 
-          location.latitude = latitude;
-          location.longitude = longitude;
-          location.place = nearest.name;
-          location.countryCode = nearest.countryCode;
-          location.highlightedCells = cluster;
-          location.highlightedCellColors = createLocationGradient(cells, cluster);
-          location.state = "located";
-          location.statusMessage = `Current location found near ${location.place}.`;
+          return {
+            ...current,
+            latitude,
+            longitude,
+            place: nearest.name,
+            countryCode: nearest.countryCode,
+            highlightedCells: cluster,
+            highlightedCellColors: createLocationGradient(cells, cluster),
+            state: "located",
+            statusMessage: `Current location found near ${nearest.name}.`,
+          };
         });
       },
       () => {
-        void updateLocationState(() => {
-          location.state = "error";
-          location.statusMessage = "Location not found.";
-        });
+        void updateLocationState((current) => ({
+          ...current,
+          state: "error",
+          statusMessage: "Location not found.",
+        }));
       },
       { enableHighAccuracy: true, maximumAge: 0 },
     );

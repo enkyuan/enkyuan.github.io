@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Badge from "$lib/components/ui/badge.svelte";
 	import Flags from "$lib/components/ui/flags.svelte";
-	import { useMapLocation } from "$lib/hooks/use-map-location.svelte";
+	import { useLocation } from "$lib/hooks/use-location";
 	import {
 		createWorldGrid,
 		formatCoordinate,
@@ -17,7 +17,7 @@
 	const LOADER_DOTS = Array.from({ length: LOADER_GRID }, (_, index) => index);
 	const LOADER_STEP = 34 / LOADER_GRID;
 	let sharedPill: HTMLDivElement | undefined = $state();
-	const { location, locate } = useMapLocation(cells, () => animate, () => sharedPill);
+	const { location, locate } = useLocation(cells, () => animate, () => sharedPill);
 
 	function cellStyle(row: number, column: number, color: string | undefined) {
 		const delay = Math.min(column * 3 + Math.abs(row - (WORLD_GRID_ROWS - 1) / 2) * 2, 220);
@@ -54,17 +54,17 @@
 		<div
 			class="map-grid"
 			role="img"
-			aria-label={location.state === "located"
-				? `Pixel world map highlighting your current location near ${location.place}`
-				: location.state === "error"
+			aria-label={$location.state === "located"
+				? `Pixel world map highlighting your current location near ${$location.place}`
+				: $location.state === "error"
 					? "Pixel world map; current location not found"
 					: "Pixel world map awaiting your location"}
 		>
 			{#each cells as cell}
-				{@const locationColor = location.highlightedCellColors.get(cell.id)}
+				{@const locationColor = $location.highlightedCellColors.get(cell.id)}
 				<span
 					class:location-cell={locationColor !== undefined}
-					class:location-anchor={cell.id === location.highlightedCells[0]}
+					class:location-anchor={cell.id === $location.highlightedCells[0]}
 					class="map-cell"
 					style={cellStyle(cell.row, cell.column, locationColor)}
 					aria-hidden="true"
@@ -73,38 +73,38 @@
 		</div>
 
 		<div
-			class:error={location.state === "error"}
-			class:locating={location.state === "locating"}
-			class:bottom-state={location.state !== "located"}
-			class:located={location.state === "located" &&
-				location.latitude !== undefined &&
-				location.longitude !== undefined}
-			class:opens-right={location.longitude === undefined || location.longitude < 0}
-			class:opens-left={location.longitude !== undefined && location.longitude >= 0}
-			class:opens-below={location.latitude === undefined || location.latitude >= 0}
-			class:opens-above={location.latitude !== undefined && location.latitude < 0}
+			class:error={$location.state === "error"}
+			class:locating={$location.state === "locating"}
+			class:bottom-state={$location.state !== "located"}
+			class:located={$location.state === "located" &&
+				$location.latitude !== undefined &&
+				$location.longitude !== undefined}
+			class:opens-right={$location.longitude === undefined || $location.longitude < 0}
+			class:opens-left={$location.longitude !== undefined && $location.longitude >= 0}
+			class:opens-below={$location.latitude === undefined || $location.latitude >= 0}
+			class:opens-above={$location.latitude !== undefined && $location.latitude < 0}
 			class="location-badge-anchor"
-			style={pillPosition(location.latitude, location.longitude)}
+			style={pillPosition($location.latitude, $location.longitude)}
 		>
 			<div class="shared-pill" bind:this={sharedPill}>
 				<Badge
 					class="location-badge"
-					onclick={location.state === "error" ? () => void locate() : undefined}
-					ariaLabel={location.state === "error" ? "Try finding your location again" : undefined}
+					onclick={$location.state === "error" ? () => void locate() : undefined}
+					ariaLabel={$location.state === "error" ? "Try finding your location again" : undefined}
 					ariaLive="polite"
-					title={location.state === "error" ? "Try again" : undefined}
+					title={$location.state === "error" ? "Try again" : undefined}
 				>
-					{#key location.state}
+					{#key $location.state}
 						<div class="pill-state">
-							{#if location.state === "located" && location.latitude !== undefined && location.longitude !== undefined}
-								<Flags countryCode={location.countryCode} />
+							{#if $location.state === "located" && $location.latitude !== undefined && $location.longitude !== undefined}
+								<Flags countryCode={$location.countryCode} />
 								<div class="pill-copy">
-									<h1 id="location-title">{location.place}</h1>
+									<h1 id="location-title">{$location.place}</h1>
 									<p class="coordinates">
-										{formatCoordinate(location.latitude, "N", "S", 3)} · {formatCoordinate(location.longitude, "E", "W", 3)}
+										{formatCoordinate($location.latitude, "N", "S", 3)} · {formatCoordinate($location.longitude, "E", "W", 3)}
 									</p>
 								</div>
-							{:else if location.state === "error"}
+							{:else if $location.state === "error"}
 								<span class="error-field" aria-hidden="true">
 									<svg viewBox="0 0 34 34" focusable="false">
 										{#each LOADER_DOTS as row}
@@ -147,5 +147,5 @@
 			</div>
 		</div>
 	</div>
-	<p class="sr-only" aria-live="polite">{location.statusMessage}</p>
+	<p class="sr-only" aria-live="polite">{$location.statusMessage}</p>
 </section>

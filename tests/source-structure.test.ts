@@ -42,7 +42,7 @@ test("keeps portfolio entries inline", async () => {
 test("keeps map behavior in hooks and substantial component CSS in styles", async () => {
   const expectedFiles = [
     "src/lib/hooks/use-map.ts",
-    "src/lib/hooks/use-map-location.svelte.ts",
+    "src/lib/hooks/use-location.ts",
     "src/lib/styles/about.css",
     "src/lib/styles/badge.css",
     "src/lib/styles/button.css",
@@ -55,6 +55,9 @@ test("keeps map behavior in hooks and substantial component CSS in styles", asyn
   }
 
   expect(await Bun.file(`${projectRoot}/src/lib/map.ts`).exists()).toBe(false);
+  expect(await Bun.file(`${projectRoot}/src/lib/hooks/use-map-location.svelte.ts`).exists()).toBe(
+    false,
+  );
   expect(await Bun.file(`${projectRoot}/src/lib/components/ui/map.css`).exists()).toBe(false);
 
   const styleConsumers = [
