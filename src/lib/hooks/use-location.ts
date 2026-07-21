@@ -55,11 +55,48 @@ export function useLocation(
   });
 
   async function updateLocationState(update: (current: Location) => Location) {
-    const applyUpdate = () => location.update(update);
+    const currentLocation = get(location);
+    const nextLocation = update(currentLocation);
+    const applyUpdate = () => location.set(nextLocation);
+    const staysAtBottom = currentLocation.state !== "located" && nextLocation.state !== "located";
     const viewTransitionDocument = document as ViewTransitionDocument;
     if (!shouldAnimate() || prefersReducedMotion) {
       applyUpdate();
       await tick();
+      return;
+    }
+
+    if (staysAtBottom) {
+      const sharedPill = getSharedPill();
+      const firstRect = sharedPill?.getBoundingClientRect();
+      applyUpdate();
+      await tick();
+      const lastRect = sharedPill?.getBoundingClientRect();
+      if (!sharedPill || !firstRect || !lastRect || lastRect.width === 0) return;
+
+      sharedPillAnimation?.cancel();
+      sharedPillAnimation = sharedPill.animate(
+        [
+          {
+            opacity: 0.82,
+            filter: "blur(2px)",
+            transform: `scaleX(${firstRect.width / lastRect.width})`,
+            transformOrigin: "center bottom",
+          },
+          {
+            opacity: 1,
+            filter: "blur(0)",
+            transform: "scaleX(1)",
+            transformOrigin: "center bottom",
+          },
+        ],
+        {
+          duration: 240,
+          easing: "cubic-bezier(0.77, 0, 0.175, 1)",
+          fill: "both",
+        },
+      );
+      await sharedPillAnimation.finished.catch(() => undefined);
       return;
     }
 
@@ -91,8 +128,8 @@ export function useLocation(
         { opacity: 1, filter: "blur(0)", transform: "translate(0, 0) scale(1)" },
       ],
       {
-        duration: 520,
-        easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+        duration: 280,
+        easing: "cubic-bezier(0.32, 0.72, 0, 1)",
         fill: "both",
       },
     );

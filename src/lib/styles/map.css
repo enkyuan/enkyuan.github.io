@@ -82,7 +82,7 @@
 .shared-pill {
   width: fit-content;
   max-width: 100%;
-  transform-origin: center;
+  transform-origin: center bottom;
   view-transition-name: location-pill;
 }
 
@@ -173,8 +173,8 @@
 }
 
 ::view-transition-group(location-pill) {
-  animation-duration: 520ms;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-duration: 280ms;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 ::view-transition-image-pair(location-pill) {
@@ -187,11 +187,16 @@
 }
 
 ::view-transition-old(location-pill) {
-  animation: liquid-pill-out 180ms cubic-bezier(0.4, 0, 1, 1) both;
+  animation: liquid-pill-out 120ms cubic-bezier(0.4, 0, 1, 1) both;
 }
 
 ::view-transition-new(location-pill) {
-  animation: liquid-pill-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: liquid-pill-in 280ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
 }
 
 @keyframes map-cell-enter {
@@ -241,14 +246,14 @@
 @keyframes liquid-pill-in {
   from {
     opacity: 0;
-    filter: blur(5px);
-    transform: scale(0.9, 1.08);
+    filter: blur(4px);
+    transform: scale(0.94, 1.04);
   }
 
   62% {
     opacity: 1;
     filter: blur(0);
-    transform: scale(1.015, 0.985);
+    transform: scale(1.01, 0.99);
   }
 
   to {

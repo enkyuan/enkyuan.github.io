@@ -219,10 +219,25 @@ test("keeps pending and failed location states at one viewport-bottom anchor", (
   expect(mapStyles).toContain("view-transition-name: location-pill;");
   expect(mapStyles).toContain("::view-transition-group(location-pill)");
   expect(mapStyles).toContain("@keyframes liquid-pill-in");
-  expect(mapStyles).toContain("transform: scale(1.015, 0.985);");
+  expect(mapStyles).toContain("transform: scale(1.01, 0.99);");
   expect(mapComponent).not.toContain("in:fade");
   expect(mapComponent).not.toContain("out:fade");
   expect(locationHook).toContain('window.matchMedia("(prefers-reduced-motion: reduce)")');
+});
+
+test("morphs loading and error badges in place without a viewport-edge entrance", () => {
+  expect(locationHook).toContain(
+    'const staysAtBottom = currentLocation.state !== "located" && nextLocation.state !== "located";',
+  );
+  expect(locationHook).toContain("if (staysAtBottom) {");
+  expect(locationHook).toContain("transform: `scaleX(${firstRect.width / lastRect.width})`");
+  expect(locationHook).toContain('transformOrigin: "center bottom"');
+  expect(locationHook).toContain("duration: 240");
+  expect(locationHook).toContain('easing: "cubic-bezier(0.77, 0, 0.175, 1)"');
+  expect(mapComponent).not.toContain("{#key $location.state}");
+  expect(mapComponent).toContain('disabled={$location.state !== "error"}');
+  expect(mapStyles).toContain("::view-transition-old(root)");
+  expect(mapStyles).toContain("::view-transition-new(root)");
 });
 
 test("keeps loading pending and renders location failures as a dot-matrix X", () => {
@@ -242,10 +257,8 @@ test("keeps loading pending and renders location failures as a dot-matrix X", ()
 
 test("keeps one visitor location session mounted and only makes failed badges interactive", () => {
   expect(page).toContain('hidden={activeTab !== "name"}');
-  expect(mapComponent).toContain(
-    'onclick={$location.state === "error" ? () => void locate() : undefined}',
-  );
-  expect(mapComponent).not.toContain('disabled={$location.state === "locating"}');
+  expect(mapComponent).toContain('if ($location.state === "error") void locate();');
+  expect(mapComponent).toContain('disabled={$location.state !== "error"}');
   expect(mapComponent).toContain(
     'ariaLabel={$location.state === "error" ? "Try finding your location again" : undefined}',
   );

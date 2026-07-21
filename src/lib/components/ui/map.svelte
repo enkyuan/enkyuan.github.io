@@ -89,14 +89,16 @@
 			<div class="shared-pill" bind:this={sharedPill}>
 				<Badge
 					class="location-badge"
-					onclick={$location.state === "error" ? () => void locate() : undefined}
+					onclick={() => {
+						if ($location.state === "error") void locate();
+					}}
+					disabled={$location.state !== "error"}
 					ariaLabel={$location.state === "error" ? "Try finding your location again" : undefined}
 					ariaLive="polite"
 					title={$location.state === "error" ? "Try again" : undefined}
 				>
-					{#key $location.state}
-						<div class="pill-state">
-							{#if $location.state === "located" && $location.latitude !== undefined && $location.longitude !== undefined}
+					<div class="pill-state">
+						{#if $location.state === "located" && $location.latitude !== undefined && $location.longitude !== undefined}
 								<Flags countryCode={$location.countryCode} />
 								<div class="pill-copy">
 									<h1 id="location-title">{$location.place}</h1>
@@ -104,7 +106,7 @@
 										{formatCoordinate($location.latitude, "N", "S", 3)} · {formatCoordinate($location.longitude, "E", "W", 3)}
 									</p>
 								</div>
-							{:else if $location.state === "error"}
+						{:else if $location.state === "error"}
 								<span class="error-field" aria-hidden="true">
 									<svg viewBox="0 0 34 34" focusable="false">
 										{#each LOADER_DOTS as row}
@@ -122,7 +124,7 @@
 									</svg>
 								</span>
 								<h1 id="location-title">Location not found</h1>
-							{:else}
+						{:else}
 								<span class="loading-field" aria-hidden="true">
 									<svg viewBox="0 0 34 34" focusable="false">
 										{#each LOADER_DOTS as row}
@@ -140,9 +142,8 @@
 									</svg>
 								</span>
 								<h1 id="location-title">Finding your spot on the map…</h1>
-							{/if}
-						</div>
-					{/key}
+						{/if}
+					</div>
 				</Badge>
 			</div>
 		</div>

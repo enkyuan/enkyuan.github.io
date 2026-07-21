@@ -28,7 +28,7 @@ button.badge {
 }
 
 button.badge:disabled {
-  cursor: wait;
+  cursor: default;
 }
 
 button.badge:focus-visible {
