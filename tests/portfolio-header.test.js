@@ -23,6 +23,14 @@ test("uses a deterministic rounded face for the Timeline and Works tabs", () => 
   expect(page).not.toContain("font-family: ui-rounded;");
 });
 
+test("fades the secondary tabs in without flashing on load", () => {
+  expect(page).toContain("animation: secondary-tab-enter 240ms var(--ease-out) 180ms both;");
+  expect(page).toContain(".secondary-tab:nth-child(3)");
+  expect(page).toContain("animation-delay: 250ms;");
+  expect(page).toContain("@keyframes secondary-tab-enter");
+  expect(page).toContain(".secondary-tab {\n\t\t\tanimation: none;");
+});
+
 test("removes the Connect section without leaving stale styles", () => {
   expect(page).not.toContain('<p class="entry-date">Connect</p>');
   expect(page).not.toContain("$lib/constants/socials");

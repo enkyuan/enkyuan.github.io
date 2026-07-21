@@ -290,6 +290,11 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 
 	.secondary-tab {
 		font-family: ".SF NS Rounded", "SF Pro Rounded", "Portfolio Rounded", sans-serif;
+		animation: secondary-tab-enter 240ms var(--ease-out) 180ms both;
+	}
+
+	.secondary-tab:nth-child(3) {
+		animation-delay: 250ms;
 	}
 
 	.tab-panel {
@@ -309,6 +314,16 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 		to {
 			opacity: 1;
 			transform: translateY(0);
+		}
+	}
+
+	@keyframes secondary-tab-enter {
+		from {
+			opacity: 0;
+		}
+
+		to {
+			opacity: 1;
 		}
 	}
 
@@ -391,6 +406,10 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 	@media (prefers-reduced-motion: reduce) {
 		.tab-list button {
 			transition-duration: 0ms;
+		}
+
+		.secondary-tab {
+			animation: none;
 		}
 
 		.animate-content .stagger-item {
