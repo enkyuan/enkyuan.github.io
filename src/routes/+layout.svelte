@@ -1,7 +1,8 @@
 <script lang="ts">
 import "../app.css";
+import { browser, dev } from "$app/environment";
 import { onMount } from "svelte";
-import { dev } from "$app/environment";
+import { Agentation } from "sv-agentation";
 
 onMount(() => {
 	if (dev) {
@@ -9,6 +10,10 @@ onMount(() => {
 	}
 });
 </script>
+
+{#if browser && dev}
+	<Agentation />
+{/if}
 
 <main>
 	<slot />

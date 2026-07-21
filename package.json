@@ -27,6 +27,7 @@
     "@tailwindcss/vite": "^4.0.0",
     "oxfmt": "^0.24.0",
     "oxlint": "^1.39.0",
+    "sv-agentation": "^0.4.0",
     "svelte": "^5.25.0",
     "svelte-check": "^4.0.0",
     "tailwindcss": "^4.0.0",
