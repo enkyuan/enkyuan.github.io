@@ -21,7 +21,7 @@ type GradientStop = {
 export const WORLD_GRID_COLUMNS = 64;
 export const WORLD_GRID_ROWS = 32;
 
-const LOCATION_GRADIENT_STOPS: readonly GradientStop[] = [
+const MAP_GRADIENT_STOPS: readonly GradientStop[] = [
   { at: 0, color: [5, 11, 24] },
   { at: 0.42, color: [23, 59, 132] },
   { at: 0.73, color: [120, 162, 213] },
@@ -161,9 +161,9 @@ export function findLocationCluster(
 
 function sampleLocationGradient(progress: number) {
   const clampedProgress = Math.max(0, Math.min(progress, 1));
-  const endIndex = LOCATION_GRADIENT_STOPS.findIndex((stop) => stop.at >= clampedProgress);
-  const end = LOCATION_GRADIENT_STOPS[Math.max(endIndex, 1)];
-  const start = LOCATION_GRADIENT_STOPS[Math.max(endIndex - 1, 0)];
+  const endIndex = MAP_GRADIENT_STOPS.findIndex((stop) => stop.at >= clampedProgress);
+  const end = MAP_GRADIENT_STOPS[Math.max(endIndex, 1)];
+  const start = MAP_GRADIENT_STOPS[Math.max(endIndex - 1, 0)];
   const span = end.at - start.at || 1;
   const amount = (clampedProgress - start.at) / span;
   const channels = start.color.map((channel, index) =>
@@ -226,15 +226,6 @@ export function nearestLocation(latitude: number, longitude: number) {
 
 export function nearestPlace(latitude: number, longitude: number) {
   return nearestLocation(latitude, longitude).name;
-}
-
-export function countryCodeToFlag(countryCode: string) {
-  const normalizedCode = countryCode.trim().toUpperCase();
-  if (!/^[A-Z]{2}$/.test(normalizedCode)) return "🌐";
-
-  return String.fromCodePoint(
-    ...[...normalizedCode].map((character) => 127397 + character.charCodeAt(0)),
-  );
 }
 
 export function formatCoordinate(value: number, positive: string, negative: string, precision = 2) {

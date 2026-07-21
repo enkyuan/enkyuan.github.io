@@ -1,6 +1,6 @@
 <script lang="ts">
 import { tick } from "svelte";
-import LocationMap from "$lib/components/location-map.svelte";
+import Map from "$lib/components/ui/map.svelte";
 import { experiences } from "$lib/constants/experiences";
 import { projects } from "$lib/constants/projects";
 
@@ -79,6 +79,15 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 					{/if}
 				</button>
 			{/each}
+		</div>
+
+		<div
+			id="name-panel"
+			role="tabpanel"
+			aria-labelledby="name-tab"
+			hidden={activeTab !== "name"}
+		>
+			<Map animate={animateContent} />
 		</div>
 
 		{#if activeTab === "timeline"}
@@ -162,14 +171,6 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 						</div>
 					</article>
 				{/each}
-			</div>
-		{:else}
-			<div
-				id="name-panel"
-				role="tabpanel"
-				aria-labelledby="name-tab"
-			>
-				<LocationMap animate={animateContent} />
 			</div>
 		{/if}
 	</div>

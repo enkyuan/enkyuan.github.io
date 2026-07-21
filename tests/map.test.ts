@@ -2,7 +2,6 @@
 import { expect, test } from "bun:test";
 import {
   createWorldGrid,
-  countryCodeToFlag,
   createLocationGradient,
   findLocationCluster,
   formatCoordinate,
@@ -10,7 +9,7 @@ import {
   nearestPlace,
   WORLD_GRID_COLUMNS,
   WORLD_GRID_ROWS,
-} from "../src/lib/location-map";
+} from "../src/lib/map";
 
 test("builds a recognizable world grid with unique cells", () => {
   const cells = createWorldGrid();
@@ -55,10 +54,4 @@ test("rounds coordinates for the privacy-preserving readout", () => {
   expect(formatCoordinate(41.8819, "N", "S")).toBe("41.88° N");
   expect(formatCoordinate(-87.6278, "E", "W")).toBe("87.63° W");
   expect(formatCoordinate(41.8819, "N", "S", 3)).toBe("41.882° N");
-});
-
-test("turns the nearest country into a flag without loading remote assets", () => {
-  expect(countryCodeToFlag("US")).toBe("🇺🇸");
-  expect(countryCodeToFlag("gb")).toBe("🇬🇧");
-  expect(countryCodeToFlag("unknown")).toBe("🌐");
 });

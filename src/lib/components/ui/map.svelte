@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { onMount } from "svelte";
+	import { fade } from "svelte/transition";
+	import Badge from "$lib/components/ui/badge.svelte";
+	import Flags from "$lib/components/ui/flags.svelte";
 	import {
-		countryCodeToFlag,
 		createLocationGradient,
 		createWorldGrid,
 		findLocationCluster,
@@ -9,26 +11,16 @@
 		nearestLocation,
 		WORLD_GRID_COLUMNS,
 		WORLD_GRID_ROWS,
-	} from "$lib/location-map";
+	} from "$lib/map";
 
 	type LocationState = "locating" | "located" | "error";
 
 	let { animate = true } = $props<{ animate?: boolean }>();
 
 	const cells = createWorldGrid();
-	const US_FLAG_DOTS = Array.from({ length: 12 }, (_, index) => index);
-	const US_FLAG_DOT_STEP = 34 / US_FLAG_DOTS.length;
-	const US_FLAG_DOT_SIZE = 2.3;
-	const US_FLAG_STARS = [
-		{ x: 2.2, y: 1.8 },
-		{ x: 7.2, y: 1.8 },
-		{ x: 12.2, y: 1.8 },
-		{ x: 4.7, y: 6.6 },
-		{ x: 9.7, y: 6.6 },
-		{ x: 2.2, y: 11.4 },
-		{ x: 7.2, y: 11.4 },
-		{ x: 12.2, y: 11.4 },
-	] as const;
+	const LOADER_GRID = 12;
+	const LOADER_DOTS = Array.from({ length: LOADER_GRID }, (_, index) => index);
+	const LOADER_STEP = 34 / LOADER_GRID;
 
 	let locationState: LocationState = $state("locating");
 	let place = $state("Current location");
@@ -37,9 +29,21 @@
 	let longitude: number | undefined = $state();
 	let highlightedCells: string[] = $state([]);
 	let highlightedCellColors: Map<string, string> = $state(new Map());
-	let statusMessage = $state("Finding your current location.");
+	let statusMessage = $state("Finding your spot on the map.");
+	let prefersReducedMotion = $state(false);
 
-	onMount(locate);
+	onMount(() => {
+		const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+		const updateMotionPreference = () => {
+			prefersReducedMotion = reducedMotion.matches;
+		};
+
+		updateMotionPreference();
+		reducedMotion.addEventListener("change", updateMotionPreference);
+		locate();
+
+		return () => reducedMotion.removeEventListener("change", updateMotionPreference);
+	});
 
 	function locate() {
 		if (!("geolocation" in navigator)) {
@@ -49,7 +53,7 @@
 		}
 
 		locationState = "locating";
-		statusMessage = "Finding your current location.";
+		statusMessage = "Finding your spot on the map.";
 
 		navigator.geolocation.getCurrentPosition(
 			(position) => {
@@ -68,14 +72,11 @@
 				locationState = "located";
 				statusMessage = `Current location found near ${place}.`;
 			},
-			(error) => {
+			() => {
 				locationState = "error";
-				statusMessage =
-					error.code === error.PERMISSION_DENIED
-						? "Location access was not allowed. You can retry whenever you are ready."
-						: "Your location could not be found. Check your connection and try again.";
+				statusMessage = "Location not found.";
 			},
-			{ enableHighAccuracy: true, maximumAge: 0, timeout: 15_000 },
+			{ enableHighAccuracy: true, maximumAge: 0 },
 		);
 	}
 
@@ -91,20 +92,34 @@
 		return `--anchor-x:${x}%;--anchor-y:${y}%`;
 	}
 
-	function flagDotFill(row: number, column: number) {
-		if (row < 6 && column < 6) return "#173b84";
-		return row % 2 === 0 ? "#b52b3a" : "#f7f8fa";
+	function isLoadingDotVisible(row: number, column: number) {
+		const center = (LOADER_GRID - 1) / 2;
+		return (column - center) ** 2 + (row - center) ** 2 <= 31;
+	}
+
+	function loadingDotDelay(row: number, column: number) {
+		const center = (LOADER_GRID - 1) / 2;
+		return Math.round(Math.hypot(column - center, row - center) * 64);
+	}
+
+	function isErrorDotVisible(row: number, column: number) {
+		const center = (LOADER_GRID - 1) / 2;
+		const x = Math.abs(column - center);
+		const y = Math.abs(row - center);
+		return x ** 2 + y ** 2 <= 26 && Math.abs(x - y) <= 1;
 	}
 </script>
 
-<section class:animate class="location-map" aria-labelledby="location-title">
+<section class:animate class="map" aria-labelledby="location-title">
 	<div class="map-stage">
 		<div
 			class="map-grid"
 			role="img"
 			aria-label={locationState === "located"
 				? `Pixel world map highlighting your current location near ${place}`
-				: "Pixel world map awaiting your location"}
+				: locationState === "error"
+					? "Pixel world map; current location not found"
+					: "Pixel world map awaiting your location"}
 		>
 			{#each cells as cell}
 				{@const locationColor = highlightedCellColors.get(cell.id)}
@@ -121,57 +136,35 @@
 		{#key locationState}
 			<div
 				class:error={locationState === "error"}
+				class:locating={locationState === "locating"}
+				class:bottom-state={locationState !== "located"}
 				class:located={locationState === "located" && latitude !== undefined && longitude !== undefined}
 				class:opens-right={longitude === undefined || longitude < 0}
 				class:opens-left={longitude !== undefined && longitude >= 0}
 				class:opens-below={latitude === undefined || latitude >= 0}
 				class:opens-above={latitude !== undefined && latitude < 0}
-				class="location-pill"
+				class="location-badge-anchor"
 				style={pillPosition(latitude, longitude)}
-				aria-live="polite"
+				in:fade={{ duration: animate && !prefersReducedMotion ? 180 : 0 }}
+				out:fade={{ duration: animate && !prefersReducedMotion ? 120 : 0 }}
 			>
+				<Badge
+					class="location-badge"
+					onclick={locationState === "locating" ? undefined : () => locate()}
+					ariaLabel={locationState === "error"
+						? "Try finding your location again"
+						: locationState === "located"
+							? "Refresh your current location"
+							: undefined}
+					ariaLive="polite"
+					title={locationState === "error"
+						? "Try again"
+						: locationState === "located"
+							? "Refresh location"
+							: undefined}
+				>
 				{#if locationState === "located" && latitude !== undefined && longitude !== undefined}
-					<span class:us={countryCode === "US"} class="country-flag" aria-hidden="true">
-						{#if countryCode === "US"}
-							<svg viewBox="0 0 34 34" focusable="false">
-								<defs>
-									<clipPath id="us-flag-circle">
-										<circle cx="17" cy="17" r="17" />
-									</clipPath>
-									<symbol id="us-flag-star" viewBox="0 0 10 10">
-										<path d="M5 0.8 6.1 3.7 9.2 3.8 6.8 5.8 7.6 8.9 5 7.2 2.4 8.9 3.2 5.8 0.8 3.8 3.9 3.7Z" />
-									</symbol>
-								</defs>
-								<g clip-path="url(#us-flag-circle)">
-									<circle cx="17" cy="17" r="17" fill="#111315" />
-									{#each US_FLAG_DOTS as row}
-										{#each US_FLAG_DOTS as column}
-											<rect
-												x={column * US_FLAG_DOT_STEP + (US_FLAG_DOT_STEP - US_FLAG_DOT_SIZE) / 2}
-												y={row * US_FLAG_DOT_STEP + (US_FLAG_DOT_STEP - US_FLAG_DOT_SIZE) / 2}
-												width={US_FLAG_DOT_SIZE}
-												height={US_FLAG_DOT_SIZE}
-												rx="0.45"
-												fill={flagDotFill(row, column)}
-											/>
-										{/each}
-									{/each}
-									{#each US_FLAG_STARS as star}
-										<use
-											href="#us-flag-star"
-											x={star.x}
-											y={star.y}
-											width="2.5"
-											height="2.5"
-											fill="#f7f8fa"
-										/>
-									{/each}
-								</g>
-							</svg>
-						{:else}
-							<span class="flag-emoji">{countryCodeToFlag(countryCode)}</span>
-						{/if}
-					</span>
+					<Flags {countryCode} />
 					<div class="pill-copy">
 						<h1 id="location-title">{place}</h1>
 						<p class="coordinates">
@@ -179,11 +172,43 @@
 						</p>
 					</div>
 				{:else if locationState === "error"}
-					<h1 id="location-title">Location unavailable</h1>
-					<button type="button" onclick={locate}>Try again</button>
+					<span class="error-field" aria-hidden="true">
+						<svg viewBox="0 0 34 34" focusable="false">
+							{#each LOADER_DOTS as row}
+								{#each LOADER_DOTS as column}
+									{#if isLoadingDotVisible(row, column)}
+										<circle
+											class:error-mark={isErrorDotVisible(row, column)}
+											cx={column * LOADER_STEP + LOADER_STEP / 2}
+											cy={row * LOADER_STEP + LOADER_STEP / 2}
+											r="1.15"
+										/>
+									{/if}
+								{/each}
+							{/each}
+						</svg>
+					</span>
+					<h1 id="location-title">Location not found</h1>
 				{:else}
-					<h1 id="location-title">Finding your location…</h1>
+					<span class="loading-field" aria-hidden="true">
+						<svg viewBox="0 0 34 34" focusable="false">
+							{#each LOADER_DOTS as row}
+								{#each LOADER_DOTS as column}
+									{#if isLoadingDotVisible(row, column)}
+										<circle
+											cx={column * LOADER_STEP + LOADER_STEP / 2}
+											cy={row * LOADER_STEP + LOADER_STEP / 2}
+											r="1.15"
+											style={`--loader-delay:${loadingDotDelay(row, column)}ms`}
+										/>
+									{/if}
+								{/each}
+							{/each}
+						</svg>
+					</span>
+					<h1 id="location-title">Finding your spot on the map…</h1>
 				{/if}
+				</Badge>
 			</div>
 		{/key}
 	</div>
@@ -191,7 +216,7 @@
 </section>
 
 <style>
-	.location-map {
+	.map {
 		position: relative;
 		isolation: isolate;
 		padding-top: clamp(2.75rem, 7vh, 4.25rem);
@@ -231,96 +256,98 @@
 		animation: location-cell-drop 420ms var(--ease-out) 60ms both;
 	}
 
-	.location-pill {
+	.location-badge-anchor {
 		position: absolute;
 		z-index: 3;
-		display: flex;
 		width: fit-content;
 		max-width: calc(100% - 1.5rem);
-		height: 54px;
-		align-items: center;
-		gap: 10px;
 		bottom: clamp(0.75rem, 3vw, 1.5rem);
 		left: clamp(1rem, 7vw, 3.5rem);
-		border-radius: 999px;
-		padding: 10px 16px 10px 10px;
-		background: #111315;
-		box-shadow:
-			0 1px 2px rgba(5, 11, 24, 0.18),
-			0 5px 12px rgba(5, 11, 24, 0.12);
-		color: #f7f8fa;
 	}
 
-	.location-pill.located {
+	.location-badge-anchor.located {
 		top: var(--anchor-y);
 		bottom: auto;
 		left: var(--anchor-x);
 	}
 
-	.location-pill.located.opens-right.opens-below {
+	.location-badge-anchor.bottom-state {
+		position: fixed;
+		top: auto;
+		right: auto;
+		bottom: max(1.5rem, env(safe-area-inset-bottom));
+		left: 50%;
+		z-index: 20;
+		transform: translateX(-50%);
+	}
+
+	.location-badge-anchor.located.opens-right.opens-below {
 		transform: translate(14px, 12px);
 	}
 
-	.location-pill.located.opens-left.opens-below {
+	.location-badge-anchor.located.opens-left.opens-below {
 		transform: translate(calc(-100% - 14px), 12px);
 	}
 
-	.location-pill.located.opens-right.opens-above {
+	.location-badge-anchor.located.opens-right.opens-above {
 		transform: translate(14px, calc(-100% - 12px));
 	}
 
-	.location-pill.located.opens-left.opens-above {
+	.location-badge-anchor.located.opens-left.opens-above {
 		transform: translate(calc(-100% - 14px), calc(-100% - 12px));
-	}
-
-	.animate .location-pill {
-		animation: pill-enter 300ms var(--ease-out) 180ms backwards;
 	}
 
 	.pill-copy {
 		min-width: 0;
 	}
 
-	.country-flag {
-		display: block;
-		flex: 0 0 34px;
-		width: 34px;
-		height: 34px;
-		overflow: hidden;
-		border-radius: 50%;
-		box-shadow: inset 0 0 0 1px rgba(247, 248, 250, 0.08);
-		transform: translateY(-0.5px);
-	}
-
-	.country-flag svg {
-		display: block;
-		width: 100%;
-		height: 100%;
-	}
-
-	.flag-emoji {
-		display: grid;
-		width: 100%;
-		height: 100%;
-		place-items: center;
-		font-family: "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
-		font-size: 2rem;
-		line-height: 1;
-		transform: scale(1.3);
-	}
-
-	.location-pill h1,
+	.location-badge-anchor h1,
 	.coordinates {
 		margin: 0;
 	}
 
-	.location-pill h1 {
+	.location-badge-anchor h1 {
 		font-family: "Portfolio Rounded", sans-serif;
 		font-size: 0.875rem;
 		font-weight: 400;
 		letter-spacing: -0.015em;
 		line-height: 1.2;
 		white-space: nowrap;
+	}
+
+	.loading-field,
+	.error-field {
+		display: block;
+		flex: 0 0 34px;
+		width: 34px;
+		height: 34px;
+		transform: translateY(-0.5px);
+	}
+
+	.loading-field svg,
+	.error-field svg {
+		display: block;
+		width: 100%;
+		height: 100%;
+	}
+
+	.loading-field circle {
+		fill: currentColor;
+		opacity: 0.16;
+		animation: loading-dot 900ms var(--ease-out) infinite;
+		animation-delay: calc(var(--loader-delay) - 900ms);
+	}
+
+	.error-field {
+		border-radius: 50%;
+	}
+
+	.error-field circle {
+		fill: rgba(255, 184, 186, 0.42);
+	}
+
+	.error-field circle.error-mark {
+		fill: #ff5c63;
 	}
 
 	.coordinates {
@@ -330,35 +357,6 @@
 		letter-spacing: -0.01em;
 		line-height: 1.2;
 		white-space: nowrap;
-	}
-
-	.location-pill button {
-		display: inline-flex;
-		min-height: 44px;
-		align-items: center;
-		margin-left: 0.15rem;
-		border: 0;
-		border-radius: 999px;
-		padding: 0.45rem 0.7rem;
-		background: #f7f8fa;
-		color: #17191d;
-		font-family: "Portfolio Rounded", sans-serif;
-		font-size: 0.875rem;
-		font-weight: 400;
-		letter-spacing: -0.015em;
-		cursor: pointer;
-		transition:
-			background-color 160ms ease,
-			transform 140ms var(--ease-out);
-	}
-
-	.location-pill button:focus-visible {
-		outline: 2px solid #78a2d5;
-		outline-offset: 3px;
-	}
-
-	.location-pill button:active {
-		transform: scale(0.96);
 	}
 
 	.sr-only {
@@ -385,16 +383,6 @@
 		}
 	}
 
-	@keyframes pill-enter {
-		from {
-			opacity: 0;
-		}
-
-		to {
-			opacity: 1;
-		}
-	}
-
 	@keyframes location-cell-drop {
 		from {
 			opacity: 0;
@@ -407,19 +395,25 @@
 		}
 	}
 
-	@media (hover: hover) and (pointer: fine) {
-		.location-pill button:hover {
-			background: #e7e8ea;
+	@keyframes loading-dot {
+		0%,
+		60%,
+		100% {
+			opacity: 0.16;
+		}
+
+		30% {
+			opacity: 0.88;
 		}
 	}
 
 	@media (max-width: 560px) {
-		.location-map {
+		.map {
 			padding-top: 2.5rem;
 			padding-bottom: 4.5rem;
 		}
 
-		.location-pill {
+		.location-badge-anchor {
 			max-width: calc(100% - 1rem);
 			bottom: 0.5rem;
 			left: 0.5rem;
@@ -429,10 +423,25 @@
 	@media (prefers-reduced-motion: reduce) {
 		.map-cell,
 		.map-cell.location-anchor,
-		.location-pill,
-		.location-pill button {
+		.location-badge-anchor {
 			animation: none;
 			transition-duration: 0ms;
+		}
+
+		.loading-field circle {
+			animation: loading-dot-reduced 1.4s ease-in-out infinite;
+			animation-delay: calc(var(--loader-delay) - 1.4s);
+		}
+	}
+
+	@keyframes loading-dot-reduced {
+		0%,
+		100% {
+			opacity: 0.35;
+		}
+
+		50% {
+			opacity: 1;
 		}
 	}
 </style>
