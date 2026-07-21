@@ -180,6 +180,20 @@ test("locates automatically and presents the coordinates in a rounded pill", () 
   expect(mapComponent).not.toContain("Use current location");
 });
 
+test("derives the map marker from the visiting browser's live coordinates", () => {
+  expect(locationHook).toContain("navigator.geolocation.getCurrentPosition(");
+  expect(locationHook).toContain("const latitude = position.coords.latitude;");
+  expect(locationHook).toContain("const longitude = position.coords.longitude;");
+  expect(locationHook).toContain("nearestLocation(latitude, longitude)");
+  expect(locationHook).toContain("findLocationCluster(cells, latitude, longitude)");
+  expect(locationHook).toContain("createLocationGradient(cells, cluster)");
+  expect(locationHook).toContain("{ enableHighAccuracy: true, maximumAge: 0 }");
+  expect(locationHook).not.toContain("localStorage");
+  expect(locationHook).not.toContain("sessionStorage");
+  expect(locationHook).not.toContain("fetch(");
+  expect(mapComponent).toContain("style={pillPosition($location.latitude, $location.longitude)}");
+});
+
 test("keeps pending and failed location states at one viewport-bottom anchor", () => {
   expect(mapComponent).toContain('class:bottom-state={$location.state !== "located"}');
   expect(mapStyles).toContain(".location-badge-anchor.bottom-state {");
