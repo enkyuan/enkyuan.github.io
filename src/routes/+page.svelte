@@ -1,5 +1,6 @@
 <script lang="ts">
 import { tick } from "svelte";
+import LocationMap from "$lib/components/location-map.svelte";
 import { experiences } from "$lib/constants/experiences";
 import { projects } from "$lib/constants/projects";
 
@@ -167,7 +168,9 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 				id="name-panel"
 				role="tabpanel"
 				aria-labelledby="name-tab"
-			></div>
+			>
+				<LocationMap animate={animateContent} />
+			</div>
 		{/if}
 	</div>
 </div>

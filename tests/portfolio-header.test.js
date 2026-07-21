@@ -44,3 +44,8 @@ test("staggers Timeline and Works content without animating keyboard navigation"
   expect(page).toContain("@media (prefers-reduced-motion: reduce)");
   expect(page).toContain("animation: none");
 });
+
+test("renders the current-location map in the name tab", () => {
+  expect(page).toContain('import LocationMap from "$lib/components/location-map.svelte";');
+  expect(page).toContain("<LocationMap animate={animateContent} />");
+});
