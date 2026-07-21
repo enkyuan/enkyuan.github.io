@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from "svelte";
 	import {
 		createWorldGrid,
 		findLocationCluster,
@@ -7,7 +8,7 @@
 		WORLD_GRID_ROWS,
 	} from "$lib/location-map";
 
-	type LocationState = "idle" | "locating" | "located" | "error";
+	type LocationState = "locating" | "located" | "error";
 
 	let { animate = true } = $props<{ animate?: boolean }>();
 
@@ -22,12 +23,14 @@
 		"#050b18",
 	];
 
-	let locationState: LocationState = $state("idle");
+	let locationState: LocationState = $state("locating");
 	let place = $state("Current location");
 	let latitude: number | undefined = $state();
 	let longitude: number | undefined = $state();
 	let highlightedCells: string[] = $state([]);
-	let statusMessage = $state("Your location has not been requested.");
+	let statusMessage = $state("Finding your current location.");
+
+	onMount(locate);
 
 	function locate() {
 		if (!("geolocation" in navigator)) {
@@ -90,39 +93,24 @@
 		{/each}
 	</div>
 
-	<div class="location-plaque">
-		<div class="plaque-copy">
-			<p class="eyebrow">Location</p>
-			<h1 id="location-title">
-				{locationState === "located" ? `${place} · Now` : "Find yourself here"}
-			</h1>
-			{#if locationState === "located" && latitude !== undefined && longitude !== undefined}
+	<div class:error={locationState === "error"} class="location-pill" aria-live="polite">
+		<span class="pill-marker" aria-hidden="true"></span>
+
+		{#if locationState === "located" && latitude !== undefined && longitude !== undefined}
+			<div class="pill-copy">
+				<h1 id="location-title">{place}</h1>
 				<p class="coordinates">
 					{formatCoordinate(latitude, "N", "S")} · {formatCoordinate(longitude, "E", "W")}
 				</p>
-			{:else}
-				<p class="description">Place your current location on the map.</p>
-			{/if}
-		</div>
-
-		<button type="button" onclick={locate} disabled={locationState === "locating"}>
-			<span class="button-marker" aria-hidden="true"></span>
-			{locationState === "locating"
-				? "Locating…"
-				: locationState === "located"
-					? "Update location"
-					: locationState === "error"
-						? "Try again"
-						: "Use current location"}
-		</button>
-
-		<p class:error={locationState === "error"} class="privacy-note">
-			{locationState === "error"
-				? statusMessage
-				: "Nearest city and rounded coordinates are computed locally. Nothing is sent."}
-		</p>
-		<p class="sr-only" aria-live="polite">{statusMessage}</p>
+			</div>
+		{:else if locationState === "error"}
+			<h1 id="location-title">Location unavailable</h1>
+			<button type="button" onclick={locate}>Try again</button>
+		{:else}
+			<h1 id="location-title">Finding your location…</h1>
+		{/if}
 	</div>
+	<p class="sr-only" aria-live="polite">{statusMessage}</p>
 </section>
 
 <style>
@@ -160,22 +148,38 @@
 		transform: scale(1.08);
 	}
 
-	.map-cell.location-anchor::after {
-		position: absolute;
-		inset: -4px;
-		border: 1px solid rgba(23, 59, 132, 0.48);
-		border-radius: 4px;
-		content: "";
+	.map-cell.location-anchor {
+		z-index: 2;
 	}
 
-	.location-plaque {
+	.map-cell.location-anchor::after {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		width: 13px;
+		height: 13px;
+		border: 2px solid #ffffff;
+		border-radius: 50% 50% 50% 0;
+		background: radial-gradient(circle at center, #ffffff 0 2px, #173b84 2.5px);
+		box-shadow: 0 2px 5px rgba(5, 11, 24, 0.24);
+		content: "";
+		transform: translate(-50%, -95%) rotate(-45deg);
+		animation: location-pin-drop 420ms var(--ease-out) 60ms both;
+	}
+
+	.location-pill {
 		position: relative;
 		z-index: 1;
-		width: min(24rem, calc(100% - 1.5rem));
-		margin-top: clamp(-3.5rem, -6vw, -2.25rem);
+		display: flex;
+		width: fit-content;
+		max-width: calc(100% - 1.5rem);
+		min-height: 54px;
+		align-items: center;
+		gap: 0.7rem;
+		margin-top: clamp(-2.75rem, -5vw, -1.75rem);
 		margin-left: clamp(1rem, 7vw, 3.5rem);
-		border-radius: 14px;
-		padding: 1.25rem;
+		border-radius: 999px;
+		padding: 0.55rem 0.75rem;
 		background: #111315;
 		box-shadow:
 			0 1px 2px rgba(5, 11, 24, 0.18),
@@ -183,58 +187,58 @@
 		color: #f7f8fa;
 	}
 
-	.animate .location-plaque {
-		animation: plaque-enter 320ms var(--ease-out) 180ms backwards;
+	.animate .location-pill {
+		animation: pill-enter 300ms var(--ease-out) 180ms backwards;
 	}
 
-	.plaque-copy {
+	.pill-copy {
 		min-width: 0;
 	}
 
-	.eyebrow,
-	.location-plaque h1,
-	.coordinates,
-	.description,
-	.privacy-note {
+	.location-pill h1,
+	.coordinates {
 		margin: 0;
 	}
 
-	.eyebrow {
-		color: rgba(247, 248, 250, 0.5);
-		font-size: 0.75rem;
-		font-weight: 500;
-		letter-spacing: 0.06em;
-		line-height: 1;
-		text-transform: uppercase;
-	}
-
-	.location-plaque h1 {
-		margin-top: 0.7rem;
+	.location-pill h1 {
 		font-family: "Portfolio Rounded", sans-serif;
-		font-size: clamp(1.25rem, 3vw, 1.5rem);
-		font-weight: 400;
-		letter-spacing: -0.025em;
-		line-height: 1.15;
-	}
-
-	.coordinates,
-	.description {
-		margin-top: 0.55rem;
-		color: rgba(247, 248, 250, 0.62);
 		font-size: 0.875rem;
-		letter-spacing: -0.01em;
-		line-height: 1.4;
+		font-weight: 400;
+		letter-spacing: -0.015em;
+		line-height: 1.2;
+		white-space: nowrap;
 	}
 
-	.location-plaque button {
+	.coordinates {
+		margin-top: 0.18rem;
+		color: rgba(247, 248, 250, 0.62);
+		font-size: 0.75rem;
+		letter-spacing: -0.01em;
+		line-height: 1.2;
+		white-space: nowrap;
+	}
+
+	.pill-marker {
+		flex: 0 0 auto;
+		width: 0.55rem;
+		height: 0.55rem;
+		border: 1px solid rgba(255, 255, 255, 0.6);
+		border-radius: 50%;
+		background: #173b84;
+	}
+
+	.location-pill.error .pill-marker {
+		background: #d77770;
+	}
+
+	.location-pill button {
 		display: inline-flex;
 		min-height: 44px;
 		align-items: center;
-		gap: 0.55rem;
-		margin-top: 1.25rem;
+		margin-left: 0.15rem;
 		border: 0;
-		border-radius: 10px;
-		padding: 0.65rem 0.85rem;
+		border-radius: 999px;
+		padding: 0.45rem 0.7rem;
 		background: #f7f8fa;
 		color: #17191d;
 		font-family: "Portfolio Rounded", sans-serif;
@@ -247,36 +251,13 @@
 			transform 140ms var(--ease-out);
 	}
 
-	.location-plaque button:focus-visible {
+	.location-pill button:focus-visible {
 		outline: 2px solid #78a2d5;
 		outline-offset: 3px;
 	}
 
-	.location-plaque button:active {
+	.location-pill button:active {
 		transform: scale(0.96);
-	}
-
-	.location-plaque button:disabled {
-		cursor: wait;
-		opacity: 0.62;
-	}
-
-	.button-marker {
-		width: 0.45rem;
-		height: 0.45rem;
-		border-radius: 2px;
-		background: #173b84;
-	}
-
-	.privacy-note {
-		margin-top: 0.8rem;
-		color: rgba(247, 248, 250, 0.42);
-		font-size: 0.75rem;
-		line-height: 1.35;
-	}
-
-	.privacy-note.error {
-		color: #f2b8b5;
 	}
 
 	.sr-only {
@@ -303,7 +284,7 @@
 		}
 	}
 
-	@keyframes plaque-enter {
+	@keyframes pill-enter {
 		from {
 			opacity: 0;
 			transform: translateY(0.65rem);
@@ -315,8 +296,25 @@
 		}
 	}
 
+	@keyframes location-pin-drop {
+		from {
+			opacity: 0;
+			transform: translate(-50%, -260%) rotate(-45deg) scale(0.75);
+		}
+
+		70% {
+			opacity: 1;
+			transform: translate(-50%, -85%) rotate(-45deg) scale(1);
+		}
+
+		to {
+			opacity: 1;
+			transform: translate(-50%, -95%) rotate(-45deg) scale(1);
+		}
+	}
+
 	@media (hover: hover) and (pointer: fine) {
-		.location-plaque button:hover {
+		.location-pill button:hover {
 			background: #e7e8ea;
 		}
 	}
@@ -327,8 +325,8 @@
 			padding-bottom: 4.5rem;
 		}
 
-		.location-plaque {
-			width: calc(100% - 1rem);
+		.location-pill {
+			max-width: calc(100% - 1rem);
 			margin-top: 1.25rem;
 			margin-left: 0.5rem;
 		}
@@ -336,8 +334,9 @@
 
 	@media (prefers-reduced-motion: reduce) {
 		.map-cell,
-		.location-plaque,
-		.location-plaque button {
+		.map-cell.location-anchor::after,
+		.location-pill,
+		.location-pill button {
 			animation: none;
 			transition-duration: 0ms;
 		}

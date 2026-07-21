@@ -2,6 +2,9 @@
 import { expect, test } from "bun:test";
 
 const page = await Bun.file(new URL("../src/routes/+page.svelte", import.meta.url)).text();
+const locationMap = await Bun.file(
+  new URL("../src/lib/components/location-map.svelte", import.meta.url),
+).text();
 
 test("renders the Ndot Hanzi name inline in the header", () => {
   expect(page).not.toContain("HanziName");
@@ -56,4 +59,13 @@ test("staggers Timeline and Works content without animating keyboard navigation"
 test("renders the current-location map in the name tab", () => {
   expect(page).toContain('import LocationMap from "$lib/components/location-map.svelte";');
   expect(page).toContain("<LocationMap animate={animateContent} />");
+});
+
+test("locates automatically and presents the coordinates in a rounded pill", () => {
+  expect(locationMap).toContain('import { onMount } from "svelte";');
+  expect(locationMap).toContain("onMount(locate);");
+  expect(locationMap).toContain('class="location-pill"');
+  expect(locationMap).toContain("border-radius: 999px;");
+  expect(locationMap).toContain("@keyframes location-pin-drop");
+  expect(locationMap).not.toContain("Use current location");
 });
