@@ -65,7 +65,17 @@ test("locates automatically and presents the coordinates in a rounded pill", () 
   expect(locationMap).toContain('import { onMount } from "svelte";');
   expect(locationMap).toContain("onMount(locate);");
   expect(locationMap).toContain('class="location-pill"');
+  expect(locationMap).toContain('class="pill-pin-icon"');
   expect(locationMap).toContain("border-radius: 999px;");
   expect(locationMap).toContain("@keyframes location-pin-drop");
   expect(locationMap).not.toContain("Use current location");
+});
+
+test("positions the location pill from the resolved map quadrant", () => {
+  expect(locationMap).toContain("function pillPosition(cell: MapCell | undefined)");
+  expect(locationMap).toContain("--anchor-x:${x}%;--anchor-y:${y}%");
+  expect(locationMap).toContain("class:opens-right");
+  expect(locationMap).toContain("class:opens-left");
+  expect(locationMap).toContain("class:opens-below");
+  expect(locationMap).toContain("class:opens-above");
 });

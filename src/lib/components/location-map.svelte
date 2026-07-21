@@ -5,8 +5,10 @@
 		findLocationCluster,
 		formatCoordinate,
 		nearestPlace,
+		WORLD_GRID_COLUMNS,
 		WORLD_GRID_ROWS,
 	} from "$lib/location-map";
+	import type { MapCell } from "$lib/location-map";
 
 	type LocationState = "locating" | "located" | "error";
 
@@ -28,6 +30,7 @@
 	let latitude: number | undefined = $state();
 	let longitude: number | undefined = $state();
 	let highlightedCells: string[] = $state([]);
+	let anchorCell: MapCell | undefined = $state();
 	let statusMessage = $state("Finding your current location.");
 
 	onMount(locate);
@@ -47,11 +50,13 @@
 				latitude = Number(position.coords.latitude.toFixed(2));
 				longitude = Number(position.coords.longitude.toFixed(2));
 				place = nearestPlace(position.coords.latitude, position.coords.longitude);
-				highlightedCells = findLocationCluster(
+				const cluster = findLocationCluster(
 					cells,
 					position.coords.latitude,
 					position.coords.longitude,
 				);
+				highlightedCells = cluster;
+				anchorCell = cells.find((cell) => cell.id === cluster[0]);
 				locationState = "located";
 				statusMessage = `Current location found near ${place}.`;
 			},
@@ -71,44 +76,76 @@
 		const color = rank >= 0 ? clusterPalette[Math.min(rank, clusterPalette.length - 1)] : "#e7e8ea";
 		return `grid-column:${column + 1};grid-row:${row + 1};--cell-delay:${delay}ms;--cell-color:${color}`;
 	}
+
+	function pillPosition(cell: MapCell | undefined) {
+		if (!cell) return undefined;
+		const x = ((cell.column + 0.5) / WORLD_GRID_COLUMNS) * 100;
+		const y = ((cell.row + 0.5) / WORLD_GRID_ROWS) * 100;
+		return `--anchor-x:${x}%;--anchor-y:${y}%`;
+	}
 </script>
 
 <section class:animate class="location-map" aria-labelledby="location-title">
-	<div
-		class="map-grid"
-		role="img"
-		aria-label={locationState === "located"
-			? `Pixel world map highlighting your current location near ${place}`
-			: "Pixel world map awaiting your location"}
-	>
-		{#each cells as cell}
-			{@const rank = highlightedCells.indexOf(cell.id)}
-			<span
-				class:location-cell={rank >= 0}
-				class:location-anchor={rank === 0}
-				class="map-cell"
-				style={cellStyle(cell.row, cell.column, rank)}
-				aria-hidden="true"
-			></span>
-		{/each}
-	</div>
+	<div class="map-stage">
+		<div
+			class="map-grid"
+			role="img"
+			aria-label={locationState === "located"
+				? `Pixel world map highlighting your current location near ${place}`
+				: "Pixel world map awaiting your location"}
+		>
+			{#each cells as cell}
+				{@const rank = highlightedCells.indexOf(cell.id)}
+				<span
+					class:location-cell={rank >= 0}
+					class:location-anchor={rank === 0}
+					class="map-cell"
+					style={cellStyle(cell.row, cell.column, rank)}
+					aria-hidden="true"
+				></span>
+			{/each}
+		</div>
 
-	<div class:error={locationState === "error"} class="location-pill" aria-live="polite">
-		<span class="pill-marker" aria-hidden="true"></span>
+		{#key locationState}
+			<div
+				class:error={locationState === "error"}
+				class:located={locationState === "located" && !!anchorCell}
+				class:opens-right={!anchorCell || anchorCell.column < WORLD_GRID_COLUMNS / 2}
+				class:opens-left={!!anchorCell && anchorCell.column >= WORLD_GRID_COLUMNS / 2}
+				class:opens-below={!anchorCell || anchorCell.row < WORLD_GRID_ROWS / 2}
+				class:opens-above={!!anchorCell && anchorCell.row >= WORLD_GRID_ROWS / 2}
+				class="location-pill"
+				style={pillPosition(anchorCell)}
+				aria-live="polite"
+			>
+				<span class="pill-pin-icon" aria-hidden="true">
+					<svg viewBox="0 0 16 16" fill="none">
+						<path
+							d="M8 14.25S12.5 9.9 12.5 6.5a4.5 4.5 0 1 0-9 0C3.5 9.9 8 14.25 8 14.25Z"
+							stroke="currentColor"
+							stroke-width="1.4"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/>
+						<circle cx="8" cy="6.5" r="1.55" stroke="currentColor" stroke-width="1.4" />
+					</svg>
+				</span>
 
-		{#if locationState === "located" && latitude !== undefined && longitude !== undefined}
-			<div class="pill-copy">
-				<h1 id="location-title">{place}</h1>
-				<p class="coordinates">
-					{formatCoordinate(latitude, "N", "S")} · {formatCoordinate(longitude, "E", "W")}
-				</p>
+				{#if locationState === "located" && latitude !== undefined && longitude !== undefined}
+					<div class="pill-copy">
+						<h1 id="location-title">{place}</h1>
+						<p class="coordinates">
+							{formatCoordinate(latitude, "N", "S")} · {formatCoordinate(longitude, "E", "W")}
+						</p>
+					</div>
+				{:else if locationState === "error"}
+					<h1 id="location-title">Location unavailable</h1>
+					<button type="button" onclick={locate}>Try again</button>
+				{:else}
+					<h1 id="location-title">Finding your location…</h1>
+				{/if}
 			</div>
-		{:else if locationState === "error"}
-			<h1 id="location-title">Location unavailable</h1>
-			<button type="button" onclick={locate}>Try again</button>
-		{:else}
-			<h1 id="location-title">Finding your location…</h1>
-		{/if}
+		{/key}
 	</div>
 	<p class="sr-only" aria-live="polite">{statusMessage}</p>
 </section>
@@ -119,6 +156,10 @@
 		isolation: isolate;
 		padding-top: clamp(2.75rem, 7vh, 4.25rem);
 		padding-bottom: 7.5rem;
+	}
+
+	.map-stage {
+		position: relative;
 	}
 
 	.map-grid {
@@ -168,16 +209,16 @@
 	}
 
 	.location-pill {
-		position: relative;
-		z-index: 1;
+		position: absolute;
+		z-index: 3;
 		display: flex;
 		width: fit-content;
 		max-width: calc(100% - 1.5rem);
 		min-height: 54px;
 		align-items: center;
 		gap: 0.7rem;
-		margin-top: clamp(-2.75rem, -5vw, -1.75rem);
-		margin-left: clamp(1rem, 7vw, 3.5rem);
+		bottom: clamp(0.75rem, 3vw, 1.5rem);
+		left: clamp(1rem, 7vw, 3.5rem);
 		border-radius: 999px;
 		padding: 0.55rem 0.75rem;
 		background: #111315;
@@ -185,6 +226,59 @@
 			0 1px 2px rgba(5, 11, 24, 0.18),
 			0 5px 12px rgba(5, 11, 24, 0.12);
 		color: #f7f8fa;
+	}
+
+	.location-pill.located {
+		top: var(--anchor-y);
+		bottom: auto;
+		left: var(--anchor-x);
+	}
+
+	.location-pill.located.opens-right.opens-below {
+		transform: translate(14px, 12px);
+	}
+
+	.location-pill.located.opens-left.opens-below {
+		transform: translate(calc(-100% - 14px), 12px);
+	}
+
+	.location-pill.located.opens-right.opens-above {
+		transform: translate(14px, calc(-100% - 12px));
+	}
+
+	.location-pill.located.opens-left.opens-above {
+		transform: translate(calc(-100% - 14px), calc(-100% - 12px));
+	}
+
+	.location-pill.located::after {
+		position: absolute;
+		z-index: -1;
+		width: 8px;
+		height: 8px;
+		border-radius: 1px;
+		background: #111315;
+		content: "";
+		transform: rotate(45deg);
+	}
+
+	.location-pill.located.opens-right.opens-below::after {
+		top: -3px;
+		left: 12px;
+	}
+
+	.location-pill.located.opens-left.opens-below::after {
+		top: -3px;
+		right: 12px;
+	}
+
+	.location-pill.located.opens-right.opens-above::after {
+		bottom: -3px;
+		left: 12px;
+	}
+
+	.location-pill.located.opens-left.opens-above::after {
+		right: 12px;
+		bottom: -3px;
 	}
 
 	.animate .location-pill {
@@ -218,17 +312,24 @@
 		white-space: nowrap;
 	}
 
-	.pill-marker {
+	.pill-pin-icon {
+		display: grid;
 		flex: 0 0 auto;
-		width: 0.55rem;
-		height: 0.55rem;
-		border: 1px solid rgba(255, 255, 255, 0.6);
-		border-radius: 50%;
-		background: #173b84;
+		width: 18px;
+		height: 18px;
+		place-items: center;
+		color: #78a2d5;
 	}
 
-	.location-pill.error .pill-marker {
-		background: #d77770;
+	.pill-pin-icon svg {
+		display: block;
+		width: 16px;
+		height: 16px;
+		transform: translateY(0.5px);
+	}
+
+	.location-pill.error .pill-pin-icon {
+		color: #d77770;
 	}
 
 	.location-pill button {
@@ -287,12 +388,10 @@
 	@keyframes pill-enter {
 		from {
 			opacity: 0;
-			transform: translateY(0.65rem);
 		}
 
 		to {
 			opacity: 1;
-			transform: translateY(0);
 		}
 	}
 
@@ -327,8 +426,8 @@
 
 		.location-pill {
 			max-width: calc(100% - 1rem);
-			margin-top: 1.25rem;
-			margin-left: 0.5rem;
+			bottom: 0.5rem;
+			left: 0.5rem;
 		}
 	}
 
