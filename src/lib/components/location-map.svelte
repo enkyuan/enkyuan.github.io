@@ -1,36 +1,42 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import {
+		countryCodeToFlag,
+		createLocationGradient,
 		createWorldGrid,
 		findLocationCluster,
 		formatCoordinate,
-		nearestPlace,
+		nearestLocation,
 		WORLD_GRID_COLUMNS,
 		WORLD_GRID_ROWS,
 	} from "$lib/location-map";
-	import type { MapCell } from "$lib/location-map";
 
 	type LocationState = "locating" | "located" | "error";
 
 	let { animate = true } = $props<{ animate?: boolean }>();
 
 	const cells = createWorldGrid();
-	const clusterPalette = [
-		"#dce7ef",
-		"#aac2df",
-		"#78a2d5",
-		"#426fb4",
-		"#173b84",
-		"#0c255c",
-		"#050b18",
-	];
+	const US_FLAG_DOTS = Array.from({ length: 12 }, (_, index) => index);
+	const US_FLAG_DOT_STEP = 34 / US_FLAG_DOTS.length;
+	const US_FLAG_DOT_SIZE = 2.3;
+	const US_FLAG_STARS = [
+		{ x: 2.2, y: 1.8 },
+		{ x: 7.2, y: 1.8 },
+		{ x: 12.2, y: 1.8 },
+		{ x: 4.7, y: 6.6 },
+		{ x: 9.7, y: 6.6 },
+		{ x: 2.2, y: 11.4 },
+		{ x: 7.2, y: 11.4 },
+		{ x: 12.2, y: 11.4 },
+	] as const;
 
 	let locationState: LocationState = $state("locating");
 	let place = $state("Current location");
+	let countryCode = $state("");
 	let latitude: number | undefined = $state();
 	let longitude: number | undefined = $state();
 	let highlightedCells: string[] = $state([]);
-	let anchorCell: MapCell | undefined = $state();
+	let highlightedCellColors: Map<string, string> = $state(new Map());
 	let statusMessage = $state("Finding your current location.");
 
 	onMount(locate);
@@ -47,16 +53,18 @@
 
 		navigator.geolocation.getCurrentPosition(
 			(position) => {
-				latitude = Number(position.coords.latitude.toFixed(2));
-				longitude = Number(position.coords.longitude.toFixed(2));
-				place = nearestPlace(position.coords.latitude, position.coords.longitude);
+				latitude = position.coords.latitude;
+				longitude = position.coords.longitude;
+				const nearest = nearestLocation(latitude, longitude);
+				place = nearest.name;
+				countryCode = nearest.countryCode;
 				const cluster = findLocationCluster(
 					cells,
-					position.coords.latitude,
-					position.coords.longitude,
+					latitude,
+					longitude,
 				);
 				highlightedCells = cluster;
-				anchorCell = cells.find((cell) => cell.id === cluster[0]);
+				highlightedCellColors = createLocationGradient(cells, cluster);
 				locationState = "located";
 				statusMessage = `Current location found near ${place}.`;
 			},
@@ -67,21 +75,25 @@
 						? "Location access was not allowed. You can retry whenever you are ready."
 						: "Your location could not be found. Check your connection and try again.";
 			},
-			{ enableHighAccuracy: false, maximumAge: 300_000, timeout: 10_000 },
+			{ enableHighAccuracy: true, maximumAge: 0, timeout: 15_000 },
 		);
 	}
 
-	function cellStyle(row: number, column: number, rank: number) {
+	function cellStyle(row: number, column: number, color: string | undefined) {
 		const delay = Math.min(column * 3 + Math.abs(row - (WORLD_GRID_ROWS - 1) / 2) * 2, 220);
-		const color = rank >= 0 ? clusterPalette[Math.min(rank, clusterPalette.length - 1)] : "#e7e8ea";
-		return `grid-column:${column + 1};grid-row:${row + 1};--cell-delay:${delay}ms;--cell-color:${color}`;
+		return `grid-column:${column + 1};grid-row:${row + 1};--cell-delay:${delay}ms;--cell-color:${color ?? "#e7e8ea"}`;
 	}
 
-	function pillPosition(cell: MapCell | undefined) {
-		if (!cell) return undefined;
-		const x = ((cell.column + 0.5) / WORLD_GRID_COLUMNS) * 100;
-		const y = ((cell.row + 0.5) / WORLD_GRID_ROWS) * 100;
+	function pillPosition(currentLatitude: number | undefined, currentLongitude: number | undefined) {
+		if (currentLatitude === undefined || currentLongitude === undefined) return undefined;
+		const x = ((currentLongitude + 180) / 360) * 100;
+		const y = ((90 - currentLatitude) / 180) * 100;
 		return `--anchor-x:${x}%;--anchor-y:${y}%`;
+	}
+
+	function flagDotFill(row: number, column: number) {
+		if (row < 6 && column < 6) return "#173b84";
+		return row % 2 === 0 ? "#b52b3a" : "#f7f8fa";
 	}
 </script>
 
@@ -95,12 +107,12 @@
 				: "Pixel world map awaiting your location"}
 		>
 			{#each cells as cell}
-				{@const rank = highlightedCells.indexOf(cell.id)}
+				{@const locationColor = highlightedCellColors.get(cell.id)}
 				<span
-					class:location-cell={rank >= 0}
-					class:location-anchor={rank === 0}
+					class:location-cell={locationColor !== undefined}
+					class:location-anchor={cell.id === highlightedCells[0]}
 					class="map-cell"
-					style={cellStyle(cell.row, cell.column, rank)}
+					style={cellStyle(cell.row, cell.column, locationColor)}
 					aria-hidden="true"
 				></span>
 			{/each}
@@ -109,20 +121,61 @@
 		{#key locationState}
 			<div
 				class:error={locationState === "error"}
-				class:located={locationState === "located" && !!anchorCell}
-				class:opens-right={!anchorCell || anchorCell.column < WORLD_GRID_COLUMNS / 2}
-				class:opens-left={!!anchorCell && anchorCell.column >= WORLD_GRID_COLUMNS / 2}
-				class:opens-below={!anchorCell || anchorCell.row < WORLD_GRID_ROWS / 2}
-				class:opens-above={!!anchorCell && anchorCell.row >= WORLD_GRID_ROWS / 2}
+				class:located={locationState === "located" && latitude !== undefined && longitude !== undefined}
+				class:opens-right={longitude === undefined || longitude < 0}
+				class:opens-left={longitude !== undefined && longitude >= 0}
+				class:opens-below={latitude === undefined || latitude >= 0}
+				class:opens-above={latitude !== undefined && latitude < 0}
 				class="location-pill"
-				style={pillPosition(anchorCell)}
+				style={pillPosition(latitude, longitude)}
 				aria-live="polite"
 			>
 				{#if locationState === "located" && latitude !== undefined && longitude !== undefined}
+					<span class:us={countryCode === "US"} class="country-flag" aria-hidden="true">
+						{#if countryCode === "US"}
+							<svg viewBox="0 0 34 34" focusable="false">
+								<defs>
+									<clipPath id="us-flag-circle">
+										<circle cx="17" cy="17" r="17" />
+									</clipPath>
+									<symbol id="us-flag-star" viewBox="0 0 10 10">
+										<path d="M5 0.8 6.1 3.7 9.2 3.8 6.8 5.8 7.6 8.9 5 7.2 2.4 8.9 3.2 5.8 0.8 3.8 3.9 3.7Z" />
+									</symbol>
+								</defs>
+								<g clip-path="url(#us-flag-circle)">
+									<circle cx="17" cy="17" r="17" fill="#111315" />
+									{#each US_FLAG_DOTS as row}
+										{#each US_FLAG_DOTS as column}
+											<rect
+												x={column * US_FLAG_DOT_STEP + (US_FLAG_DOT_STEP - US_FLAG_DOT_SIZE) / 2}
+												y={row * US_FLAG_DOT_STEP + (US_FLAG_DOT_STEP - US_FLAG_DOT_SIZE) / 2}
+												width={US_FLAG_DOT_SIZE}
+												height={US_FLAG_DOT_SIZE}
+												rx="0.45"
+												fill={flagDotFill(row, column)}
+											/>
+										{/each}
+									{/each}
+									{#each US_FLAG_STARS as star}
+										<use
+											href="#us-flag-star"
+											x={star.x}
+											y={star.y}
+											width="2.5"
+											height="2.5"
+											fill="#f7f8fa"
+										/>
+									{/each}
+								</g>
+							</svg>
+						{:else}
+							<span class="flag-emoji">{countryCodeToFlag(countryCode)}</span>
+						{/if}
+					</span>
 					<div class="pill-copy">
 						<h1 id="location-title">{place}</h1>
 						<p class="coordinates">
-							{formatCoordinate(latitude, "N", "S")} · {formatCoordinate(longitude, "E", "W")}
+							{formatCoordinate(latitude, "N", "S", 3)} · {formatCoordinate(longitude, "E", "W", 3)}
 						</p>
 					</div>
 				{:else if locationState === "error"}
@@ -159,13 +212,10 @@
 	}
 
 	.map-cell {
-		position: relative;
 		aspect-ratio: 1;
 		border-radius: clamp(1px, 0.24vw, 2px);
 		background: var(--cell-color);
-		transition:
-			background-color 220ms var(--ease-out),
-			transform 220ms var(--ease-out);
+		transition: transform 220ms var(--ease-out);
 	}
 
 	.animate .map-cell {
@@ -176,23 +226,9 @@
 		transform: scale(1.08);
 	}
 
-	.map-cell.location-anchor {
+	.animate .map-cell.location-anchor {
 		z-index: 2;
-	}
-
-	.map-cell.location-anchor::after {
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		width: 13px;
-		height: 13px;
-		border: 2px solid #ffffff;
-		border-radius: 50% 50% 50% 0;
-		background: radial-gradient(circle at center, #ffffff 0 2px, #173b84 2.5px);
-		box-shadow: 0 2px 5px rgba(5, 11, 24, 0.24);
-		content: "";
-		transform: translate(-50%, -95%) rotate(-45deg);
-		animation: location-pin-drop 420ms var(--ease-out) 60ms both;
+		animation: location-cell-drop 420ms var(--ease-out) 60ms both;
 	}
 
 	.location-pill {
@@ -201,12 +237,13 @@
 		display: flex;
 		width: fit-content;
 		max-width: calc(100% - 1.5rem);
-		min-height: 54px;
+		height: 54px;
 		align-items: center;
+		gap: 10px;
 		bottom: clamp(0.75rem, 3vw, 1.5rem);
 		left: clamp(1rem, 7vw, 3.5rem);
 		border-radius: 999px;
-		padding: 0.55rem 0.9rem;
+		padding: 10px 16px 10px 10px;
 		background: #111315;
 		box-shadow:
 			0 1px 2px rgba(5, 11, 24, 0.18),
@@ -242,6 +279,34 @@
 
 	.pill-copy {
 		min-width: 0;
+	}
+
+	.country-flag {
+		display: block;
+		flex: 0 0 34px;
+		width: 34px;
+		height: 34px;
+		overflow: hidden;
+		border-radius: 50%;
+		box-shadow: inset 0 0 0 1px rgba(247, 248, 250, 0.08);
+		transform: translateY(-0.5px);
+	}
+
+	.country-flag svg {
+		display: block;
+		width: 100%;
+		height: 100%;
+	}
+
+	.flag-emoji {
+		display: grid;
+		width: 100%;
+		height: 100%;
+		place-items: center;
+		font-family: "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+		font-size: 2rem;
+		line-height: 1;
+		transform: scale(1.3);
 	}
 
 	.location-pill h1,
@@ -330,20 +395,15 @@
 		}
 	}
 
-	@keyframes location-pin-drop {
+	@keyframes location-cell-drop {
 		from {
 			opacity: 0;
-			transform: translate(-50%, -260%) rotate(-45deg) scale(0.75);
-		}
-
-		70% {
-			opacity: 1;
-			transform: translate(-50%, -85%) rotate(-45deg) scale(1);
+			transform: translateY(-18px) scale(0.92);
 		}
 
 		to {
 			opacity: 1;
-			transform: translate(-50%, -95%) rotate(-45deg) scale(1);
+			transform: translateY(0) scale(1.08);
 		}
 	}
 
@@ -368,7 +428,7 @@
 
 	@media (prefers-reduced-motion: reduce) {
 		.map-cell,
-		.map-cell.location-anchor::after,
+		.map-cell.location-anchor,
 		.location-pill,
 		.location-pill button {
 			animation: none;

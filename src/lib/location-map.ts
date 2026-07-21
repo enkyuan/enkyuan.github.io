@@ -8,12 +8,25 @@ export type MapCell = {
 
 type Place = {
   name: string;
+  countryCode: string;
   latitude: number;
   longitude: number;
 };
 
+type GradientStop = {
+  at: number;
+  color: readonly [number, number, number];
+};
+
 export const WORLD_GRID_COLUMNS = 64;
 export const WORLD_GRID_ROWS = 32;
+
+const LOCATION_GRADIENT_STOPS: readonly GradientStop[] = [
+  { at: 0, color: [5, 11, 24] },
+  { at: 0.42, color: [23, 59, 132] },
+  { at: 0.73, color: [120, 162, 213] },
+  { at: 1, color: [244, 246, 248] },
+];
 
 // Generated from Natural Earth's public-domain 1:110m land polygons.
 // https://www.naturalearthdata.com/downloads/110m-physical-vectors/
@@ -53,44 +66,44 @@ const WORLD_LAND_MASK: readonly string[] = [
 ];
 
 const PLACES: readonly Place[] = [
-  { name: "Amsterdam", latitude: 52.37, longitude: 4.9 },
-  { name: "Atlanta", latitude: 33.75, longitude: -84.39 },
-  { name: "Austin", latitude: 30.27, longitude: -97.74 },
-  { name: "Bangkok", latitude: 13.76, longitude: 100.5 },
-  { name: "Barcelona", latitude: 41.39, longitude: 2.17 },
-  { name: "Beijing", latitude: 39.9, longitude: 116.41 },
-  { name: "Berlin", latitude: 52.52, longitude: 13.41 },
-  { name: "Boston", latitude: 42.36, longitude: -71.06 },
-  { name: "Buenos Aires", latitude: -34.6, longitude: -58.38 },
-  { name: "Chicago", latitude: 41.88, longitude: -87.63 },
-  { name: "Dallas", latitude: 32.78, longitude: -96.8 },
-  { name: "Denver", latitude: 39.74, longitude: -104.99 },
-  { name: "Dubai", latitude: 25.2, longitude: 55.27 },
-  { name: "Hong Kong", latitude: 22.32, longitude: 114.17 },
-  { name: "Istanbul", latitude: 41.01, longitude: 28.98 },
-  { name: "Jakarta", latitude: -6.21, longitude: 106.85 },
-  { name: "Lagos", latitude: 6.52, longitude: 3.38 },
-  { name: "London", latitude: 51.51, longitude: -0.13 },
-  { name: "Los Angeles", latitude: 34.05, longitude: -118.24 },
-  { name: "Madrid", latitude: 40.42, longitude: -3.7 },
-  { name: "Mexico City", latitude: 19.43, longitude: -99.13 },
-  { name: "Miami", latitude: 25.76, longitude: -80.19 },
-  { name: "Mumbai", latitude: 19.08, longitude: 72.88 },
-  { name: "Nairobi", latitude: -1.29, longitude: 36.82 },
-  { name: "New York", latitude: 40.71, longitude: -74.01 },
-  { name: "Paris", latitude: 48.86, longitude: 2.35 },
-  { name: "São Paulo", latitude: -23.55, longitude: -46.63 },
-  { name: "San Francisco", latitude: 37.77, longitude: -122.42 },
-  { name: "Seattle", latitude: 47.61, longitude: -122.33 },
-  { name: "Seoul", latitude: 37.57, longitude: 126.98 },
-  { name: "Shanghai", latitude: 31.23, longitude: 121.47 },
-  { name: "Singapore", latitude: 1.35, longitude: 103.82 },
-  { name: "Sydney", latitude: -33.87, longitude: 151.21 },
-  { name: "Taipei", latitude: 25.03, longitude: 121.57 },
-  { name: "Tokyo", latitude: 35.68, longitude: 139.69 },
-  { name: "Toronto", latitude: 43.65, longitude: -79.38 },
-  { name: "Vancouver", latitude: 49.28, longitude: -123.12 },
-  { name: "Washington", latitude: 38.91, longitude: -77.04 },
+  { name: "Amsterdam", countryCode: "NL", latitude: 52.37, longitude: 4.9 },
+  { name: "Atlanta", countryCode: "US", latitude: 33.75, longitude: -84.39 },
+  { name: "Austin", countryCode: "US", latitude: 30.27, longitude: -97.74 },
+  { name: "Bangkok", countryCode: "TH", latitude: 13.76, longitude: 100.5 },
+  { name: "Barcelona", countryCode: "ES", latitude: 41.39, longitude: 2.17 },
+  { name: "Beijing", countryCode: "CN", latitude: 39.9, longitude: 116.41 },
+  { name: "Berlin", countryCode: "DE", latitude: 52.52, longitude: 13.41 },
+  { name: "Boston", countryCode: "US", latitude: 42.36, longitude: -71.06 },
+  { name: "Buenos Aires", countryCode: "AR", latitude: -34.6, longitude: -58.38 },
+  { name: "Chicago", countryCode: "US", latitude: 41.88, longitude: -87.63 },
+  { name: "Dallas", countryCode: "US", latitude: 32.78, longitude: -96.8 },
+  { name: "Denver", countryCode: "US", latitude: 39.74, longitude: -104.99 },
+  { name: "Dubai", countryCode: "AE", latitude: 25.2, longitude: 55.27 },
+  { name: "Hong Kong", countryCode: "HK", latitude: 22.32, longitude: 114.17 },
+  { name: "Istanbul", countryCode: "TR", latitude: 41.01, longitude: 28.98 },
+  { name: "Jakarta", countryCode: "ID", latitude: -6.21, longitude: 106.85 },
+  { name: "Lagos", countryCode: "NG", latitude: 6.52, longitude: 3.38 },
+  { name: "London", countryCode: "GB", latitude: 51.51, longitude: -0.13 },
+  { name: "Los Angeles", countryCode: "US", latitude: 34.05, longitude: -118.24 },
+  { name: "Madrid", countryCode: "ES", latitude: 40.42, longitude: -3.7 },
+  { name: "Mexico City", countryCode: "MX", latitude: 19.43, longitude: -99.13 },
+  { name: "Miami", countryCode: "US", latitude: 25.76, longitude: -80.19 },
+  { name: "Mumbai", countryCode: "IN", latitude: 19.08, longitude: 72.88 },
+  { name: "Nairobi", countryCode: "KE", latitude: -1.29, longitude: 36.82 },
+  { name: "New York", countryCode: "US", latitude: 40.71, longitude: -74.01 },
+  { name: "Paris", countryCode: "FR", latitude: 48.86, longitude: 2.35 },
+  { name: "São Paulo", countryCode: "BR", latitude: -23.55, longitude: -46.63 },
+  { name: "San Francisco", countryCode: "US", latitude: 37.77, longitude: -122.42 },
+  { name: "Seattle", countryCode: "US", latitude: 47.61, longitude: -122.33 },
+  { name: "Seoul", countryCode: "KR", latitude: 37.57, longitude: 126.98 },
+  { name: "Shanghai", countryCode: "CN", latitude: 31.23, longitude: 121.47 },
+  { name: "Singapore", countryCode: "SG", latitude: 1.35, longitude: 103.82 },
+  { name: "Sydney", countryCode: "AU", latitude: -33.87, longitude: 151.21 },
+  { name: "Taipei", countryCode: "TW", latitude: 25.03, longitude: 121.57 },
+  { name: "Tokyo", countryCode: "JP", latitude: 35.68, longitude: 139.69 },
+  { name: "Toronto", countryCode: "CA", latitude: 43.65, longitude: -79.38 },
+  { name: "Vancouver", countryCode: "CA", latitude: 49.28, longitude: -123.12 },
+  { name: "Washington", countryCode: "US", latitude: 38.91, longitude: -77.04 },
 ];
 
 function squaredProjectedDistance(
@@ -146,7 +159,53 @@ export function findLocationCluster(
     .map((cell) => cell.id);
 }
 
-export function nearestPlace(latitude: number, longitude: number) {
+function sampleLocationGradient(progress: number) {
+  const clampedProgress = Math.max(0, Math.min(progress, 1));
+  const endIndex = LOCATION_GRADIENT_STOPS.findIndex((stop) => stop.at >= clampedProgress);
+  const end = LOCATION_GRADIENT_STOPS[Math.max(endIndex, 1)];
+  const start = LOCATION_GRADIENT_STOPS[Math.max(endIndex - 1, 0)];
+  const span = end.at - start.at || 1;
+  const amount = (clampedProgress - start.at) / span;
+  const channels = start.color.map((channel, index) =>
+    Math.round(channel + (end.color[index] - channel) * amount),
+  );
+
+  return `rgb(${channels.join(" ")})`;
+}
+
+export function createLocationGradient(cells: readonly MapCell[], cellIds: readonly string[]) {
+  const cellsById = new Map(cells.map((cell) => [cell.id, cell]));
+  const selectedCells = cellIds
+    .map((cellId) => cellsById.get(cellId))
+    .filter((cell): cell is MapCell => cell !== undefined);
+  const anchor = selectedCells[0];
+  if (!anchor) return new Map<string, string>();
+
+  const positions = selectedCells.map((cell) => {
+    const wrappedColumn =
+      ((cell.column - anchor.column + WORLD_GRID_COLUMNS * 1.5) % WORLD_GRID_COLUMNS) -
+      WORLD_GRID_COLUMNS / 2;
+    return { cell, column: wrappedColumn, row: cell.row - anchor.row };
+  });
+  const columns = positions.map((position) => position.column);
+  const rows = positions.map((position) => position.row);
+  const minColumn = Math.min(...columns);
+  const maxColumn = Math.max(...columns);
+  const minRow = Math.min(...rows);
+  const maxRow = Math.max(...rows);
+  const columnSpan = maxColumn - minColumn || 1;
+  const rowSpan = maxRow - minRow || 1;
+
+  return new Map(
+    positions.map(({ cell, column, row }) => {
+      const horizontalProgress = (column - minColumn) / columnSpan;
+      const verticalProgress = (row - minRow) / rowSpan;
+      return [cell.id, sampleLocationGradient((horizontalProgress + verticalProgress) / 2)];
+    }),
+  );
+}
+
+export function nearestLocation(latitude: number, longitude: number) {
   return PLACES.reduce((nearest, place) => {
     const nearestDistance = squaredProjectedDistance(
       nearest.latitude,
@@ -162,9 +221,22 @@ export function nearestPlace(latitude: number, longitude: number) {
     );
 
     return placeDistance < nearestDistance ? place : nearest;
-  }).name;
+  });
 }
 
-export function formatCoordinate(value: number, positive: string, negative: string) {
-  return `${Math.abs(value).toFixed(2)}° ${value >= 0 ? positive : negative}`;
+export function nearestPlace(latitude: number, longitude: number) {
+  return nearestLocation(latitude, longitude).name;
+}
+
+export function countryCodeToFlag(countryCode: string) {
+  const normalizedCode = countryCode.trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(normalizedCode)) return "🌐";
+
+  return String.fromCodePoint(
+    ...[...normalizedCode].map((character) => 127397 + character.charCodeAt(0)),
+  );
+}
+
+export function formatCoordinate(value: number, positive: string, negative: string, precision = 2) {
+  return `${Math.abs(value).toFixed(precision)}° ${value >= 0 ? positive : negative}`;
 }

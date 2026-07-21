@@ -68,16 +68,32 @@ test("locates automatically and presents the coordinates in a rounded pill", () 
   expect(locationMap).not.toContain("pill-pin-icon");
   expect(locationMap).not.toContain('<svg viewBox="0 0 16 16"');
   expect(locationMap).not.toContain(".location-pill.located::after");
+  expect(locationMap).not.toContain(".map-cell.location-anchor::after");
+  expect(locationMap).not.toContain("@keyframes location-pin-drop");
+  expect(locationMap).toContain("class:location-anchor={cell.id === highlightedCells[0]}");
+  expect(locationMap).toContain("@keyframes location-cell-drop");
+  expect(locationMap).toContain('class="country-flag"');
+  expect(locationMap).toContain("US_FLAG_DOTS");
+  expect(locationMap).toContain("US_FLAG_STARS");
+  expect(locationMap).toContain('id="us-flag-star"');
+  expect(locationMap).not.toContain('text-anchor="middle">US</text>');
+  expect(locationMap).not.toContain('<rect width="34" height="34"');
+  expect(locationMap).not.toContain(".map-cell.location-cell {\n\t\tbackground: linear-gradient");
   expect(locationMap).toContain("border-radius: 999px;");
-  expect(locationMap).toContain("@keyframes location-pin-drop");
   expect(locationMap).not.toContain("Use current location");
 });
 
-test("positions the location pill from the resolved map quadrant", () => {
-  expect(locationMap).toContain("function pillPosition(cell: MapCell | undefined)");
+test("positions the location pill from exact coordinates and the resolved map quadrant", () => {
+  expect(locationMap).toContain(
+    "function pillPosition(currentLatitude: number | undefined, currentLongitude: number | undefined)",
+  );
+  expect(locationMap).toContain("((currentLongitude + 180) / 360) * 100");
+  expect(locationMap).toContain("((90 - currentLatitude) / 180) * 100");
   expect(locationMap).toContain("--anchor-x:${x}%;--anchor-y:${y}%");
   expect(locationMap).toContain("class:opens-right");
   expect(locationMap).toContain("class:opens-left");
   expect(locationMap).toContain("class:opens-below");
   expect(locationMap).toContain("class:opens-above");
+  expect(locationMap).toContain("enableHighAccuracy: true");
+  expect(locationMap).toContain("maximumAge: 0");
 });

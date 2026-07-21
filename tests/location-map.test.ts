@@ -2,8 +2,11 @@
 import { expect, test } from "bun:test";
 import {
   createWorldGrid,
+  countryCodeToFlag,
+  createLocationGradient,
   findLocationCluster,
   formatCoordinate,
+  nearestLocation,
   nearestPlace,
   WORLD_GRID_COLUMNS,
   WORLD_GRID_ROWS,
@@ -32,12 +35,30 @@ test("anchors location highlights to land for cities on different continents", (
   expect(cells.some((cell) => cell.id === sydney[0])).toBeTrue();
 });
 
+test("samples one continuous gradient across the location cluster", () => {
+  const cells = createWorldGrid();
+  const chicago = findLocationCluster(cells, 41.88, -87.63);
+  const colors = createLocationGradient(cells, chicago);
+
+  expect(colors.size).toBe(chicago.length);
+  expect(new Set(colors.values()).size).toBeGreaterThan(3);
+  expect([...colors.values()].every((color) => color.startsWith("rgb("))).toBeTrue();
+});
+
 test("derives the visible place from the current coordinates", () => {
   expect(nearestPlace(41.88, -87.63)).toBe("Chicago");
   expect(nearestPlace(51.51, -0.13)).toBe("London");
+  expect(nearestLocation(33.11, -96.82).countryCode).toBe("US");
 });
 
 test("rounds coordinates for the privacy-preserving readout", () => {
   expect(formatCoordinate(41.8819, "N", "S")).toBe("41.88° N");
   expect(formatCoordinate(-87.6278, "E", "W")).toBe("87.63° W");
+  expect(formatCoordinate(41.8819, "N", "S", 3)).toBe("41.882° N");
+});
+
+test("turns the nearest country into a flag without loading remote assets", () => {
+  expect(countryCodeToFlag("US")).toBe("🇺🇸");
+  expect(countryCodeToFlag("gb")).toBe("🇬🇧");
+  expect(countryCodeToFlag("unknown")).toBe("🌐");
 });
