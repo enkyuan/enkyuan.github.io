@@ -2,7 +2,6 @@
 import { tick } from "svelte";
 import { experiences } from "$lib/constants/experiences";
 import { projects } from "$lib/constants/projects";
-import { socials } from "$lib/constants/socials";
 
 type Tab = "name" | "timeline" | "work";
 
@@ -94,17 +93,6 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 						</div>
 					</article>
 				{/each}
-
-				<article class="timeline-entry connect-entry">
-					<p class="entry-date">Connect</p>
-					<div class="entry-copy">
-						<div class="social-links">
-							{#each socials as social}
-								<a href={social.href}>{social.text}</a>
-							{/each}
-						</div>
-					</div>
-				</article>
 			</div>
 		{:else if activeTab === "work"}
 			<div
@@ -302,42 +290,13 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 		margin-top: 1.15rem;
 	}
 
-	.social-links {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.35rem 1.25rem;
-	}
-
-	.social-links a {
-		position: relative;
-		display: inline-flex;
-		min-height: 40px;
-		align-items: center;
-		color: #17191d;
-		font-size: 1rem;
-		text-decoration-color: rgba(23, 25, 29, 0.22);
-		text-underline-offset: 3px;
-		transition:
-			text-decoration-color 140ms ease,
-			transform 140ms var(--ease-out);
-	}
-
-	.social-links a:active {
-		transform: scale(0.96);
-	}
-
 	.suppress-transition .tab-list button {
 		transition-duration: 0ms;
 	}
 
 	@media (hover: hover) and (pointer: fine) {
-		.tab-list button:hover,
-		.social-links a:hover {
+		.tab-list button:hover {
 			color: #17191d;
-		}
-
-		.social-links a:hover {
-			text-decoration-color: #17191d;
 		}
 	}
 
@@ -363,10 +322,8 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.tab-list button,
-		.social-links a {
+		.tab-list button {
 			transition-duration: 0ms;
 		}
-
 	}
 </style>

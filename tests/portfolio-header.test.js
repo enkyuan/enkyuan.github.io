@@ -23,9 +23,9 @@ test("uses a deterministic rounded face for the Timeline and Works tabs", () => 
   expect(page).not.toContain("font-family: ui-rounded;");
 });
 
-test("keeps Connect links without rendering the live clock", () => {
-  expect(page).toContain('<p class="entry-date">Connect</p>');
-  expect(page).toContain("{#each socials as social}");
+test("removes the Connect section without leaving stale styles", () => {
+  expect(page).not.toContain('<p class="entry-date">Connect</p>');
+  expect(page).not.toContain("$lib/constants/socials");
+  expect(page).not.toContain("social-links");
   expect(page).not.toContain("LiveClock");
-  expect(page).not.toContain("connect-copy");
 });
