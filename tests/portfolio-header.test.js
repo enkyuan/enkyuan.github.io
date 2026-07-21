@@ -8,8 +8,8 @@ const mapComponent = await Bun.file(
 const mapStyles = await Bun.file(
   new URL("../src/lib/components/ui/map.css", import.meta.url),
 ).text();
-const portfolioPanelComponent = await Bun.file(
-  new URL("../src/lib/components/portfolio-panel.svelte", import.meta.url),
+const portfolioEntryStyles = await Bun.file(
+  new URL("../src/routes/portfolio-entries.css", import.meta.url),
 ).text();
 const flagsComponent = await Bun.file(
   new URL("../src/lib/components/ui/flags.svelte", import.meta.url),
@@ -61,24 +61,21 @@ test("removes the Connect section without leaving stale styles", () => {
 });
 
 test("staggers Timeline and Works content without animating keyboard navigation", () => {
-  expect(page).toContain('import PortfolioPanel from "$lib/components/portfolio-panel.svelte";');
-  expect(page).toContain("entries={timelineEntries}");
-  expect(page).toContain("entries={workEntries}");
-  expect(page.match(/animate=\{animateContent\}/g)).toHaveLength(3);
+  expect(page).not.toContain("PortfolioPanel");
+  expect(page).toContain('import "./portfolio-entries.css";');
+  expect(page).toContain('activeTab === "timeline" ? timelineEntries');
+  expect(page).toContain('activeTab === "work" ? workEntries : []');
+  expect(page).toContain("{#each activeEntries as entry, entryIndex}");
+  expect(page).toContain("class:animate-content={animateContent}");
   expect(page).toContain("animateContent = !fromKeyboard");
-  expect(portfolioPanelComponent).toContain(
-    "function staggerDelay(entryIndex: number, itemIndex: number)",
-  );
-  expect(portfolioPanelComponent).toContain("Math.min(entryIndex * 70 + itemIndex * 35, 280)");
-  expect(portfolioPanelComponent).toContain("{#each entries as entry, entryIndex}");
-  expect(portfolioPanelComponent).toContain("class:animate-content={animate}");
-  expect(page).toContain("animateContent = !fromKeyboard");
-  expect(portfolioPanelComponent).toContain(
+  expect(page).toContain("function staggerDelay(entryIndex: number, itemIndex: number)");
+  expect(page).toContain("Math.min(entryIndex * 70 + itemIndex * 35, 280)");
+  expect(portfolioEntryStyles).toContain(
     "animation: content-enter 260ms var(--ease-out) var(--stagger-delay, 0ms) both;",
   );
-  expect(portfolioPanelComponent).toContain("transform: translateY(0.45rem)");
-  expect(portfolioPanelComponent).toContain("@media (prefers-reduced-motion: reduce)");
-  expect(portfolioPanelComponent).toContain("animation: none");
+  expect(portfolioEntryStyles).toContain("transform: translateY(0.45rem)");
+  expect(portfolioEntryStyles).toContain("@media (prefers-reduced-motion: reduce)");
+  expect(portfolioEntryStyles).toContain("animation: none");
 });
 
 test("renders the current-location map in the name tab", () => {

@@ -1,10 +1,10 @@
 <script lang="ts">
 import { tick } from "svelte";
 import About from "$lib/components/about.svelte";
-import PortfolioPanel from "$lib/components/portfolio-panel.svelte";
 import Map from "$lib/components/ui/map.svelte";
 import { experiences } from "$lib/constants/experiences";
 import { projects } from "$lib/constants/projects";
+import "./portfolio-entries.css";
 
 type Tab = "name" | "timeline" | "work";
 
@@ -20,6 +20,13 @@ let activeTab = $state<Tab>("name");
 let suppressTransition = $state(false);
 let animateContent = $state(true);
 let tabButtons: HTMLButtonElement[] = [];
+let activeEntries = $derived(
+	activeTab === "timeline" ? timelineEntries : activeTab === "work" ? workEntries : [],
+);
+
+function staggerDelay(entryIndex: number, itemIndex: number) {
+	return Math.min(entryIndex * 70 + itemIndex * 35, 280);
+}
 
 async function selectTab(tab: Tab, fromKeyboard = false) {
 	if (tab === activeTab) return;
@@ -91,20 +98,47 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 			<About />
 		</div>
 
-		{#if activeTab === "timeline"}
-			<PortfolioPanel
-				id="timeline-panel"
-				labelledBy="timeline-tab"
-				entries={timelineEntries}
-				animate={animateContent}
-			/>
-		{:else if activeTab === "work"}
-			<PortfolioPanel
-				id="work-panel"
-				labelledBy="work-tab"
-				entries={workEntries}
-				animate={animateContent}
-			/>
+		{#if activeTab !== "name"}
+			<div
+				class="tab-panel"
+				class:animate-content={animateContent}
+				id={`${activeTab}-panel`}
+				role="tabpanel"
+				aria-labelledby={`${activeTab}-tab`}
+			>
+				{#each activeEntries as entry, entryIndex}
+					<article class="timeline-entry">
+						<p
+							class="entry-date stagger-item"
+							style={`--stagger-delay: ${staggerDelay(entryIndex, 0)}ms`}
+						>
+							{entry.dates}
+						</p>
+						<div class="entry-copy">
+							<h2
+								class="stagger-item"
+								style={`--stagger-delay: ${staggerDelay(entryIndex, 1)}ms`}
+							>
+								{entry.title}
+							</h2>
+							<p
+								class="stagger-item"
+								style={`--stagger-delay: ${staggerDelay(entryIndex, 2)}ms`}
+							>
+								{entry.description}
+							</p>
+							{#each entry.achievements as achievement, itemIndex}
+								<p
+									class="stagger-item"
+									style={`--stagger-delay: ${staggerDelay(entryIndex, itemIndex + 3)}ms`}
+								>
+									{achievement.text}
+								</p>
+							{/each}
+						</div>
+					</article>
+				{/each}
+			</div>
 		{/if}
 	</div>
 </div>

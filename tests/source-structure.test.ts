@@ -32,3 +32,9 @@ test("keeps the map badge inline", async () => {
     false,
   );
 });
+
+test("keeps portfolio entries inline", async () => {
+  expect(await Bun.file(`${projectRoot}/src/lib/components/portfolio-panel.svelte`).exists()).toBe(
+    false,
+  );
+});
