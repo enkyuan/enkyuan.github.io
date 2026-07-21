@@ -136,7 +136,7 @@
 
     let carvedMap = $derived.by(() => {
         if (gridCols === 0 || repeatUnit === 0) return [];
-        const emptyRow = new Array(totalCols).fill(false);
+        const emptyRow = Array.from({ length: totalCols }, () => false);
 
         const unitTemplates: boolean[][] = [];
         for (let charRow = 0; charRow < CHAR_H; charRow++) {
@@ -155,10 +155,10 @@
                 continue;
             }
             const unit = unitTemplates[charRow];
-            const row = new Array(totalCols);
-            for (let c = 0; c < totalCols; c++) {
-                row[c] = unit[c % repeatUnit];
-            }
+            const row = Array.from(
+                { length: totalCols },
+                (_, column) => unit[column % repeatUnit],
+            );
             rows.push(row);
         }
         return rows;
