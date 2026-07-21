@@ -118,19 +118,6 @@
 				style={pillPosition(anchorCell)}
 				aria-live="polite"
 			>
-				<span class="pill-pin-icon" aria-hidden="true">
-					<svg viewBox="0 0 16 16" fill="none">
-						<path
-							d="M8 14.25S12.5 9.9 12.5 6.5a4.5 4.5 0 1 0-9 0C3.5 9.9 8 14.25 8 14.25Z"
-							stroke="currentColor"
-							stroke-width="1.4"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-						/>
-						<circle cx="8" cy="6.5" r="1.55" stroke="currentColor" stroke-width="1.4" />
-					</svg>
-				</span>
-
 				{#if locationState === "located" && latitude !== undefined && longitude !== undefined}
 					<div class="pill-copy">
 						<h1 id="location-title">{place}</h1>
@@ -216,11 +203,10 @@
 		max-width: calc(100% - 1.5rem);
 		min-height: 54px;
 		align-items: center;
-		gap: 0.7rem;
 		bottom: clamp(0.75rem, 3vw, 1.5rem);
 		left: clamp(1rem, 7vw, 3.5rem);
 		border-radius: 999px;
-		padding: 0.55rem 0.75rem;
+		padding: 0.55rem 0.9rem;
 		background: #111315;
 		box-shadow:
 			0 1px 2px rgba(5, 11, 24, 0.18),
@@ -248,37 +234,6 @@
 
 	.location-pill.located.opens-left.opens-above {
 		transform: translate(calc(-100% - 14px), calc(-100% - 12px));
-	}
-
-	.location-pill.located::after {
-		position: absolute;
-		z-index: -1;
-		width: 8px;
-		height: 8px;
-		border-radius: 1px;
-		background: #111315;
-		content: "";
-		transform: rotate(45deg);
-	}
-
-	.location-pill.located.opens-right.opens-below::after {
-		top: -3px;
-		left: 12px;
-	}
-
-	.location-pill.located.opens-left.opens-below::after {
-		top: -3px;
-		right: 12px;
-	}
-
-	.location-pill.located.opens-right.opens-above::after {
-		bottom: -3px;
-		left: 12px;
-	}
-
-	.location-pill.located.opens-left.opens-above::after {
-		right: 12px;
-		bottom: -3px;
 	}
 
 	.animate .location-pill {
@@ -310,26 +265,6 @@
 		letter-spacing: -0.01em;
 		line-height: 1.2;
 		white-space: nowrap;
-	}
-
-	.pill-pin-icon {
-		display: grid;
-		flex: 0 0 auto;
-		width: 18px;
-		height: 18px;
-		place-items: center;
-		color: #78a2d5;
-	}
-
-	.pill-pin-icon svg {
-		display: block;
-		width: 16px;
-		height: 16px;
-		transform: translateY(0.5px);
-	}
-
-	.location-pill.error .pill-pin-icon {
-		color: #d77770;
 	}
 
 	.location-pill button {

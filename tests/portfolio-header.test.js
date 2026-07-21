@@ -65,7 +65,9 @@ test("locates automatically and presents the coordinates in a rounded pill", () 
   expect(locationMap).toContain('import { onMount } from "svelte";');
   expect(locationMap).toContain("onMount(locate);");
   expect(locationMap).toContain('class="location-pill"');
-  expect(locationMap).toContain('class="pill-pin-icon"');
+  expect(locationMap).not.toContain("pill-pin-icon");
+  expect(locationMap).not.toContain('<svg viewBox="0 0 16 16"');
+  expect(locationMap).not.toContain(".location-pill.located::after");
   expect(locationMap).toContain("border-radius: 999px;");
   expect(locationMap).toContain("@keyframes location-pin-drop");
   expect(locationMap).not.toContain("Use current location");
