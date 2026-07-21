@@ -4,6 +4,7 @@
 		findLocationCluster,
 		formatCoordinate,
 		nearestPlace,
+		WORLD_GRID_ROWS,
 	} from "$lib/location-map";
 
 	type LocationState = "idle" | "locating" | "located" | "error";
@@ -63,7 +64,7 @@
 	}
 
 	function cellStyle(row: number, column: number, rank: number) {
-		const delay = Math.min(column * 4 + Math.abs(row - 11) * 3, 220);
+		const delay = Math.min(column * 3 + Math.abs(row - (WORLD_GRID_ROWS - 1) / 2) * 2, 220);
 		const color = rank >= 0 ? clusterPalette[Math.min(rank, clusterPalette.length - 1)] : "#e7e8ea";
 		return `grid-column:${column + 1};grid-row:${row + 1};--cell-delay:${delay}ms;--cell-color:${color}`;
 	}
@@ -134,8 +135,8 @@
 
 	.map-grid {
 		display: grid;
-		grid-template-columns: repeat(48, minmax(0, 1fr));
-		grid-template-rows: repeat(24, minmax(0, 1fr));
+		grid-template-columns: repeat(64, minmax(0, 1fr));
+		grid-template-rows: repeat(32, minmax(0, 1fr));
 		gap: clamp(2px, 0.45vw, 3px);
 		width: 100%;
 		aspect-ratio: 2 / 1;

@@ -5,15 +5,19 @@ import {
   findLocationCluster,
   formatCoordinate,
   nearestPlace,
+  WORLD_GRID_COLUMNS,
+  WORLD_GRID_ROWS,
 } from "../src/lib/location-map";
 
 test("builds a recognizable world grid with unique cells", () => {
   const cells = createWorldGrid();
   const ids = new Set(cells.map((cell) => cell.id));
 
-  expect(cells.length).toBeGreaterThan(250);
-  expect(cells.length).toBeLessThan(650);
+  expect(cells.length).toBeGreaterThan(600);
+  expect(cells.length).toBeLessThan(700);
   expect(ids.size).toBe(cells.length);
+  expect(Math.max(...cells.map((cell) => cell.column))).toBeLessThan(WORLD_GRID_COLUMNS);
+  expect(Math.max(...cells.map((cell) => cell.row))).toBeLessThan(WORLD_GRID_ROWS);
 });
 
 test("anchors location highlights to land for cities on different continents", () => {

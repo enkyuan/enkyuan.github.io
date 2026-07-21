@@ -6,137 +6,50 @@ export type MapCell = {
   longitude: number;
 };
 
-type Coordinate = readonly [longitude: number, latitude: number];
-type Polygon = readonly Coordinate[];
-
 type Place = {
   name: string;
   latitude: number;
   longitude: number;
 };
 
-const WORLD_POLYGONS: readonly Polygon[] = [
-  // North America
-  [
-    [-168, 72],
-    [-152, 59],
-    [-135, 54],
-    [-126, 48],
-    [-124, 32],
-    [-113, 24],
-    [-101, 18],
-    [-88, 18],
-    [-82, 25],
-    [-80, 34],
-    [-67, 45],
-    [-54, 52],
-    [-61, 62],
-    [-82, 70],
-    [-111, 77],
-    [-144, 76],
-  ],
-  // Greenland
-  [
-    [-54, 82],
-    [-23, 80],
-    [-18, 68],
-    [-32, 59],
-    [-49, 62],
-  ],
-  // Central America
-  [
-    [-101, 22],
-    [-83, 8],
-    [-77, 7],
-    [-83, 18],
-  ],
-  // South America
-  [
-    [-81, 12],
-    [-67, 11],
-    [-49, 2],
-    [-35, -8],
-    [-48, -29],
-    [-58, -52],
-    [-72, -55],
-    [-76, -32],
-    [-81, -8],
-  ],
-  // Europe
-  [
-    [-11, 36],
-    [-10, 58],
-    [5, 71],
-    [29, 71],
-    [42, 57],
-    [31, 43],
-    [12, 36],
-  ],
-  // Africa
-  [
-    [-18, 36],
-    [10, 37],
-    [34, 31],
-    [51, 12],
-    [40, -11],
-    [29, -35],
-    [14, -35],
-    [2, -17],
-    [-16, 5],
-  ],
-  // Asia
-  [
-    [30, 42],
-    [43, 71],
-    [94, 77],
-    [151, 68],
-    [177, 58],
-    [155, 46],
-    [141, 35],
-    [122, 21],
-    [105, 6],
-    [89, 7],
-    [75, 21],
-    [59, 25],
-    [47, 39],
-  ],
-  // India and Southeast Asia
-  [
-    [67, 25],
-    [91, 27],
-    [105, 11],
-    [121, 4],
-    [114, -9],
-    [97, 2],
-    [82, 7],
-  ],
-  // Japan
-  [
-    [130, 31],
-    [145, 45],
-    [140, 30],
-  ],
-  // Australia
-  [
-    [112, -11],
-    [139, -10],
-    [154, -27],
-    [145, -43],
-    [119, -36],
-  ],
-  // Madagascar
-  [
-    [43, -12],
-    [51, -13],
-    [49, -27],
-    [44, -25],
-  ],
-  // New Zealand
-  [
-    [166, -34],
-    [179, -47],
-    [173, -32],
-  ],
+export const WORLD_GRID_COLUMNS = 64;
+export const WORLD_GRID_ROWS = 32;
+
+// Generated from Natural Earth's public-domain 1:110m land polygons.
+// https://www.naturalearthdata.com/downloads/110m-physical-vectors/
+const WORLD_LAND_MASK: readonly string[] = [
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000001111111111111110000011000000000001100000000000000",
+  "0000000000011011110011111111100000000000001100011111000010000000",
+  "1111111111111111111111111111111111101001111011111111111111110000",
+  "0111111111111111111111111111111111111111111111111111111111111111",
+  "0001111111111111001110000000000101101111111111111111111111111100",
+  "0000000011111111111111000000001101111111111111111111111110011000",
+  "0000000000111111111111100000000111111111111111111111111111000000",
+  "0000000000111111111100000000001111111111111111111111111101000000",
+  "0000000000111111111000000000001111001111111111111111111110000000",
+  "0000000000011111110000000000001111111111111111111111110000000000",
+  "0000000000001110000000000000011111111111111111111111110000000000",
+  "0000000000000111101100000000011111111111111011101110000000000000",
+  "0000000000000001100000000000011111111111100001100111010000000000",
+  "0000000000000000011111000000011111111111100001100100001000000000",
+  "0000000000000000001111100000000001111111100000000111101000000000",
+  "0000000000000000011111111000000001111110000000000011110111000000",
+  "0000000000000000001111111100000000111110000000000001110001100000",
+  "0000000000000000001111111000000000111110100000000000001111000000",
+  "0000000000000000000111111000000000111110100000000000011111100000",
+  "0000000000000000000111110000000000111100000000000000111111100000",
+  "0000000000000000000111100000000000011100000000000000111111100000",
+  "0000000000000000000111000000000000000000000000000000000001100001",
+  "0000000000000000000110000000000000000000000000000000000000000010",
+  "0000000000000000001100000000000000000000000010000000000000000000",
+  "0000000000000000000101000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
 ];
 
 const PLACES: readonly Place[] = [
@@ -180,24 +93,6 @@ const PLACES: readonly Place[] = [
   { name: "Washington", latitude: 38.91, longitude: -77.04 },
 ];
 
-function pointInPolygon(longitude: number, latitude: number, polygon: Polygon) {
-  let inside = false;
-
-  for (let index = 0, previous = polygon.length - 1; index < polygon.length; previous = index++) {
-    const [currentLongitude, currentLatitude] = polygon[index];
-    const [previousLongitude, previousLatitude] = polygon[previous];
-    const crossesLatitude = currentLatitude > latitude !== previousLatitude > latitude;
-    const crossingLongitude =
-      ((previousLongitude - currentLongitude) * (latitude - currentLatitude)) /
-        (previousLatitude - currentLatitude) +
-      currentLongitude;
-
-    if (crossesLatitude && longitude < crossingLongitude) inside = !inside;
-  }
-
-  return inside;
-}
-
 function squaredProjectedDistance(
   latitude: number,
   longitude: number,
@@ -212,18 +107,16 @@ function squaredProjectedDistance(
   return latitudeDistance ** 2 + longitudeDistance ** 2;
 }
 
-export function createWorldGrid(columns = 48, rows = 24): MapCell[] {
+export function createWorldGrid(): MapCell[] {
   const cells: MapCell[] = [];
 
-  for (let row = 0; row < rows; row += 1) {
-    const latitude = 90 - ((row + 0.5) / rows) * 180;
+  for (let row = 0; row < WORLD_GRID_ROWS; row += 1) {
+    const latitude = 90 - ((row + 0.5) / WORLD_GRID_ROWS) * 180;
 
-    for (let column = 0; column < columns; column += 1) {
-      const longitude = -180 + ((column + 0.5) / columns) * 360;
-      if (!WORLD_POLYGONS.some((polygon) => pointInPolygon(longitude, latitude, polygon))) {
-        continue;
-      }
+    for (let column = 0; column < WORLD_GRID_COLUMNS; column += 1) {
+      if (WORLD_LAND_MASK[row][column] !== "1") continue;
 
+      const longitude = -180 + ((column + 0.5) / WORLD_GRID_COLUMNS) * 360;
       cells.push({
         id: `${row}-${column}`,
         row,
