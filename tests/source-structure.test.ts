@@ -6,12 +6,26 @@ const sourceFiles = [
   ...new Bun.Glob("src/**/*.{css,svelte,ts}").scanSync({ cwd: projectRoot }),
   ...new Bun.Glob("tests/**/*.{js,ts}").scanSync({ cwd: projectRoot }),
 ];
+const authoredColorFiles = [
+  ...new Bun.Glob("src/**/*.{css,html,svelte,ts}").scanSync({ cwd: projectRoot }),
+  "static/favicon/favicon.svg",
+  "static/favicon/site.webmanifest",
+];
 
 test("keeps source files below the 400-line responsibility ceiling", async () => {
   for (const file of sourceFiles) {
     const contents = await Bun.file(`${projectRoot}/${file}`).text();
     const lineCount = contents.trimEnd().split(/\r?\n/).length;
     expect(lineCount, `${file} has ${lineCount} lines`).toBeLessThanOrEqual(400);
+  }
+});
+
+test("uses OKLCH for every authored literal color", async () => {
+  const legacyColor = /#[\da-f]{3,8}\b|\b(?:rgb|rgba|hsl|hsla)\(/i;
+
+  for (const file of authoredColorFiles) {
+    const contents = await Bun.file(`${projectRoot}/${file}`).text();
+    expect(contents, `${file} contains a non-OKLCH literal color`).not.toMatch(legacyColor);
   }
 });
 

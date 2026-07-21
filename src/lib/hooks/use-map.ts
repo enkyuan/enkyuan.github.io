@@ -15,17 +15,17 @@ type Place = {
 
 type GradientStop = {
   at: number;
-  color: readonly [number, number, number];
+  color: string;
 };
 
 export const WORLD_GRID_COLUMNS = 64;
 export const WORLD_GRID_ROWS = 32;
 
 const MAP_GRADIENT_STOPS: readonly GradientStop[] = [
-  { at: 0, color: [5, 11, 24] },
-  { at: 0.42, color: [23, 59, 132] },
-  { at: 0.73, color: [120, 162, 213] },
-  { at: 1, color: [244, 246, 248] },
+  { at: 0, color: "oklch(0.151 0.03 261.872)" },
+  { at: 0.42, color: "oklch(0.373 0.13 262.31)" },
+  { at: 0.73, color: "oklch(0.702 0.088 253.74)" },
+  { at: 1, color: "oklch(0.972 0.003 247.858)" },
 ];
 
 // Generated from Natural Earth's public-domain 1:110m land polygons.
@@ -166,11 +166,10 @@ function sampleLocationGradient(progress: number) {
   const start = MAP_GRADIENT_STOPS[Math.max(endIndex - 1, 0)];
   const span = end.at - start.at || 1;
   const amount = (clampedProgress - start.at) / span;
-  const channels = start.color.map((channel, index) =>
-    Math.round(channel + (end.color[index] - channel) * amount),
-  );
+  const endPercentage = Number((amount * 100).toFixed(3));
+  const startPercentage = Number((100 - endPercentage).toFixed(3));
 
-  return `rgb(${channels.join(" ")})`;
+  return `color-mix(in srgb, ${start.color} ${startPercentage}%, ${end.color} ${endPercentage}%)`;
 }
 
 export function createLocationGradient(cells: readonly MapCell[], cellIds: readonly string[]) {

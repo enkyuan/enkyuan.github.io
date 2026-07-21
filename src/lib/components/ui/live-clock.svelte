@@ -193,7 +193,7 @@ const segments = $derived<ClockSegment[]>([
 		height: 2px;
 		align-self: center;
 		overflow: hidden;
-		background-image: radial-gradient(circle, #e5e7eb 1px, transparent 1px);
+		background-image: radial-gradient(circle, oklch(0.928 0.006 264.531) 1px, transparent 1px);
 		background-size: 8px 2px;
 		background-position: 0 0;
 		background-repeat: repeat-x;

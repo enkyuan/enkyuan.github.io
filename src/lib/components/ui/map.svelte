@@ -21,7 +21,7 @@
 
 	function cellStyle(row: number, column: number, color: string | undefined) {
 		const delay = Math.min(column * 3 + Math.abs(row - (WORLD_GRID_ROWS - 1) / 2) * 2, 220);
-		return `grid-column:${column + 1};grid-row:${row + 1};--cell-delay:${delay}ms;--cell-color:${color ?? "#e7e8ea"}`;
+		return `grid-column:${column + 1};grid-row:${row + 1};--cell-delay:${delay}ms;--cell-color:${color ?? "oklch(0.931 0.003 264.541)"}`;
 	}
 
 	function pillPosition(currentLatitude: number | undefined, currentLongitude: number | undefined) {

@@ -53,7 +53,11 @@ test("samples one continuous gradient across the location cluster", () => {
 
   expect(colors.size).toBe(chicago.length);
   expect(new Set(colors.values()).size).toBeGreaterThan(3);
-  expect([...colors.values()].every((color) => color.startsWith("rgb("))).toBeTrue();
+  expect(
+    [...colors.values()].every(
+      (color) => color.startsWith("color-mix(in srgb, oklch(") && !color.includes("rgb("),
+    ),
+  ).toBeTrue();
 });
 
 test("derives the visible place from the current coordinates", () => {

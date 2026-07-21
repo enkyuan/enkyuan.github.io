@@ -22,7 +22,7 @@
 
 .card.elevated {
   border: 1px solid var(--gray1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 12px oklch(0 0 0 / 0.25);
 }
 
 .card.none {
@@ -47,7 +47,7 @@
 
 .card.hoverable:hover {
   background: color-mix(in srgb, var(--gray) 85%, transparent 15%);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 6px 16px oklch(0 0 0 / 0.3);
   transform: translateY(-2px);
 }
 

@@ -19,7 +19,7 @@
 
 .entry-date {
   margin: 0;
-  color: rgba(23, 25, 29, 0.47);
+  color: oklch(0.213 0.008 264.379 / 0.47);
   font-size: 0.975rem;
   line-height: 1.5;
   letter-spacing: -0.012em;
@@ -43,7 +43,7 @@
 }
 
 .entry-copy p {
-  color: rgba(23, 25, 29, 0.9);
+  color: oklch(0.213 0.008 264.379 / 0.9);
 }
 
 .entry-copy h2 + p,

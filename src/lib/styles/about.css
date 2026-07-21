@@ -2,7 +2,7 @@
   --brand-lavender-blush: oklch(0.892 0.063 355.343);
   --brand-orchid: oklch(0.818 0.114 355.343);
   --brand-magenta: oklch(0.617 0.253 355.343);
-  --map-gradient-blue: rgb(23 59 132);
+  --map-gradient-blue: oklch(0.373 0.13 262.31);
   --font-about-rounded: ".SF NS Rounded", "SF Pro Rounded", "Portfolio Rounded", sans-serif;
 
   padding-bottom: clamp(5rem, 11vh, 8rem);
@@ -15,7 +15,7 @@
 
 .map-note {
   margin: 0;
-  color: rgba(23, 25, 29, 0.5);
+  color: oklch(0.213 0.008 264.379 / 0.5);
   font-family: var(--font-about-rounded);
   font-size: 0.8125rem;
   letter-spacing: -0.01em;
@@ -72,11 +72,11 @@
 }
 
 .contact-copy {
-  color: rgba(23, 25, 29, 0.68);
+  color: oklch(0.213 0.008 264.379 / 0.68);
 }
 
 .contact-copy a {
-  color: #17191d;
+  color: oklch(0.213 0.008 264.379);
   font-family: var(--font-about-rounded);
   font-size: 1em;
   font-weight: 500;

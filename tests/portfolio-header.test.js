@@ -120,7 +120,7 @@ test("fills the role text with the shared OKLCH brand gradient", () => {
 test("keeps the contact links clean without persistent underlines", () => {
   expect(aboutStyles).toContain("text-decoration: none;");
   expect(aboutStyles).toContain("transition: color 150ms var(--ease-out);");
-  expect(aboutStyles).toContain("--map-gradient-blue: rgb(23 59 132);");
+  expect(aboutStyles).toContain("--map-gradient-blue: oklch(0.373 0.13 262.31);");
   expect(aboutStyles).toContain("color: var(--map-gradient-blue);");
   expect(aboutStyles).toContain("outline: 2px solid var(--map-gradient-blue);");
   expect(aboutStyles).not.toContain("text-decoration-line: underline;");
@@ -218,8 +218,8 @@ test("keeps loading pending and renders location failures as a dot-matrix X", ()
   expect(mapComponent).toContain("isErrorDotVisible(row, column)");
   expect(mapComponent).toContain("class:error-mark={isErrorDotVisible(row, column)}");
   expect(mapComponent).toContain("Math.abs(x - y) <= 1");
-  expect(mapStyles).toContain("fill: rgba(255, 184, 186, 0.42);");
-  expect(mapStyles).toContain("fill: #ff5c63;");
+  expect(mapStyles).toContain("fill: oklch(0.849 0.083 17.077 / 0.42);");
+  expect(mapStyles).toContain("fill: oklch(0.692 0.198 21.503);");
   expect(mapComponent).toContain('<h1 id="location-title">Location not found</h1>');
   expect(mapStyles).toContain("border-radius: 50%;");
   expect(mapComponent).not.toContain("RetryIcon");

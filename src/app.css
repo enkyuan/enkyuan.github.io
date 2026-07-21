@@ -41,16 +41,16 @@ pre {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: oklch(0.872 0.009 258.338);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: oklch(0.714 0.019 261.325);
 }
 
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #d1d5db transparent;
+  scrollbar-color: oklch(0.872 0.009 258.338) transparent;
 }

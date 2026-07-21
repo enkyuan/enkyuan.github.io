@@ -168,8 +168,8 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 		min-width: 320px;
 		min-height: 100vh;
 		height: auto;
-		background: #ffffff;
-		color: #17191d;
+		background: oklch(1 0 0);
+		color: oklch(0.213 0.008 264.379);
 	}
 
 	:global(button),
@@ -180,7 +180,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 	.portfolio-shell {
 		position: relative;
 		min-height: 100svh;
-		background: #ffffff;
+		background: oklch(1 0 0);
 		overflow: hidden;
 	}
 
@@ -207,7 +207,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 		border: 0;
 		padding: 0;
 		background: transparent;
-		color: rgba(23, 25, 29, 0.48);
+		color: oklch(0.213 0.008 264.379 / 0.48);
 		font-size: 1rem;
 		font-weight: 400;
 		letter-spacing: -0.018em;
@@ -219,7 +219,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 
 	.tab-list button.active,
 	.tab-list button:focus-visible {
-		color: #17191d;
+		color: oklch(0.213 0.008 264.379);
 	}
 
 	.tab-list button:focus-visible {
@@ -239,7 +239,13 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 
 	.hanzi-name {
 		display: block;
-		background: linear-gradient(145deg, #050b18 2%, #173b84 52%, #78a2d5 82%, #dce7ef 100%);
+		background: linear-gradient(
+			145deg,
+			oklch(0.151 0.03 261.872) 2%,
+			oklch(0.373 0.13 262.31) 52%,
+			oklch(0.702 0.088 253.74) 82%,
+			oklch(0.922 0.016 239.116) 100%
+		);
 		background-clip: text;
 		color: transparent;
 		font-family: "Ndot 77 JP Extended Name", sans-serif;
@@ -253,7 +259,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 	}
 
 	.tab-list .identity-tab:focus-visible {
-		outline-color: #173b84;
+		outline-color: oklch(0.373 0.13 262.31);
 	}
 
 	.secondary-tab {
@@ -281,7 +287,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 
 	@media (hover: hover) and (pointer: fine) {
 		.tab-list button:hover {
-			color: #17191d;
+			color: oklch(0.213 0.008 264.379);
 		}
 	}
 

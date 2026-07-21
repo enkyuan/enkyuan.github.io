@@ -18,8 +18,14 @@
 	}
 
 	function usColor(row: number, column: number) {
-		if (row < 6 && column < 6) return STARS.has(`${row}-${column}`) ? "#f7f8fa" : "#173b84";
-		return row % 2 === 0 ? "#b52b3a" : "#f7f8fa";
+		if (row < 6 && column < 6) {
+			return STARS.has(`${row}-${column}`)
+				? "oklch(0.979 0.003 264.542)"
+				: "oklch(0.373 0.13 262.31)";
+		}
+		return row % 2 === 0
+			? "oklch(0.513 0.173 20.342)"
+			: "oklch(0.979 0.003 264.542)";
 	}
 </script>
 
