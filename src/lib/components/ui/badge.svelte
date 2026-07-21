@@ -6,6 +6,7 @@
 		onclick,
 		ariaLabel,
 		ariaLive,
+		disabled = false,
 		title,
 		class: className = "",
 	} = $props<{
@@ -13,6 +14,7 @@
 		onclick?: (event: MouseEvent) => void;
 		ariaLabel?: string;
 		ariaLive?: "off" | "polite" | "assertive";
+		disabled?: boolean;
 		title?: string;
 		class?: string;
 	}>();
@@ -25,6 +27,7 @@
 		{onclick}
 		aria-label={ariaLabel}
 		aria-live={ariaLive}
+		{disabled}
 		{title}
 	>
 		{@render children()}
@@ -65,21 +68,27 @@
 			transform 160ms var(--ease-out);
 	}
 
-	button.badge:hover {
-		background: #181b1e;
-		box-shadow:
-			0 2px 4px rgba(5, 11, 24, 0.18),
-			0 8px 18px rgba(5, 11, 24, 0.14);
-		transform: translateY(-1px);
-	}
-
-	button.badge:active {
-		transform: scale(0.985);
+	button.badge:disabled {
+		cursor: wait;
 	}
 
 	button.badge:focus-visible {
 		outline: 2px solid rgba(17, 19, 21, 0.34);
 		outline-offset: 3px;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		button.badge:hover:not(:disabled) {
+			background: #181b1e;
+			box-shadow:
+				0 2px 4px rgba(5, 11, 24, 0.18),
+				0 8px 18px rgba(5, 11, 24, 0.14);
+			transform: translateY(-1px);
+		}
+	}
+
+	button.badge:active:not(:disabled) {
+		transform: scale(0.96);
 	}
 
 	@media (prefers-reduced-motion: reduce) {

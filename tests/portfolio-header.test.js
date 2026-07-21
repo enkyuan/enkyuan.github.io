@@ -11,6 +11,10 @@ const flagsComponent = await Bun.file(
 const badgeComponent = await Bun.file(
   new URL("../src/lib/components/ui/badge.svelte", import.meta.url),
 ).text();
+const aboutComponent = await Bun.file(
+  new URL("../src/lib/components/about.svelte", import.meta.url),
+).text();
+const appStyles = await Bun.file(new URL("../src/app.css", import.meta.url)).text();
 
 test("renders the Ndot Hanzi name inline in the header", () => {
   expect(page).not.toContain("HanziName");
@@ -69,9 +73,66 @@ test("renders the current-location map in the name tab", () => {
   expect(page).not.toContain("location-map.svelte");
 });
 
+test("follows the map with a concise introduction and contact links", () => {
+  expect(page).toContain('import About from "$lib/components/about.svelte";');
+  expect(page).toContain("<Map animate={animateContent} />\n\t\t\t<About />");
+  expect(mapComponent).toContain("padding-bottom: clamp(2.75rem, 6vh, 3.5rem);");
+  expect(aboutComponent).toContain("this map is drawn from a 64 × 32 grid");
+  expect(aboutComponent).toContain("hey, i'm enkang");
+  expect(aboutComponent).toContain("associate software engineer @ t-mobile");
+  expect(aboutComponent).toContain('text === "Email"');
+  expect(aboutComponent).toContain('text === "Twitter"');
+  expect(aboutComponent).toContain('aria-label="Email Enkang"');
+  expect(aboutComponent).toContain('aria-label="Enkang on X"');
+});
+
+test("fills the role text with the shared OKLCH brand gradient", () => {
+  expect(aboutComponent).toContain("oklch(0.892 0.063 355.343)");
+  expect(aboutComponent).toContain("oklch(0.818 0.114 355.343)");
+  expect(aboutComponent).toContain("oklch(0.617 0.253 355.343)");
+  expect(aboutComponent).toContain("background-clip: text;");
+  expect(aboutComponent).toContain("-webkit-text-fill-color: transparent;");
+  expect(aboutComponent).toContain("background-size: 220% 100%;");
+  expect(aboutComponent).toContain("animation: role-gradient-drift 7s linear infinite alternate;");
+  expect(aboutComponent).toContain("@keyframes role-gradient-drift");
+  expect(aboutComponent).toContain("background-position: 100% 50%;");
+  expect(aboutComponent).toContain("background-position: 50% 50%;\n\t\t\tanimation: none;");
+});
+
+test("keeps the contact links clean without persistent underlines", () => {
+  expect(aboutComponent).toContain("text-decoration: none;");
+  expect(aboutComponent).toContain("transition: color 150ms var(--ease-out);");
+  expect(aboutComponent).toContain("--map-gradient-blue: rgb(23 59 132);");
+  expect(aboutComponent).toContain("color: var(--map-gradient-blue);");
+  expect(aboutComponent).toContain("outline: 2px solid var(--map-gradient-blue);");
+  expect(aboutComponent).not.toContain("text-decoration-line: underline;");
+});
+
+test("uses an optically aligned X logo at the surrounding font size", () => {
+  expect(aboutComponent).toContain('class="social-icon"');
+  expect(aboutComponent).toContain(
+    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">',
+  );
+  expect(aboutComponent).toContain("M18.244 2.25h3.308l-7.227 8.26");
+  expect(aboutComponent).toContain("width: 1em;");
+  expect(aboutComponent).toContain("height: 1em;");
+  expect(aboutComponent).toContain("vertical-align: -0.08em;");
+  expect(aboutComponent).not.toContain('aria-label="Enkang on X">x</a>');
+});
+
+test("uses one rounded type system across the map note and personal introduction", () => {
+  expect(appStyles).not.toContain("shantell-sans");
+  expect(aboutComponent).toContain(
+    '".SF NS Rounded", "SF Pro Rounded", "Portfolio Rounded", sans-serif;',
+  );
+  expect(aboutComponent.match(/font-family: var\(--font-about-rounded\);/g)).toHaveLength(3);
+  expect(aboutComponent).toContain("font-size: 0.8125rem;");
+  expect(aboutComponent).toContain("line-height: 1.55;");
+  expect(aboutComponent).toContain("font-size: 1.125rem;");
+});
+
 test("locates automatically and presents the coordinates in a rounded pill", () => {
-  expect(mapComponent).toContain('import { onMount } from "svelte";');
-  expect(mapComponent).toContain('import { fade } from "svelte/transition";');
+  expect(mapComponent).toContain('import { onMount, tick } from "svelte";');
   expect(mapComponent).toContain('import Badge from "$lib/components/ui/badge.svelte";');
   expect(mapComponent).toContain('import Flags from "$lib/components/ui/flags.svelte";');
   expect(mapComponent).toContain('from "$lib/map";');
@@ -111,12 +172,17 @@ test("keeps pending and failed location states at one viewport-bottom anchor", (
   expect(mapComponent).toContain("flex: 0 0 34px;");
   expect(mapComponent).toContain("@keyframes loading-dot");
   expect(mapComponent).toContain("animation-delay: calc(var(--loader-delay) - 900ms);");
-  expect(mapComponent).toContain(
-    "in:fade={{ duration: animate && !prefersReducedMotion ? 180 : 0 }}",
-  );
-  expect(mapComponent).toContain(
-    "out:fade={{ duration: animate && !prefersReducedMotion ? 120 : 0 }}",
-  );
+  expect(mapComponent).toContain("startViewTransition?:");
+  expect(mapComponent).toContain('class="shared-pill" bind:this={sharedPill}');
+  expect(mapComponent).toContain("sharedPill.animate(");
+  expect(mapComponent).toContain("firstRect.width / lastRect.width");
+  expect(mapComponent).toContain('filter: "blur(4px)"');
+  expect(mapComponent).toContain("view-transition-name: location-pill;");
+  expect(mapComponent).toContain("::view-transition-group(location-pill)");
+  expect(mapComponent).toContain("@keyframes liquid-pill-in");
+  expect(mapComponent).toContain("transform: scale(1.015, 0.985);");
+  expect(mapComponent).not.toContain("in:fade");
+  expect(mapComponent).not.toContain("out:fade");
   expect(mapComponent).toContain('window.matchMedia("(prefers-reduced-motion: reduce)")');
 });
 
@@ -135,17 +201,23 @@ test("keeps loading pending and renders location failures as a dot-matrix X", ()
   expect(mapComponent).not.toContain("retry-button");
 });
 
-test("keeps one visitor location session mounted and makes the badge interactive", () => {
+test("keeps one visitor location session mounted and only makes failed badges interactive", () => {
   expect(page).toContain('hidden={activeTab !== "name"}');
   expect(mapComponent).toContain(
-    'onclick={locationState === "locating" ? undefined : () => locate()}',
+    'onclick={locationState === "error" ? () => void locate() : undefined}',
   );
-  expect(mapComponent).toContain('ariaLabel={locationState === "error"');
+  expect(mapComponent).not.toContain('disabled={locationState === "locating"}');
+  expect(mapComponent).toContain(
+    'ariaLabel={locationState === "error" ? "Try finding your location again" : undefined}',
+  );
   expect(mapComponent).toContain('"Try finding your location again"');
-  expect(mapComponent).toContain('"Refresh your current location"');
+  expect(mapComponent).not.toContain('"Refresh your current location"');
+  expect(mapComponent).not.toContain('"Refresh location"');
   expect(badgeComponent).toContain("onclick?: (event: MouseEvent) => void;");
+  expect(badgeComponent).toContain("disabled?: boolean;");
   expect(badgeComponent).toContain("<button");
-  expect(badgeComponent).toContain("button.badge:hover");
+  expect(badgeComponent).toContain("button.badge:hover:not(:disabled)");
+  expect(badgeComponent).toContain("transform: scale(0.96);");
 });
 
 test("replaces the unused tag list with the reusable badge primitive", async () => {

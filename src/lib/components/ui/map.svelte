@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { onMount } from "svelte";
-	import { fade } from "svelte/transition";
+	import { onMount, tick } from "svelte";
 	import Badge from "$lib/components/ui/badge.svelte";
 	import Flags from "$lib/components/ui/flags.svelte";
 	import {
@@ -14,6 +13,10 @@
 	} from "$lib/map";
 
 	type LocationState = "locating" | "located" | "error";
+	type SharedViewTransition = { finished: Promise<void> };
+	type ViewTransitionDocument = Document & {
+		startViewTransition?: (update: () => Promise<void>) => SharedViewTransition;
+	};
 
 	let { animate = true } = $props<{ animate?: boolean }>();
 
@@ -31,6 +34,8 @@
 	let highlightedCellColors: Map<string, string> = $state(new Map());
 	let statusMessage = $state("Finding your spot on the map.");
 	let prefersReducedMotion = $state(false);
+	let sharedPill: HTMLDivElement | undefined = $state();
+	let sharedPillAnimation: Animation | undefined;
 
 	onMount(() => {
 		const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -40,41 +45,91 @@
 
 		updateMotionPreference();
 		reducedMotion.addEventListener("change", updateMotionPreference);
-		locate();
+		void locate();
 
 		return () => reducedMotion.removeEventListener("change", updateMotionPreference);
 	});
 
-	function locate() {
-		if (!("geolocation" in navigator)) {
-			locationState = "error";
-			statusMessage = "Location is not available in this browser.";
+	async function updateLocationState(update: () => void) {
+		const viewTransitionDocument = document as ViewTransitionDocument;
+		if (!animate || prefersReducedMotion) {
+			update();
+			await tick();
 			return;
 		}
 
-		locationState = "locating";
-		statusMessage = "Finding your spot on the map.";
+		if (viewTransitionDocument.startViewTransition) {
+			const transition = viewTransitionDocument.startViewTransition(async () => {
+				update();
+				await tick();
+			});
+			await transition.finished.catch(() => undefined);
+			return;
+		}
+
+		const firstRect = sharedPill?.getBoundingClientRect();
+		update();
+		await tick();
+		const lastRect = sharedPill?.getBoundingClientRect();
+		if (!sharedPill || !firstRect || !lastRect || lastRect.width === 0 || lastRect.height === 0) return;
+
+		sharedPillAnimation?.cancel();
+		sharedPillAnimation = sharedPill.animate(
+			[
+				{
+					opacity: 0.86,
+					filter: "blur(4px)",
+					transform: `translate(${firstRect.left - lastRect.left}px, ${firstRect.top - lastRect.top}px) scale(${firstRect.width / lastRect.width}, ${firstRect.height / lastRect.height})`,
+				},
+				{ opacity: 1, filter: "blur(0)", transform: "translate(0, 0) scale(1)" },
+			],
+			{
+				duration: 520,
+				easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+				fill: "both",
+			},
+		);
+		await sharedPillAnimation.finished.catch(() => undefined);
+	}
+
+	async function locate() {
+		if (!("geolocation" in navigator)) {
+			await updateLocationState(() => {
+				locationState = "error";
+				statusMessage = "Location is not available in this browser.";
+			});
+			return;
+		}
+
+		if (locationState === "locating") {
+			statusMessage = "Finding your spot on the map.";
+		} else {
+			await updateLocationState(() => {
+				locationState = "locating";
+				statusMessage = "Finding your spot on the map.";
+			});
+		}
 
 		navigator.geolocation.getCurrentPosition(
 			(position) => {
-				latitude = position.coords.latitude;
-				longitude = position.coords.longitude;
-				const nearest = nearestLocation(latitude, longitude);
-				place = nearest.name;
-				countryCode = nearest.countryCode;
-				const cluster = findLocationCluster(
-					cells,
-					latitude,
-					longitude,
-				);
-				highlightedCells = cluster;
-				highlightedCellColors = createLocationGradient(cells, cluster);
-				locationState = "located";
-				statusMessage = `Current location found near ${place}.`;
+				void updateLocationState(() => {
+					latitude = position.coords.latitude;
+					longitude = position.coords.longitude;
+					const nearest = nearestLocation(latitude, longitude);
+					place = nearest.name;
+					countryCode = nearest.countryCode;
+					const cluster = findLocationCluster(cells, latitude, longitude);
+					highlightedCells = cluster;
+					highlightedCellColors = createLocationGradient(cells, cluster);
+					locationState = "located";
+					statusMessage = `Current location found near ${place}.`;
+				});
 			},
 			() => {
-				locationState = "error";
-				statusMessage = "Location not found.";
+				void updateLocationState(() => {
+					locationState = "error";
+					statusMessage = "Location not found.";
+				});
 			},
 			{ enableHighAccuracy: true, maximumAge: 0 },
 		);
@@ -133,84 +188,78 @@
 			{/each}
 		</div>
 
-		{#key locationState}
-			<div
-				class:error={locationState === "error"}
-				class:locating={locationState === "locating"}
-				class:bottom-state={locationState !== "located"}
-				class:located={locationState === "located" && latitude !== undefined && longitude !== undefined}
-				class:opens-right={longitude === undefined || longitude < 0}
-				class:opens-left={longitude !== undefined && longitude >= 0}
-				class:opens-below={latitude === undefined || latitude >= 0}
-				class:opens-above={latitude !== undefined && latitude < 0}
-				class="location-badge-anchor"
-				style={pillPosition(latitude, longitude)}
-				in:fade={{ duration: animate && !prefersReducedMotion ? 180 : 0 }}
-				out:fade={{ duration: animate && !prefersReducedMotion ? 120 : 0 }}
-			>
+		<div
+			class:error={locationState === "error"}
+			class:locating={locationState === "locating"}
+			class:bottom-state={locationState !== "located"}
+			class:located={locationState === "located" && latitude !== undefined && longitude !== undefined}
+			class:opens-right={longitude === undefined || longitude < 0}
+			class:opens-left={longitude !== undefined && longitude >= 0}
+			class:opens-below={latitude === undefined || latitude >= 0}
+			class:opens-above={latitude !== undefined && latitude < 0}
+			class="location-badge-anchor"
+			style={pillPosition(latitude, longitude)}
+		>
+			<div class="shared-pill" bind:this={sharedPill}>
 				<Badge
 					class="location-badge"
-					onclick={locationState === "locating" ? undefined : () => locate()}
-					ariaLabel={locationState === "error"
-						? "Try finding your location again"
-						: locationState === "located"
-							? "Refresh your current location"
-							: undefined}
+					onclick={locationState === "error" ? () => void locate() : undefined}
+					ariaLabel={locationState === "error" ? "Try finding your location again" : undefined}
 					ariaLive="polite"
-					title={locationState === "error"
-						? "Try again"
-						: locationState === "located"
-							? "Refresh location"
-							: undefined}
+					title={locationState === "error" ? "Try again" : undefined}
 				>
-				{#if locationState === "located" && latitude !== undefined && longitude !== undefined}
-					<Flags {countryCode} />
-					<div class="pill-copy">
-						<h1 id="location-title">{place}</h1>
-						<p class="coordinates">
-							{formatCoordinate(latitude, "N", "S", 3)} · {formatCoordinate(longitude, "E", "W", 3)}
-						</p>
-					</div>
-				{:else if locationState === "error"}
-					<span class="error-field" aria-hidden="true">
-						<svg viewBox="0 0 34 34" focusable="false">
-							{#each LOADER_DOTS as row}
-								{#each LOADER_DOTS as column}
-									{#if isLoadingDotVisible(row, column)}
-										<circle
-											class:error-mark={isErrorDotVisible(row, column)}
-											cx={column * LOADER_STEP + LOADER_STEP / 2}
-											cy={row * LOADER_STEP + LOADER_STEP / 2}
-											r="1.15"
-										/>
-									{/if}
-								{/each}
-							{/each}
-						</svg>
-					</span>
-					<h1 id="location-title">Location not found</h1>
-				{:else}
-					<span class="loading-field" aria-hidden="true">
-						<svg viewBox="0 0 34 34" focusable="false">
-							{#each LOADER_DOTS as row}
-								{#each LOADER_DOTS as column}
-									{#if isLoadingDotVisible(row, column)}
-										<circle
-											cx={column * LOADER_STEP + LOADER_STEP / 2}
-											cy={row * LOADER_STEP + LOADER_STEP / 2}
-											r="1.15"
-											style={`--loader-delay:${loadingDotDelay(row, column)}ms`}
-										/>
-									{/if}
-								{/each}
-							{/each}
-						</svg>
-					</span>
-					<h1 id="location-title">Finding your spot on the map…</h1>
-				{/if}
+					{#key locationState}
+						<div class="pill-state">
+						{#if locationState === "located" && latitude !== undefined && longitude !== undefined}
+							<Flags {countryCode} />
+							<div class="pill-copy">
+								<h1 id="location-title">{place}</h1>
+								<p class="coordinates">
+									{formatCoordinate(latitude, "N", "S", 3)} · {formatCoordinate(longitude, "E", "W", 3)}
+								</p>
+							</div>
+						{:else if locationState === "error"}
+							<span class="error-field" aria-hidden="true">
+								<svg viewBox="0 0 34 34" focusable="false">
+									{#each LOADER_DOTS as row}
+										{#each LOADER_DOTS as column}
+											{#if isLoadingDotVisible(row, column)}
+												<circle
+													class:error-mark={isErrorDotVisible(row, column)}
+													cx={column * LOADER_STEP + LOADER_STEP / 2}
+													cy={row * LOADER_STEP + LOADER_STEP / 2}
+													r="1.15"
+												/>
+											{/if}
+										{/each}
+									{/each}
+								</svg>
+							</span>
+							<h1 id="location-title">Location not found</h1>
+						{:else}
+							<span class="loading-field" aria-hidden="true">
+								<svg viewBox="0 0 34 34" focusable="false">
+									{#each LOADER_DOTS as row}
+										{#each LOADER_DOTS as column}
+											{#if isLoadingDotVisible(row, column)}
+												<circle
+													cx={column * LOADER_STEP + LOADER_STEP / 2}
+													cy={row * LOADER_STEP + LOADER_STEP / 2}
+													r="1.15"
+													style={`--loader-delay:${loadingDotDelay(row, column)}ms`}
+												/>
+											{/if}
+										{/each}
+									{/each}
+								</svg>
+							</span>
+							<h1 id="location-title">Finding your spot on the map…</h1>
+						{/if}
+						</div>
+					{/key}
 				</Badge>
 			</div>
-		{/key}
+		</div>
 	</div>
 	<p class="sr-only" aria-live="polite">{statusMessage}</p>
 </section>
@@ -220,7 +269,7 @@
 		position: relative;
 		isolation: isolate;
 		padding-top: clamp(2.75rem, 7vh, 4.25rem);
-		padding-bottom: 7.5rem;
+		padding-bottom: clamp(2.75rem, 6vh, 3.5rem);
 	}
 
 	.map-stage {
@@ -297,6 +346,25 @@
 		transform: translate(calc(-100% - 14px), calc(-100% - 12px));
 	}
 
+	.shared-pill {
+		width: fit-content;
+		max-width: 100%;
+		transform-origin: center;
+		view-transition-name: location-pill;
+	}
+
+	:global(.location-badge) {
+		position: relative;
+		overflow: hidden;
+	}
+
+	.pill-state {
+		display: flex;
+		min-width: max-content;
+		align-items: center;
+		gap: 10px;
+	}
+
 	.pill-copy {
 		min-width: 0;
 	}
@@ -359,6 +427,28 @@
 		white-space: nowrap;
 	}
 
+	:global(::view-transition-group(location-pill)) {
+		animation-duration: 520ms;
+		animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	:global(::view-transition-image-pair(location-pill)) {
+		isolation: auto;
+	}
+
+	:global(::view-transition-old(location-pill)),
+	:global(::view-transition-new(location-pill)) {
+		mix-blend-mode: normal;
+	}
+
+	:global(::view-transition-old(location-pill)) {
+		animation: liquid-pill-out 180ms cubic-bezier(0.4, 0, 1, 1) both;
+	}
+
+	:global(::view-transition-new(location-pill)) {
+		animation: liquid-pill-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+	}
+
 	.sr-only {
 		position: absolute;
 		width: 1px;
@@ -407,10 +497,38 @@
 		}
 	}
 
+	@keyframes liquid-pill-out {
+		to {
+			opacity: 0;
+			filter: blur(4px);
+			transform: scale(0.94, 0.88);
+		}
+	}
+
+	@keyframes liquid-pill-in {
+		from {
+			opacity: 0;
+			filter: blur(5px);
+			transform: scale(0.9, 1.08);
+		}
+
+		62% {
+			opacity: 1;
+			filter: blur(0);
+			transform: scale(1.015, 0.985);
+		}
+
+		to {
+			opacity: 1;
+			filter: blur(0);
+			transform: scale(1);
+		}
+	}
+
 	@media (max-width: 560px) {
 		.map {
 			padding-top: 2.5rem;
-			padding-bottom: 4.5rem;
+			padding-bottom: 3rem;
 		}
 
 		.location-badge-anchor {

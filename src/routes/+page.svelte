@@ -1,5 +1,6 @@
 <script lang="ts">
 import { tick } from "svelte";
+import About from "$lib/components/about.svelte";
 import Map from "$lib/components/ui/map.svelte";
 import { experiences } from "$lib/constants/experiences";
 import { projects } from "$lib/constants/projects";
@@ -88,6 +89,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 			hidden={activeTab !== "name"}
 		>
 			<Map animate={animateContent} />
+			<About />
 		</div>
 
 		{#if activeTab === "timeline"}
