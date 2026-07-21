@@ -5,8 +5,10 @@ const page = await Bun.file(new URL("../src/routes/+page.svelte", import.meta.ur
 const mapComponent = await Bun.file(
   new URL("../src/lib/components/ui/map.svelte", import.meta.url),
 ).text();
-const mapStyles = await Bun.file(
-  new URL("../src/lib/components/ui/map.css", import.meta.url),
+const mapStyles = await Bun.file(new URL("../src/lib/styles/map.css", import.meta.url)).text();
+const mapHook = await Bun.file(new URL("../src/lib/hooks/use-map.ts", import.meta.url)).text();
+const mapLocationHook = await Bun.file(
+  new URL("../src/lib/hooks/use-map-location.svelte.ts", import.meta.url),
 ).text();
 const portfolioEntryStyles = await Bun.file(
   new URL("../src/routes/portfolio-entries.css", import.meta.url),
@@ -17,9 +19,11 @@ const flagsComponent = await Bun.file(
 const badgeComponent = await Bun.file(
   new URL("../src/lib/components/ui/badge.svelte", import.meta.url),
 ).text();
+const badgeStyles = await Bun.file(new URL("../src/lib/styles/badge.css", import.meta.url)).text();
 const aboutComponent = await Bun.file(
   new URL("../src/lib/components/about.svelte", import.meta.url),
 ).text();
+const aboutStyles = await Bun.file(new URL("../src/lib/styles/about.css", import.meta.url)).text();
 const aboutConstants = await Bun.file(
   new URL("../src/lib/constants/about.ts", import.meta.url),
 ).text();
@@ -100,25 +104,26 @@ test("follows the map with a concise introduction and contact links", () => {
 });
 
 test("fills the role text with the shared OKLCH brand gradient", () => {
-  expect(aboutComponent).toContain("oklch(0.892 0.063 355.343)");
-  expect(aboutComponent).toContain("oklch(0.818 0.114 355.343)");
-  expect(aboutComponent).toContain("oklch(0.617 0.253 355.343)");
-  expect(aboutComponent).toContain("background-clip: text;");
-  expect(aboutComponent).toContain("-webkit-text-fill-color: transparent;");
-  expect(aboutComponent).toContain("background-size: 220% 100%;");
-  expect(aboutComponent).toContain("animation: role-gradient-drift 7s linear infinite alternate;");
-  expect(aboutComponent).toContain("@keyframes role-gradient-drift");
-  expect(aboutComponent).toContain("background-position: 100% 50%;");
-  expect(aboutComponent).toContain("background-position: 50% 50%;\n\t\t\tanimation: none;");
+  expect(aboutComponent).toContain('import "$lib/styles/about.css";');
+  expect(aboutStyles).toContain("oklch(0.892 0.063 355.343)");
+  expect(aboutStyles).toContain("oklch(0.818 0.114 355.343)");
+  expect(aboutStyles).toContain("oklch(0.617 0.253 355.343)");
+  expect(aboutStyles).toContain("background-clip: text;");
+  expect(aboutStyles).toContain("-webkit-text-fill-color: transparent;");
+  expect(aboutStyles).toContain("background-size: 220% 100%;");
+  expect(aboutStyles).toContain("animation: role-gradient-drift 7s linear infinite alternate;");
+  expect(aboutStyles).toContain("@keyframes role-gradient-drift");
+  expect(aboutStyles).toContain("background-position: 100% 50%;");
+  expect(aboutStyles).toContain("background-position: 50% 50%;\n    animation: none;");
 });
 
 test("keeps the contact links clean without persistent underlines", () => {
-  expect(aboutComponent).toContain("text-decoration: none;");
-  expect(aboutComponent).toContain("transition: color 150ms var(--ease-out);");
-  expect(aboutComponent).toContain("--map-gradient-blue: rgb(23 59 132);");
-  expect(aboutComponent).toContain("color: var(--map-gradient-blue);");
-  expect(aboutComponent).toContain("outline: 2px solid var(--map-gradient-blue);");
-  expect(aboutComponent).not.toContain("text-decoration-line: underline;");
+  expect(aboutStyles).toContain("text-decoration: none;");
+  expect(aboutStyles).toContain("transition: color 150ms var(--ease-out);");
+  expect(aboutStyles).toContain("--map-gradient-blue: rgb(23 59 132);");
+  expect(aboutStyles).toContain("color: var(--map-gradient-blue);");
+  expect(aboutStyles).toContain("outline: 2px solid var(--map-gradient-blue);");
+  expect(aboutStyles).not.toContain("text-decoration-line: underline;");
 });
 
 test("uses an optically aligned X logo at the surrounding font size", () => {
@@ -127,31 +132,34 @@ test("uses an optically aligned X logo at the surrounding font size", () => {
     '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">',
   );
   expect(aboutComponent).toContain("M18.244 2.25h3.308l-7.227 8.26");
-  expect(aboutComponent).toContain("width: 1em;");
-  expect(aboutComponent).toContain("height: 1em;");
-  expect(aboutComponent).toContain("vertical-align: -0.08em;");
+  expect(aboutStyles).toContain("width: 1em;");
+  expect(aboutStyles).toContain("height: 1em;");
+  expect(aboutStyles).toContain("vertical-align: -0.08em;");
   expect(aboutComponent).not.toContain('aria-label="Enkang on X">x</a>');
 });
 
 test("uses one rounded type system across the map note and personal introduction", () => {
   expect(appStyles).not.toContain("shantell-sans");
-  expect(aboutComponent).toContain(
+  expect(aboutStyles).toContain(
     '".SF NS Rounded", "SF Pro Rounded", "Portfolio Rounded", sans-serif;',
   );
-  expect(aboutComponent.match(/font-family: var\(--font-about-rounded\);/g)).toHaveLength(3);
-  expect(aboutComponent).toContain("font-size: 0.8125rem;");
-  expect(aboutComponent).toContain("line-height: 1.55;");
-  expect(aboutComponent).toContain("font-size: 1.125rem;");
+  expect(aboutStyles.match(/font-family: var\(--font-about-rounded\);/g)).toHaveLength(3);
+  expect(aboutStyles).toContain("font-size: 0.8125rem;");
+  expect(aboutStyles).toContain("line-height: 1.55;");
+  expect(aboutStyles).toContain("font-size: 1.125rem;");
 });
 
 test("locates automatically and presents the coordinates in a rounded pill", () => {
-  expect(mapComponent).toContain('import { onMount, tick } from "svelte";');
+  expect(mapComponent).toContain(
+    'import { useMapLocation } from "$lib/hooks/use-map-location.svelte";',
+  );
   expect(mapComponent).toContain('import Badge from "$lib/components/ui/badge.svelte";');
   expect(mapComponent).toContain('import Flags from "$lib/components/ui/flags.svelte";');
-  expect(mapComponent).toContain('import "./map.css";');
-  expect(mapComponent).toContain('from "$lib/map";');
-  expect(mapComponent).toContain("onMount(() => {");
-  expect(mapComponent).toContain("locate();");
+  expect(mapComponent).toContain('import "$lib/styles/map.css";');
+  expect(mapComponent).toContain('from "$lib/hooks/use-map";');
+  expect(mapLocationHook).toContain("onMount(() => {");
+  expect(mapLocationHook).toContain("void locate();");
+  expect(mapHook).toContain("export function createWorldGrid()");
   expect(mapComponent).toContain('class="map"');
   expect(mapComponent).toContain('class="location-badge"');
   expect(mapComponent).not.toContain("pill-pin-icon");
@@ -159,24 +167,26 @@ test("locates automatically and presents the coordinates in a rounded pill", () 
   expect(mapComponent).not.toContain(".location-badge-anchor.located::after");
   expect(mapComponent).not.toContain(".map-cell.location-anchor::after");
   expect(mapComponent).not.toContain("@keyframes location-pin-drop");
-  expect(mapComponent).toContain("class:location-anchor={cell.id === highlightedCells[0]}");
+  expect(mapComponent).toContain(
+    "class:location-anchor={cell.id === location.highlightedCells[0]}",
+  );
   expect(mapStyles).toContain("@keyframes location-cell-drop");
-  expect(mapComponent).toContain("<Flags {countryCode} />");
+  expect(mapComponent).toContain("<Flags countryCode={location.countryCode} />");
   expect(mapComponent).not.toContain("countryCodeToFlag");
   expect(mapComponent).not.toContain("US_FLAG");
   expect(mapStyles).not.toContain(".map-cell.location-cell {\n\tbackground: linear-gradient");
-  expect(badgeComponent).toContain("border-radius: 999px;");
+  expect(badgeStyles).toContain("border-radius: 999px;");
   expect(mapComponent).not.toContain("Use current location");
 });
 
 test("keeps pending and failed location states at one viewport-bottom anchor", () => {
-  expect(mapComponent).toContain('class:bottom-state={locationState !== "located"}');
+  expect(mapComponent).toContain('class:bottom-state={location.state !== "located"}');
   expect(mapStyles).toContain(".location-badge-anchor.bottom-state {");
   expect(mapStyles).toContain("position: fixed;");
   expect(mapStyles).toContain("bottom: max(1.5rem, env(safe-area-inset-bottom));");
   expect(mapStyles).toContain("left: 50%;");
   expect(mapStyles).toContain("transform: translateX(-50%);");
-  expect(mapComponent).toContain('class:locating={locationState === "locating"}');
+  expect(mapComponent).toContain('class:locating={location.state === "locating"}');
   expect(mapComponent).toContain("const LOADER_GRID = 12;");
   expect(mapComponent).toContain('class="loading-field"');
   expect(mapComponent).toContain("Finding your spot on the map…");
@@ -186,23 +196,23 @@ test("keeps pending and failed location states at one viewport-bottom anchor", (
   expect(mapStyles).toContain("flex: 0 0 34px;");
   expect(mapStyles).toContain("@keyframes loading-dot");
   expect(mapStyles).toContain("animation-delay: calc(var(--loader-delay) - 900ms);");
-  expect(mapComponent).toContain("startViewTransition?:");
+  expect(mapLocationHook).toContain("startViewTransition?:");
   expect(mapComponent).toContain('class="shared-pill" bind:this={sharedPill}');
-  expect(mapComponent).toContain("sharedPill.animate(");
-  expect(mapComponent).toContain("firstRect.width / lastRect.width");
-  expect(mapComponent).toContain('filter: "blur(4px)"');
+  expect(mapLocationHook).toContain("sharedPill.animate(");
+  expect(mapLocationHook).toContain("firstRect.width / lastRect.width");
+  expect(mapLocationHook).toContain('filter: "blur(4px)"');
   expect(mapStyles).toContain("view-transition-name: location-pill;");
   expect(mapStyles).toContain("::view-transition-group(location-pill)");
   expect(mapStyles).toContain("@keyframes liquid-pill-in");
   expect(mapStyles).toContain("transform: scale(1.015, 0.985);");
   expect(mapComponent).not.toContain("in:fade");
   expect(mapComponent).not.toContain("out:fade");
-  expect(mapComponent).toContain('window.matchMedia("(prefers-reduced-motion: reduce)")');
+  expect(mapLocationHook).toContain('window.matchMedia("(prefers-reduced-motion: reduce)")');
 });
 
 test("keeps loading pending and renders location failures as a dot-matrix X", () => {
-  expect(mapComponent).toContain("{ enableHighAccuracy: true, maximumAge: 0 }");
-  expect(mapComponent).not.toContain("timeout:");
+  expect(mapLocationHook).toContain("{ enableHighAccuracy: true, maximumAge: 0 }");
+  expect(mapLocationHook).not.toContain("timeout:");
   expect(mapComponent).toContain('class="error-field"');
   expect(mapComponent).toContain("isErrorDotVisible(row, column)");
   expect(mapComponent).toContain("class:error-mark={isErrorDotVisible(row, column)}");
@@ -218,11 +228,11 @@ test("keeps loading pending and renders location failures as a dot-matrix X", ()
 test("keeps one visitor location session mounted and only makes failed badges interactive", () => {
   expect(page).toContain('hidden={activeTab !== "name"}');
   expect(mapComponent).toContain(
-    'onclick={locationState === "error" ? () => void locate() : undefined}',
+    'onclick={location.state === "error" ? () => void locate() : undefined}',
   );
-  expect(mapComponent).not.toContain('disabled={locationState === "locating"}');
+  expect(mapComponent).not.toContain('disabled={location.state === "locating"}');
   expect(mapComponent).toContain(
-    'ariaLabel={locationState === "error" ? "Try finding your location again" : undefined}',
+    'ariaLabel={location.state === "error" ? "Try finding your location again" : undefined}',
   );
   expect(mapComponent).toContain('"Try finding your location again"');
   expect(mapComponent).not.toContain('"Refresh your current location"');
@@ -230,8 +240,8 @@ test("keeps one visitor location session mounted and only makes failed badges in
   expect(badgeComponent).toContain("onclick?: (event: MouseEvent) => void;");
   expect(badgeComponent).toContain("disabled?: boolean;");
   expect(badgeComponent).toContain("<button");
-  expect(badgeComponent).toContain("button.badge:hover:not(:disabled)");
-  expect(badgeComponent).toContain("transform: scale(0.96);");
+  expect(badgeStyles).toContain("button.badge:hover:not(:disabled)");
+  expect(badgeStyles).toContain("transform: scale(0.96);");
 });
 
 test("replaces the unused tag list with the reusable badge primitive", async () => {
@@ -265,6 +275,6 @@ test("positions the location pill from exact coordinates and the resolved map qu
   expect(mapComponent).toContain("class:opens-left");
   expect(mapComponent).toContain("class:opens-below");
   expect(mapComponent).toContain("class:opens-above");
-  expect(mapComponent).toContain("enableHighAccuracy: true");
-  expect(mapComponent).toContain("maximumAge: 0");
+  expect(mapLocationHook).toContain("enableHighAccuracy: true");
+  expect(mapLocationHook).toContain("maximumAge: 0");
 });

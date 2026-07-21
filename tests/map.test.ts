@@ -9,7 +9,7 @@ import {
   nearestPlace,
   WORLD_GRID_COLUMNS,
   WORLD_GRID_ROWS,
-} from "../src/lib/map";
+} from "../src/lib/hooks/use-map";
 
 test("builds a recognizable world grid with unique cells", () => {
   const cells = createWorldGrid();

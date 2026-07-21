@@ -1,23 +1,14 @@
 <script lang="ts">
-	import { onMount, tick } from "svelte";
 	import Badge from "$lib/components/ui/badge.svelte";
 	import Flags from "$lib/components/ui/flags.svelte";
-	import "./map.css";
+	import { useMapLocation } from "$lib/hooks/use-map-location.svelte";
 	import {
-		createLocationGradient,
 		createWorldGrid,
-		findLocationCluster,
 		formatCoordinate,
-		nearestLocation,
 		WORLD_GRID_COLUMNS,
 		WORLD_GRID_ROWS,
-	} from "$lib/map";
-
-	type LocationState = "locating" | "located" | "error";
-	type SharedViewTransition = { finished: Promise<void> };
-	type ViewTransitionDocument = Document & {
-		startViewTransition?: (update: () => Promise<void>) => SharedViewTransition;
-	};
+	} from "$lib/hooks/use-map";
+	import "$lib/styles/map.css";
 
 	let { animate = true } = $props<{ animate?: boolean }>();
 
@@ -25,115 +16,8 @@
 	const LOADER_GRID = 12;
 	const LOADER_DOTS = Array.from({ length: LOADER_GRID }, (_, index) => index);
 	const LOADER_STEP = 34 / LOADER_GRID;
-	let locationState: LocationState = $state("locating");
-	let place = $state("Current location");
-	let countryCode = $state("");
-	let latitude: number | undefined = $state();
-	let longitude: number | undefined = $state();
-	let highlightedCells: string[] = $state([]);
-	let highlightedCellColors: Map<string, string> = $state(new Map());
-	let statusMessage = $state("Finding your spot on the map.");
-	let prefersReducedMotion = $state(false);
 	let sharedPill: HTMLDivElement | undefined = $state();
-	let sharedPillAnimation: Animation | undefined;
-
-	onMount(() => {
-		const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-		const updateMotionPreference = () => {
-			prefersReducedMotion = reducedMotion.matches;
-		};
-
-		updateMotionPreference();
-		reducedMotion.addEventListener("change", updateMotionPreference);
-		void locate();
-
-		return () => reducedMotion.removeEventListener("change", updateMotionPreference);
-	});
-
-	async function updateLocationState(update: () => void) {
-		const viewTransitionDocument = document as ViewTransitionDocument;
-		if (!animate || prefersReducedMotion) {
-			update();
-			await tick();
-			return;
-		}
-
-		if (viewTransitionDocument.startViewTransition) {
-			const transition = viewTransitionDocument.startViewTransition(async () => {
-				update();
-				await tick();
-			});
-			await transition.finished.catch(() => undefined);
-			return;
-		}
-
-		const firstRect = sharedPill?.getBoundingClientRect();
-		update();
-		await tick();
-		const lastRect = sharedPill?.getBoundingClientRect();
-		if (!sharedPill || !firstRect || !lastRect || lastRect.width === 0 || lastRect.height === 0) return;
-
-		sharedPillAnimation?.cancel();
-		sharedPillAnimation = sharedPill.animate(
-			[
-				{
-					opacity: 0.86,
-					filter: "blur(4px)",
-					transform: `translate(${firstRect.left - lastRect.left}px, ${firstRect.top - lastRect.top}px) scale(${firstRect.width / lastRect.width}, ${firstRect.height / lastRect.height})`,
-				},
-				{ opacity: 1, filter: "blur(0)", transform: "translate(0, 0) scale(1)" },
-			],
-			{
-				duration: 520,
-				easing: "cubic-bezier(0.22, 1, 0.36, 1)",
-				fill: "both",
-			},
-		);
-		await sharedPillAnimation.finished.catch(() => undefined);
-	}
-
-	async function locate() {
-		if (!("geolocation" in navigator)) {
-			await updateLocationState(() => {
-				locationState = "error";
-				statusMessage = "Location is not available in this browser.";
-			});
-			return;
-		}
-
-		if (locationState === "locating") {
-			statusMessage = "Finding your spot on the map.";
-		} else {
-			await updateLocationState(() => {
-				locationState = "locating";
-				statusMessage = "Finding your spot on the map.";
-			});
-		}
-
-		navigator.geolocation.getCurrentPosition(
-			(position) => {
-				void updateLocationState(() => {
-					latitude = position.coords.latitude;
-					longitude = position.coords.longitude;
-					const nearest = nearestLocation(latitude, longitude);
-					place = nearest.name;
-					countryCode = nearest.countryCode;
-					const cluster = findLocationCluster(cells, latitude, longitude);
-					highlightedCells = cluster;
-					highlightedCellColors = createLocationGradient(cells, cluster);
-					locationState = "located";
-					statusMessage = `Current location found near ${place}.`;
-				});
-			},
-			() => {
-				void updateLocationState(() => {
-					locationState = "error";
-					statusMessage = "Location not found.";
-				});
-			},
-			{ enableHighAccuracy: true, maximumAge: 0 },
-		);
-	}
+	const { location, locate } = useMapLocation(cells, () => animate, () => sharedPill);
 
 	function cellStyle(row: number, column: number, color: string | undefined) {
 		const delay = Math.min(column * 3 + Math.abs(row - (WORLD_GRID_ROWS - 1) / 2) * 2, 220);
@@ -170,17 +54,17 @@
 		<div
 			class="map-grid"
 			role="img"
-			aria-label={locationState === "located"
-				? `Pixel world map highlighting your current location near ${place}`
-				: locationState === "error"
+			aria-label={location.state === "located"
+				? `Pixel world map highlighting your current location near ${location.place}`
+				: location.state === "error"
 					? "Pixel world map; current location not found"
 					: "Pixel world map awaiting your location"}
 		>
 			{#each cells as cell}
-				{@const locationColor = highlightedCellColors.get(cell.id)}
+				{@const locationColor = location.highlightedCellColors.get(cell.id)}
 				<span
 					class:location-cell={locationColor !== undefined}
-					class:location-anchor={cell.id === highlightedCells[0]}
+					class:location-anchor={cell.id === location.highlightedCells[0]}
 					class="map-cell"
 					style={cellStyle(cell.row, cell.column, locationColor)}
 					aria-hidden="true"
@@ -189,36 +73,38 @@
 		</div>
 
 		<div
-			class:error={locationState === "error"}
-			class:locating={locationState === "locating"}
-			class:bottom-state={locationState !== "located"}
-			class:located={locationState === "located" && latitude !== undefined && longitude !== undefined}
-			class:opens-right={longitude === undefined || longitude < 0}
-			class:opens-left={longitude !== undefined && longitude >= 0}
-			class:opens-below={latitude === undefined || latitude >= 0}
-			class:opens-above={latitude !== undefined && latitude < 0}
+			class:error={location.state === "error"}
+			class:locating={location.state === "locating"}
+			class:bottom-state={location.state !== "located"}
+			class:located={location.state === "located" &&
+				location.latitude !== undefined &&
+				location.longitude !== undefined}
+			class:opens-right={location.longitude === undefined || location.longitude < 0}
+			class:opens-left={location.longitude !== undefined && location.longitude >= 0}
+			class:opens-below={location.latitude === undefined || location.latitude >= 0}
+			class:opens-above={location.latitude !== undefined && location.latitude < 0}
 			class="location-badge-anchor"
-			style={pillPosition(latitude, longitude)}
+			style={pillPosition(location.latitude, location.longitude)}
 		>
 			<div class="shared-pill" bind:this={sharedPill}>
 				<Badge
 					class="location-badge"
-					onclick={locationState === "error" ? () => void locate() : undefined}
-					ariaLabel={locationState === "error" ? "Try finding your location again" : undefined}
+					onclick={location.state === "error" ? () => void locate() : undefined}
+					ariaLabel={location.state === "error" ? "Try finding your location again" : undefined}
 					ariaLive="polite"
-					title={locationState === "error" ? "Try again" : undefined}
+					title={location.state === "error" ? "Try again" : undefined}
 				>
-					{#key locationState}
+					{#key location.state}
 						<div class="pill-state">
-							{#if locationState === "located" && latitude !== undefined && longitude !== undefined}
-								<Flags {countryCode} />
+							{#if location.state === "located" && location.latitude !== undefined && location.longitude !== undefined}
+								<Flags countryCode={location.countryCode} />
 								<div class="pill-copy">
-									<h1 id="location-title">{place}</h1>
+									<h1 id="location-title">{location.place}</h1>
 									<p class="coordinates">
-										{formatCoordinate(latitude, "N", "S", 3)} · {formatCoordinate(longitude, "E", "W", 3)}
+										{formatCoordinate(location.latitude, "N", "S", 3)} · {formatCoordinate(location.longitude, "E", "W", 3)}
 									</p>
 								</div>
-							{:else if locationState === "error"}
+							{:else if location.state === "error"}
 								<span class="error-field" aria-hidden="true">
 									<svg viewBox="0 0 34 34" focusable="false">
 										{#each LOADER_DOTS as row}
@@ -261,5 +147,5 @@
 			</div>
 		</div>
 	</div>
-	<p class="sr-only" aria-live="polite">{statusMessage}</p>
+	<p class="sr-only" aria-live="polite">{location.statusMessage}</p>
 </section>

@@ -1,0 +1,56 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--gray) 70%, transparent 30%);
+  backdrop-filter: blur(8px);
+  transition:
+    background 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s;
+}
+
+.card.default {
+  border: 1px solid var(--gray1);
+}
+
+.card.bordered {
+  border: 1.5px solid var(--blue-type);
+  background: color-mix(in srgb, var(--gray) 60%, transparent 40%);
+}
+
+.card.elevated {
+  border: 1px solid var(--gray1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.card.none {
+  padding: 0;
+}
+
+.card.sm {
+  padding: 0.75rem;
+}
+
+.card.md {
+  padding: 1.25rem;
+}
+
+.card.lg {
+  padding: 2rem;
+}
+
+.card.hoverable {
+  cursor: pointer;
+}
+
+.card.hoverable:hover {
+  background: color-mix(in srgb, var(--gray) 85%, transparent 15%);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.card.hoverable:active {
+  transform: translateY(0);
+}

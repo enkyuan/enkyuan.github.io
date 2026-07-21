@@ -38,3 +38,36 @@ test("keeps portfolio entries inline", async () => {
     false,
   );
 });
+
+test("keeps map behavior in hooks and substantial component CSS in styles", async () => {
+  const expectedFiles = [
+    "src/lib/hooks/use-map.ts",
+    "src/lib/hooks/use-map-location.svelte.ts",
+    "src/lib/styles/about.css",
+    "src/lib/styles/badge.css",
+    "src/lib/styles/button.css",
+    "src/lib/styles/card.css",
+    "src/lib/styles/map.css",
+  ];
+
+  for (const file of expectedFiles) {
+    expect(await Bun.file(`${projectRoot}/${file}`).exists(), file).toBe(true);
+  }
+
+  expect(await Bun.file(`${projectRoot}/src/lib/map.ts`).exists()).toBe(false);
+  expect(await Bun.file(`${projectRoot}/src/lib/components/ui/map.css`).exists()).toBe(false);
+
+  const styleConsumers = [
+    ["src/lib/components/about.svelte", 'import "$lib/styles/about.css";'],
+    ["src/lib/components/ui/badge.svelte", 'import "$lib/styles/badge.css";'],
+    ["src/lib/components/ui/button.svelte", 'import "$lib/styles/button.css";'],
+    ["src/lib/components/ui/card.svelte", 'import "$lib/styles/card.css";'],
+    ["src/lib/components/ui/map.svelte", 'import "$lib/styles/map.css";'],
+  ] as const;
+
+  for (const [file, stylesheetImport] of styleConsumers) {
+    const contents = await Bun.file(`${projectRoot}/${file}`).text();
+    expect(contents, file).toContain(stylesheetImport);
+    expect(contents, file).not.toContain("<style>");
+  }
+});
