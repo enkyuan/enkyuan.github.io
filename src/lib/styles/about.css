@@ -8,12 +8,12 @@
   padding-bottom: clamp(5rem, 11vh, 8rem);
 }
 
-.map-note,
 .about-copy {
   max-width: 31rem;
 }
 
 .map-note {
+  max-width: 58ch;
   margin: 0;
   color: oklch(0.213 0.008 264.379 / 0.5);
   font-family: var(--font-about-rounded);
