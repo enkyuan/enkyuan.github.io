@@ -28,6 +28,9 @@ const aboutConstants = await Bun.file(
   new URL("../src/lib/constants/about.ts", import.meta.url),
 ).text();
 const appStyles = await Bun.file(new URL("../src/app.css", import.meta.url)).text();
+const dotField = await Bun.file(
+  new URL("../src/lib/constants/dot-field.ts", import.meta.url),
+).text();
 
 test("renders the Ndot Hanzi name inline in the header", () => {
   expect(page).not.toContain("HanziName");
@@ -207,12 +210,12 @@ test("keeps pending and failed location states at one viewport-bottom anchor", (
   expect(mapStyles).toContain("left: 50%;");
   expect(mapStyles).toContain("transform: translateX(-50%);");
   expect(mapComponent).toContain('class:locating={$location.state === "locating"}');
-  expect(mapComponent).toContain("const LOADER_GRID = 12;");
+  expect(mapComponent).toContain('from "$lib/constants/dot-field";');
   expect(mapComponent).toContain('class="loading-field"');
   expect(mapComponent).toContain("Finding your spot on the map…");
   expect(mapComponent).toContain('<svg viewBox="0 0 34 34" focusable="false">');
-  expect(mapComponent).toContain("isLoadingDotVisible(row, column)");
-  expect(mapComponent).toContain('r="1.15"');
+  expect(mapComponent).toContain("isCircularDotVisible(row, column)");
+  expect(mapComponent).toContain("r={DOT_FIELD_RADIUS}");
   expect(mapStyles).toContain("flex: 0 0 34px;");
   expect(mapStyles).toContain("@keyframes loading-dot");
   expect(mapStyles).toContain("animation-delay: calc(var(--loader-delay) - 900ms);");
@@ -249,9 +252,12 @@ test("keeps loading pending and renders location failures as a dot-matrix X", ()
   expect(locationHook).toContain("{ enableHighAccuracy: true, maximumAge: 0 }");
   expect(locationHook).not.toContain("timeout:");
   expect(mapComponent).toContain('class="error-field"');
-  expect(mapComponent).toContain("isErrorDotVisible(row, column)");
-  expect(mapComponent).toContain("class:error-mark={isErrorDotVisible(row, column)}");
-  expect(mapComponent).toContain("Math.abs(x - y) <= 1");
+  expect(mapComponent).toContain("class:error-mark={isErrorMarkDot(row, column)}");
+  expect(dotField).toContain("export const DOT_FIELD_GRID = 13;");
+  expect(dotField).toContain("const CIRCLE_RADIUS = 6.7;");
+  expect(dotField).toContain("Math.abs(x - y) <= 1");
+  expect(flagsComponent).toContain("isCircularDotVisible(row, column)");
+  expect(flagsComponent).toContain("r={DOT_FIELD_RADIUS}");
   expect(mapStyles).toContain("fill: oklch(0.849 0.083 17.077 / 0.42);");
   expect(mapStyles).toContain("fill: oklch(0.692 0.198 21.503);");
   expect(mapComponent).toContain('<h1 id="location-title">Location not found</h1>');
@@ -290,7 +296,8 @@ test("selects any country flag through one compact component API", () => {
   expect(flagsComponent).toContain('code === "US"');
   expect(flagsComponent).toContain("String.fromCodePoint");
   expect(flagsComponent).toContain('class="country-flag"');
-  expect(flagsComponent).toContain("isVisible(row, column)");
+  expect(flagsComponent).toContain("isCircularDotVisible(row, column)");
+  expect(flagsComponent).toContain("fill={`url(#${patternId})`}");
   expect(flagsComponent).not.toContain("clipPath");
   expect(flagsComponent).not.toContain("<rect");
   expect(flagsComponent).not.toContain("<path");

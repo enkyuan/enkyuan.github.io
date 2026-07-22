@@ -1,6 +1,14 @@
 <script lang="ts">
 	import Badge from "$lib/components/ui/badge.svelte";
 	import Flags from "$lib/components/ui/flags.svelte";
+	import {
+		distanceFromDotFieldCenter,
+		DOT_FIELD_DOTS,
+		DOT_FIELD_RADIUS,
+		DOT_FIELD_STEP,
+		isCircularDotVisible,
+		isErrorMarkDot,
+	} from "$lib/constants/dot-field";
 	import { useLocation } from "$lib/hooks/use-location";
 	import {
 		createWorldGrid,
@@ -13,9 +21,6 @@
 	let { animate = true } = $props<{ animate?: boolean }>();
 
 	const cells = createWorldGrid();
-	const LOADER_GRID = 12;
-	const LOADER_DOTS = Array.from({ length: LOADER_GRID }, (_, index) => index);
-	const LOADER_STEP = 34 / LOADER_GRID;
 	let sharedPill: HTMLDivElement | undefined = $state();
 	const { location, locate } = useLocation(cells, () => animate, () => sharedPill);
 
@@ -31,21 +36,8 @@
 		return `--anchor-x:${x}%;--anchor-y:${y}%`;
 	}
 
-	function isLoadingDotVisible(row: number, column: number) {
-		const center = (LOADER_GRID - 1) / 2;
-		return (column - center) ** 2 + (row - center) ** 2 <= 31;
-	}
-
 	function loadingDotDelay(row: number, column: number) {
-		const center = (LOADER_GRID - 1) / 2;
-		return Math.round(Math.hypot(column - center, row - center) * 64);
-	}
-
-	function isErrorDotVisible(row: number, column: number) {
-		const center = (LOADER_GRID - 1) / 2;
-		const x = Math.abs(column - center);
-		const y = Math.abs(row - center);
-		return x ** 2 + y ** 2 <= 26 && Math.abs(x - y) <= 1;
+		return Math.round(distanceFromDotFieldCenter(row, column) * 64);
 	}
 </script>
 
@@ -109,14 +101,14 @@
 						{:else if $location.state === "error"}
 								<span class="error-field" aria-hidden="true">
 									<svg viewBox="0 0 34 34" focusable="false">
-										{#each LOADER_DOTS as row}
-											{#each LOADER_DOTS as column}
-												{#if isLoadingDotVisible(row, column)}
+										{#each DOT_FIELD_DOTS as row}
+											{#each DOT_FIELD_DOTS as column}
+												{#if isCircularDotVisible(row, column)}
 													<circle
-														class:error-mark={isErrorDotVisible(row, column)}
-														cx={column * LOADER_STEP + LOADER_STEP / 2}
-														cy={row * LOADER_STEP + LOADER_STEP / 2}
-														r="1.15"
+														class:error-mark={isErrorMarkDot(row, column)}
+														cx={column * DOT_FIELD_STEP + DOT_FIELD_STEP / 2}
+														cy={row * DOT_FIELD_STEP + DOT_FIELD_STEP / 2}
+														r={DOT_FIELD_RADIUS}
 													/>
 												{/if}
 											{/each}
@@ -127,13 +119,13 @@
 						{:else}
 								<span class="loading-field" aria-hidden="true">
 									<svg viewBox="0 0 34 34" focusable="false">
-										{#each LOADER_DOTS as row}
-											{#each LOADER_DOTS as column}
-												{#if isLoadingDotVisible(row, column)}
+										{#each DOT_FIELD_DOTS as row}
+											{#each DOT_FIELD_DOTS as column}
+												{#if isCircularDotVisible(row, column)}
 													<circle
-														cx={column * LOADER_STEP + LOADER_STEP / 2}
-														cy={row * LOADER_STEP + LOADER_STEP / 2}
-														r="1.15"
+														cx={column * DOT_FIELD_STEP + DOT_FIELD_STEP / 2}
+														cy={row * DOT_FIELD_STEP + DOT_FIELD_STEP / 2}
+														r={DOT_FIELD_RADIUS}
 														style={`--loader-delay:${loadingDotDelay(row, column)}ms`}
 													/>
 												{/if}
