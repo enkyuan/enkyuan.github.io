@@ -33,6 +33,11 @@ const dotField = await Bun.file(
   new URL("../src/lib/constants/dot-field.ts", import.meta.url),
 ).text();
 
+test("uses the Hanzi name as the browser title", () => {
+  expect(appHtml).toContain("<title>袁恩康</title>");
+  expect(appHtml).not.toContain("<title>Enkang Yuan</title>");
+});
+
 test("renders the Ndot Hanzi name inline in the header", () => {
   expect(page).not.toContain("HanziName");
   expect(page).toContain('<span class="hanzi-name" aria-hidden="true">袁恩康</span>');
