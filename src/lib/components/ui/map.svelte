@@ -23,6 +23,9 @@
 	const cells = createWorldGrid();
 	let sharedPill: HTMLDivElement | undefined = $state();
 	const { location, locate } = useLocation(cells, () => animate, () => sharedPill);
+	const locationAnchor = $derived(
+		cells.find((cell) => cell.id === $location.highlightedCells[0]),
+	);
 
 	function cellStyle(row: number, column: number, color: string | undefined) {
 		const delay = Math.min(column * 3 + Math.abs(row - (WORLD_GRID_ROWS - 1) / 2) * 2, 220);
@@ -68,15 +71,13 @@
 			class:error={$location.state === "error"}
 			class:locating={$location.state === "locating"}
 			class:bottom-state={$location.state !== "located"}
-			class:located={$location.state === "located" &&
-				$location.latitude !== undefined &&
-				$location.longitude !== undefined}
-			class:opens-right={$location.longitude === undefined || $location.longitude < 0}
-			class:opens-left={$location.longitude !== undefined && $location.longitude >= 0}
-			class:opens-below={$location.latitude === undefined || $location.latitude >= 0}
-			class:opens-above={$location.latitude !== undefined && $location.latitude < 0}
+			class:located={$location.state === "located" && locationAnchor !== undefined}
+			class:opens-right={locationAnchor === undefined || locationAnchor.longitude < 0}
+			class:opens-left={locationAnchor !== undefined && locationAnchor.longitude >= 0}
+			class:opens-below={locationAnchor === undefined || locationAnchor.latitude >= 0}
+			class:opens-above={locationAnchor !== undefined && locationAnchor.latitude < 0}
 			class="location-badge-anchor"
-			style={pillPosition($location.latitude, $location.longitude)}
+			style={pillPosition(locationAnchor?.latitude, locationAnchor?.longitude)}
 		>
 			<div class="shared-pill" bind:this={sharedPill}>
 				<Badge

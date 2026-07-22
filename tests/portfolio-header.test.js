@@ -218,7 +218,9 @@ test("derives the map marker from the visiting browser's live coordinates", () =
   expect(locationHook).not.toContain("sessionStorage");
   expect(mapHook).not.toContain("const PLACES");
   expect(mapHook).not.toContain("nearestLocation");
-  expect(mapComponent).toContain("style={pillPosition($location.latitude, $location.longitude)}");
+  expect(mapComponent).toContain(
+    "style={pillPosition(locationAnchor?.latitude, locationAnchor?.longitude)}",
+  );
 });
 
 test("keeps pending and failed location states at one viewport-bottom anchor", () => {
@@ -323,7 +325,8 @@ test("selects any country flag through one compact component API", () => {
   expect(flagsComponent).not.toContain("<use");
 });
 
-test("positions the location pill from exact coordinates and the resolved map quadrant", () => {
+test("positions the location pill from its rendered marker and resolved map quadrant", () => {
+  expect(mapComponent).toContain("cells.find((cell) => cell.id === $location.highlightedCells[0])");
   expect(mapComponent).toContain(
     "function pillPosition(currentLatitude: number | undefined, currentLongitude: number | undefined)",
   );
@@ -334,6 +337,9 @@ test("positions the location pill from exact coordinates and the resolved map qu
   expect(mapComponent).toContain("class:opens-left");
   expect(mapComponent).toContain("class:opens-below");
   expect(mapComponent).toContain("class:opens-above");
+  expect(mapComponent).toContain(
+    "style={pillPosition(locationAnchor?.latitude, locationAnchor?.longitude)}",
+  );
   expect(locationHook).toContain("enableHighAccuracy: true");
   expect(locationHook).toContain("maximumAge: 0");
 });
@@ -352,4 +358,10 @@ test("keeps the located badge beside its rendered marker and inside every map ed
   expect(mapStyles).toContain("max-width: calc(100% - 1rem);");
   expect(mapStyles).toContain("min-width: 0;");
   expect(mapStyles).toContain("text-overflow: ellipsis;");
+  expect(mapStyles).toContain("--badge-offset-block: 8px;");
+  expect(mapStyles).toContain("--badge-offset-inline: 10px;");
+  expect(mapStyles).toContain("margin: var(--badge-offset-block) var(--badge-offset-inline);");
+  expect(mapStyles).toContain(
+    "translate(calc(-100% - var(--badge-offset-inline)), var(--badge-offset-block))",
+  );
 });

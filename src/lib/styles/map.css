@@ -43,6 +43,9 @@
 }
 
 .location-badge-anchor {
+  --badge-offset-block: 8px;
+  --badge-offset-inline: 10px;
+
   position: absolute;
   z-index: 3;
   width: fit-content;
@@ -68,19 +71,22 @@
 }
 
 .location-badge-anchor.located.opens-right.opens-below {
-  transform: translate(14px, 12px);
+  transform: translate(var(--badge-offset-inline), var(--badge-offset-block));
 }
 
 .location-badge-anchor.located.opens-left.opens-below {
-  transform: translate(calc(-100% - 14px), 12px);
+  transform: translate(calc(-100% - var(--badge-offset-inline)), var(--badge-offset-block));
 }
 
 .location-badge-anchor.located.opens-right.opens-above {
-  transform: translate(14px, calc(-100% - 12px));
+  transform: translate(var(--badge-offset-inline), calc(-100% - var(--badge-offset-block)));
 }
 
 .location-badge-anchor.located.opens-left.opens-above {
-  transform: translate(calc(-100% - 14px), calc(-100% - 12px));
+  transform: translate(
+    calc(-100% - var(--badge-offset-inline)),
+    calc(-100% - var(--badge-offset-block))
+  );
 }
 
 .shared-pill {
@@ -172,7 +178,7 @@
   .location-badge-anchor.located {
     inset: auto;
     max-width: calc(100% - 1rem);
-    margin: 12px 14px;
+    margin: var(--badge-offset-block) var(--badge-offset-inline);
     position-anchor: --current-location;
     position-area: bottom right;
     position-try-fallbacks:
