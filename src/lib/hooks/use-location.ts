@@ -21,27 +21,96 @@ type Location = {
 };
 
 export type ReverseGeocodeResult = {
-  city?: string;
-  locality?: string;
-  principalSubdivision?: string;
-  principalSubdivisionCode?: string;
-  countryName?: string;
-  countryCode?: string;
+  address?: {
+    City?: string;
+    District?: string;
+    Region?: string;
+    RegionAbbr?: string;
+    Territory?: string;
+    CntryName?: string;
+    CountryCode?: string;
+  };
+  error?: {
+    code?: number;
+    message?: string;
+  };
 };
 
-const ABBREVIATED_SUBDIVISION_COUNTRIES = new Set(["AU", "BR", "CA", "MX", "US"]);
+const ABBREVIATED_SUBDIVISION_COUNTRIES = new Set(["AUS", "BRA", "CAN", "MEX", "USA"]);
+const COUNTRY_CODE_FALLBACKS: Readonly<Record<string, string>> = {
+  AUS: "AU",
+  BRA: "BR",
+  CAN: "CA",
+  CHN: "CN",
+  DEU: "DE",
+  ESP: "ES",
+  FRA: "FR",
+  GBR: "GB",
+  IND: "IN",
+  JPN: "JP",
+  KOR: "KR",
+  MEX: "MX",
+  SGP: "SG",
+  USA: "US",
+};
+let countryCodesByName: Map<string, string> | undefined;
+
+function normalizeCountryName(value: string) {
+  return value
+    .normalize("NFKD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/[^a-z0-9]+/gi, " ")
+    .trim()
+    .toLowerCase();
+}
+
+function getCountryCodesByName() {
+  if (countryCodesByName) return countryCodesByName;
+
+  const codes = new Map<string, string>();
+  if (typeof Intl.DisplayNames === "function") {
+    const displayNames = new Intl.DisplayNames(["en"], { type: "region" });
+
+    for (let first = 65; first <= 90; first += 1) {
+      for (let second = 65; second <= 90; second += 1) {
+        const code = String.fromCharCode(first, second);
+        const name = displayNames.of(code);
+        if (name && name !== code && name !== "Unknown Region") {
+          codes.set(normalizeCountryName(name), code);
+        }
+      }
+    }
+  }
+
+  countryCodesByName = codes;
+  return codes;
+}
+
+export function formatGeocodedCountryCode(result: ReverseGeocodeResult) {
+  const sourceCode = result.address?.CountryCode?.trim().toUpperCase() ?? "";
+  if (/^[A-Z]{2}$/.test(sourceCode)) return sourceCode;
+
+  const countryName = result.address?.CntryName?.trim();
+  if (countryName) {
+    const resolvedCode = getCountryCodesByName().get(normalizeCountryName(countryName));
+    if (resolvedCode) return resolvedCode;
+  }
+
+  return COUNTRY_CODE_FALLBACKS[sourceCode] ?? "";
+}
 
 export function formatGeocodedPlace(result: ReverseGeocodeResult) {
-  const countryCode = result.countryCode?.toUpperCase() ?? "";
-  const city = result.city?.trim() || result.locality?.trim();
-  const subdivisionName = result.principalSubdivision?.trim();
-  const subdivisionCode = result.principalSubdivisionCode?.split("-").slice(1).join("-");
+  const address = result.address;
+  const countryCode = address?.CountryCode?.toUpperCase() ?? "";
+  const city = address?.City?.trim() || address?.District?.trim();
+  const subdivisionName = address?.Region?.trim() || address?.Territory?.trim();
+  const subdivisionCode = address?.RegionAbbr?.trim();
   const subdivision =
     ABBREVIATED_SUBDIVISION_COUNTRIES.has(countryCode) && subdivisionCode
       ? subdivisionCode
       : subdivisionName;
 
-  if (!city) return subdivision || result.countryName?.trim() || "Current location";
+  if (!city) return subdivision || address?.CntryName?.trim() || "Current location";
   if (!subdivision || city.localeCompare(subdivision, undefined, { sensitivity: "accent" }) === 0)
     return city;
   return `${city}, ${subdivision}`;
@@ -49,20 +118,25 @@ export function formatGeocodedPlace(result: ReverseGeocodeResult) {
 
 async function reverseGeocode(latitude: number, longitude: number) {
   const query = new URLSearchParams({
-    latitude: String(latitude),
-    longitude: String(longitude),
-    localityLanguage: navigator.language.split("-")[0] || "en",
+    location: `${longitude},${latitude}`,
+    featureTypes: "Locality",
+    langCode: "en",
+    f: "json",
   });
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 6000);
 
   try {
     const response = await fetch(
-      `https://api.bigdatacloud.net/data/reverse-geocode-client?${query}`,
+      `https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode?${query}`,
       { signal: controller.signal },
     );
     if (!response.ok) throw new Error(`Reverse geocoding failed with ${response.status}`);
-    return (await response.json()) as ReverseGeocodeResult;
+    const result = (await response.json()) as ReverseGeocodeResult;
+    if (result.error || !result.address) {
+      throw new Error(result.error?.message ?? "Reverse geocoding returned no locality");
+    }
+    return result;
   } finally {
     window.clearTimeout(timeout);
   }
@@ -216,7 +290,7 @@ export function useLocation(
             latitude,
             longitude,
             place,
-            countryCode: resolved?.countryCode?.toUpperCase() ?? "",
+            countryCode: resolved ? formatGeocodedCountryCode(resolved) : "",
             highlightedCells: cluster,
             highlightedCellColors: createLocationGradient(cells, cluster),
             state: "located",

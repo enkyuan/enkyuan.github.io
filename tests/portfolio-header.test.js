@@ -199,10 +199,12 @@ test("derives the map marker from the visiting browser's live coordinates", () =
   expect(locationHook).toContain("const latitude = position.coords.latitude;");
   expect(locationHook).toContain("const longitude = position.coords.longitude;");
   expect(locationHook).toContain("reverseGeocode(latitude, longitude)");
-  expect(locationHook).toContain("api.bigdatacloud.net/data/reverse-geocode-client");
-  expect(appHtml).toContain(
-    "connect-src 'self' https://corsproxy.io https://api.bigdatacloud.net;",
+  expect(locationHook).toContain(
+    "geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode",
   );
+  expect(locationHook).toContain('featureTypes: "Locality"');
+  expect(locationHook).toContain("formatGeocodedCountryCode(resolved)");
+  expect(appHtml).toContain("connect-src 'self' https://corsproxy.io https://geocode.arcgis.com;");
   expect(locationHook).toContain("formatGeocodedPlace(resolved)");
   expect(locationHook).toContain("findLocationCluster(cells, latitude, longitude)");
   expect(locationHook).toContain("createLocationGradient(cells, cluster)");

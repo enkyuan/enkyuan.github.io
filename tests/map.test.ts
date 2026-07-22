@@ -14,7 +14,7 @@ import {
   WORLD_GRID_COLUMNS,
   WORLD_GRID_ROWS,
 } from "../src/lib/hooks/use-map";
-import { formatGeocodedPlace } from "../src/lib/hooks/use-location";
+import { formatGeocodedCountryCode, formatGeocodedPlace } from "../src/lib/hooks/use-location";
 
 test("uses one symmetric circular dot silhouette for every badge state", () => {
   const rowWidths = DOT_FIELD_DOTS.map(
@@ -84,35 +84,62 @@ test("samples one continuous gradient across the location cluster", () => {
 test("formats live reverse-geocoding results for international regions", () => {
   expect(
     formatGeocodedPlace({
-      city: "Dallas",
-      principalSubdivision: "Texas",
-      principalSubdivisionCode: "US-TX",
-      countryCode: "US",
+      address: {
+        City: "Frisco",
+        Region: "Texas",
+        RegionAbbr: "TX",
+        CntryName: "United States",
+        CountryCode: "USA",
+      },
     }),
-  ).toBe("Dallas, TX");
+  ).toBe("Frisco, TX");
   expect(
     formatGeocodedPlace({
-      city: "Toronto",
-      principalSubdivision: "Ontario",
-      principalSubdivisionCode: "CA-ON",
-      countryCode: "CA",
+      address: {
+        City: "Toronto",
+        Region: "Ontario",
+        RegionAbbr: "ON",
+        CountryCode: "CAN",
+      },
     }),
   ).toBe("Toronto, ON");
   expect(
     formatGeocodedPlace({
-      city: "Paris",
-      principalSubdivision: "Île-de-France",
-      principalSubdivisionCode: "FR-IDF",
-      countryCode: "FR",
+      address: {
+        City: "Paris",
+        Region: "Île-de-France",
+        RegionAbbr: "IDF",
+        CountryCode: "FRA",
+      },
     }),
   ).toBe("Paris, Île-de-France");
   expect(
     formatGeocodedPlace({
-      locality: "Singapore",
-      principalSubdivision: "Singapore",
-      countryCode: "SG",
+      address: {
+        City: "Singapore",
+        Region: "Singapore",
+        CountryCode: "SGP",
+      },
     }),
   ).toBe("Singapore");
+});
+
+test("converts global geocoder country metadata into two-letter flag codes", () => {
+  expect(
+    formatGeocodedCountryCode({
+      address: { CntryName: "United States", CountryCode: "USA" },
+    }),
+  ).toBe("US");
+  expect(
+    formatGeocodedCountryCode({
+      address: { CntryName: "Mexico", CountryCode: "MEX" },
+    }),
+  ).toBe("MX");
+  expect(
+    formatGeocodedCountryCode({
+      address: { CntryName: "Austria", CountryCode: "AUT" },
+    }),
+  ).toBe("AT");
 });
 
 test("rounds coordinates for the privacy-preserving readout", () => {
