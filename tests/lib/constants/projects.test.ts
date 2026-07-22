@@ -1,6 +1,6 @@
 // @ts-nocheck -- Bun test globals are available at runtime, outside the app's TypeScript config.
 import { expect, test } from "bun:test";
-import { projects } from "../src/lib/constants/projects";
+import { projects } from "../../../src/lib/constants/projects";
 
 test("lists Flux directly above AgentKit with its verified project details", () => {
   const agentKitIndex = projects.findIndex((project) => project.name === "AgentKit");

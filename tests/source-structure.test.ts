@@ -20,6 +20,35 @@ test("keeps source files below the 400-line responsibility ceiling", async () =>
   }
 });
 
+test("mirrors source ownership in the test directory", async () => {
+  const mirroredSuites = [
+    ["src/app.html", "tests/app.test.ts"],
+    ["src/routes/+page.svelte", "tests/routes/page.test.ts"],
+    ["src/lib/components/about.svelte", "tests/lib/components/about.test.ts"],
+    ["src/lib/components/ui/badge.svelte", "tests/lib/components/ui/badge.test.ts"],
+    ["src/lib/components/ui/flags.svelte", "tests/lib/components/ui/flags.test.ts"],
+    ["src/lib/components/ui/map.svelte", "tests/lib/components/ui/map.test.ts"],
+    ["src/lib/constants/about.ts", "tests/lib/constants/about.test.ts"],
+    ["src/lib/constants/dot-field.ts", "tests/lib/constants/dot-field.test.ts"],
+    ["src/lib/constants/projects.ts", "tests/lib/constants/projects.test.ts"],
+    ["src/lib/hooks/use-location.ts", "tests/lib/hooks/use-location.test.ts"],
+    ["src/lib/hooks/use-map.ts", "tests/lib/hooks/use-map.test.ts"],
+  ] as const;
+
+  for (const [sourceFile, testFile] of mirroredSuites) {
+    expect(await Bun.file(`${projectRoot}/${sourceFile}`).exists(), sourceFile).toBe(true);
+    expect(await Bun.file(`${projectRoot}/${testFile}`).exists(), testFile).toBe(true);
+  }
+
+  for (const retiredSuite of [
+    "tests/map.test.ts",
+    "tests/portfolio-header.test.js",
+    "tests/projects.test.ts",
+  ]) {
+    expect(await Bun.file(`${projectRoot}/${retiredSuite}`).exists(), retiredSuite).toBe(false);
+  }
+});
+
 test("uses OKLCH for every authored literal color", async () => {
   const legacyColor = /#[\da-f]{3,8}\b|\b(?:rgb|rgba|hsl|hsla)\(/i;
 
