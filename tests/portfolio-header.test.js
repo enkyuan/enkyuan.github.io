@@ -114,8 +114,9 @@ test("fills only the employer name with the shared OKLCH brand gradient", () => 
   expect(aboutStyles).toContain("oklch(0.617 0.253 355.343)");
   expect(aboutStyles).toContain("background-clip: text;");
   expect(aboutStyles).toContain("-webkit-text-fill-color: transparent;");
-  expect(aboutStyles).toContain("background-size: 220% 100%;");
-  expect(aboutStyles).toContain("animation: role-gradient-drift 7s linear infinite alternate;");
+  expect(aboutStyles).toContain("background-size: 200% 100%;");
+  expect(aboutStyles).toContain("animation: role-gradient-drift 5.5s linear infinite;");
+  expect(aboutStyles).not.toContain("infinite alternate");
   expect(aboutStyles).toContain("@keyframes role-gradient-drift");
   expect(aboutStyles).toContain("background-position: 100% 50%;");
   expect(aboutStyles).toContain("background-position: 50% 50%;\n    animation: none;");
