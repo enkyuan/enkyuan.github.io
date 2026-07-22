@@ -11,7 +11,7 @@ type Tab = "name" | "timeline" | "work";
 const tabs: { id: Tab; label: string }[] = [
 	{ id: "name", label: "袁恩康" },
 	{ id: "timeline", label: "Timeline" },
-	{ id: "work", label: "Works" },
+	{ id: "work", label: "Work" },
 ];
 const timelineEntries = experiences.map(({ company, ...entry }) => ({ title: company, ...entry }));
 const workEntries = projects.map(({ name, ...entry }) => ({ title: name, ...entry }));

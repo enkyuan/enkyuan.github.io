@@ -42,9 +42,9 @@ test("renders the Ndot Hanzi name inline in the header", () => {
   expect(page).toContain("transform: translateY(1px)");
 });
 
-test("uses a deterministic rounded face for the Timeline and Works tabs", () => {
+test("uses a deterministic rounded face for the Timeline and Work tabs", () => {
   expect(page).toContain('{ id: "timeline", label: "Timeline" }');
-  expect(page).toContain('{ id: "work", label: "Works" }');
+  expect(page).toContain('{ id: "work", label: "Work" }');
   expect(page).toContain('font-family: "Portfolio Rounded";');
   expect(page).toContain("/fonts/nunito/regular-latin.woff2");
   expect(page).toContain(
@@ -100,7 +100,9 @@ test("follows the map with a concise introduction and contact links", () => {
   expect(aboutComponent).toContain('import { about } from "$lib/constants/about";');
   expect(aboutConstants).toContain("this map is drawn from a 64 × 32 grid");
   expect(aboutConstants).toContain("hey, i'm enkang");
-  expect(aboutConstants).toContain('rolePrefix: "i\'m currently an associate software engineer @"');
+  expect(aboutConstants).toContain(
+    'rolePrefix: "i\'m currently an associate software engineer intern @"',
+  );
   expect(aboutConstants).toContain('role: "t-mobile"');
   expect(aboutConstants).toContain('text === "Email"');
   expect(aboutConstants).toContain('text === "Twitter"');
