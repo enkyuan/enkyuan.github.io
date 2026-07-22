@@ -6,13 +6,6 @@ export type MapCell = {
   longitude: number;
 };
 
-type Place = {
-  name: string;
-  countryCode: string;
-  latitude: number;
-  longitude: number;
-};
-
 type GradientStop = {
   at: number;
   color: string;
@@ -63,47 +56,6 @@ const WORLD_LAND_MASK: readonly string[] = [
   "0000000000000000000000000000000000000000000000000000000000000000",
   "0000000000000000000000000000000000000000000000000000000000000000",
   "0000000000000000000000000000000000000000000000000000000000000000",
-];
-
-const PLACES: readonly Place[] = [
-  { name: "Amsterdam", countryCode: "NL", latitude: 52.37, longitude: 4.9 },
-  { name: "Atlanta", countryCode: "US", latitude: 33.75, longitude: -84.39 },
-  { name: "Austin", countryCode: "US", latitude: 30.27, longitude: -97.74 },
-  { name: "Bangkok", countryCode: "TH", latitude: 13.76, longitude: 100.5 },
-  { name: "Barcelona", countryCode: "ES", latitude: 41.39, longitude: 2.17 },
-  { name: "Beijing", countryCode: "CN", latitude: 39.9, longitude: 116.41 },
-  { name: "Berlin", countryCode: "DE", latitude: 52.52, longitude: 13.41 },
-  { name: "Boston", countryCode: "US", latitude: 42.36, longitude: -71.06 },
-  { name: "Buenos Aires", countryCode: "AR", latitude: -34.6, longitude: -58.38 },
-  { name: "Chicago", countryCode: "US", latitude: 41.88, longitude: -87.63 },
-  { name: "Dallas", countryCode: "US", latitude: 32.78, longitude: -96.8 },
-  { name: "Denver", countryCode: "US", latitude: 39.74, longitude: -104.99 },
-  { name: "Dubai", countryCode: "AE", latitude: 25.2, longitude: 55.27 },
-  { name: "Hong Kong", countryCode: "HK", latitude: 22.32, longitude: 114.17 },
-  { name: "Istanbul", countryCode: "TR", latitude: 41.01, longitude: 28.98 },
-  { name: "Jakarta", countryCode: "ID", latitude: -6.21, longitude: 106.85 },
-  { name: "Lagos", countryCode: "NG", latitude: 6.52, longitude: 3.38 },
-  { name: "London", countryCode: "GB", latitude: 51.51, longitude: -0.13 },
-  { name: "Los Angeles", countryCode: "US", latitude: 34.05, longitude: -118.24 },
-  { name: "Madrid", countryCode: "ES", latitude: 40.42, longitude: -3.7 },
-  { name: "Mexico City", countryCode: "MX", latitude: 19.43, longitude: -99.13 },
-  { name: "Miami", countryCode: "US", latitude: 25.76, longitude: -80.19 },
-  { name: "Mumbai", countryCode: "IN", latitude: 19.08, longitude: 72.88 },
-  { name: "Nairobi", countryCode: "KE", latitude: -1.29, longitude: 36.82 },
-  { name: "New York", countryCode: "US", latitude: 40.71, longitude: -74.01 },
-  { name: "Paris", countryCode: "FR", latitude: 48.86, longitude: 2.35 },
-  { name: "São Paulo", countryCode: "BR", latitude: -23.55, longitude: -46.63 },
-  { name: "San Francisco", countryCode: "US", latitude: 37.77, longitude: -122.42 },
-  { name: "Seattle", countryCode: "US", latitude: 47.61, longitude: -122.33 },
-  { name: "Seoul", countryCode: "KR", latitude: 37.57, longitude: 126.98 },
-  { name: "Shanghai", countryCode: "CN", latitude: 31.23, longitude: 121.47 },
-  { name: "Singapore", countryCode: "SG", latitude: 1.35, longitude: 103.82 },
-  { name: "Sydney", countryCode: "AU", latitude: -33.87, longitude: 151.21 },
-  { name: "Taipei", countryCode: "TW", latitude: 25.03, longitude: 121.57 },
-  { name: "Tokyo", countryCode: "JP", latitude: 35.68, longitude: 139.69 },
-  { name: "Toronto", countryCode: "CA", latitude: 43.65, longitude: -79.38 },
-  { name: "Vancouver", countryCode: "CA", latitude: 49.28, longitude: -123.12 },
-  { name: "Washington", countryCode: "US", latitude: 38.91, longitude: -77.04 },
 ];
 
 function squaredProjectedDistance(
@@ -202,29 +154,6 @@ export function createLocationGradient(cells: readonly MapCell[], cellIds: reado
       return [cell.id, sampleLocationGradient((horizontalProgress + verticalProgress) / 2)];
     }),
   );
-}
-
-export function nearestLocation(latitude: number, longitude: number) {
-  return PLACES.reduce((nearest, place) => {
-    const nearestDistance = squaredProjectedDistance(
-      nearest.latitude,
-      nearest.longitude,
-      latitude,
-      longitude,
-    );
-    const placeDistance = squaredProjectedDistance(
-      place.latitude,
-      place.longitude,
-      latitude,
-      longitude,
-    );
-
-    return placeDistance < nearestDistance ? place : nearest;
-  });
-}
-
-export function nearestPlace(latitude: number, longitude: number) {
-  return nearestLocation(latitude, longitude).name;
 }
 
 export function formatCoordinate(value: number, positive: string, negative: string, precision = 2) {

@@ -28,6 +28,7 @@ const aboutConstants = await Bun.file(
   new URL("../src/lib/constants/about.ts", import.meta.url),
 ).text();
 const appStyles = await Bun.file(new URL("../src/app.css", import.meta.url)).text();
+const appHtml = await Bun.file(new URL("../src/app.html", import.meta.url)).text();
 const dotField = await Bun.file(
   new URL("../src/lib/constants/dot-field.ts", import.meta.url),
 ).text();
@@ -192,13 +193,19 @@ test("derives the map marker from the visiting browser's live coordinates", () =
   expect(locationHook).toContain("navigator.geolocation.getCurrentPosition(");
   expect(locationHook).toContain("const latitude = position.coords.latitude;");
   expect(locationHook).toContain("const longitude = position.coords.longitude;");
-  expect(locationHook).toContain("nearestLocation(latitude, longitude)");
+  expect(locationHook).toContain("reverseGeocode(latitude, longitude)");
+  expect(locationHook).toContain("api.bigdatacloud.net/data/reverse-geocode-client");
+  expect(appHtml).toContain(
+    "connect-src 'self' https://corsproxy.io https://api.bigdatacloud.net;",
+  );
+  expect(locationHook).toContain("formatGeocodedPlace(resolved)");
   expect(locationHook).toContain("findLocationCluster(cells, latitude, longitude)");
   expect(locationHook).toContain("createLocationGradient(cells, cluster)");
   expect(locationHook).toContain("{ enableHighAccuracy: true, maximumAge: 0 }");
   expect(locationHook).not.toContain("localStorage");
   expect(locationHook).not.toContain("sessionStorage");
-  expect(locationHook).not.toContain("fetch(");
+  expect(mapHook).not.toContain("const PLACES");
+  expect(mapHook).not.toContain("nearestLocation");
   expect(mapComponent).toContain("style={pillPosition($location.latitude, $location.longitude)}");
 });
 

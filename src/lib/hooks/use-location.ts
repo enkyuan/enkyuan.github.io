@@ -1,11 +1,6 @@
 import { onMount, tick } from "svelte";
 import { get, writable } from "svelte/store";
-import {
-  createLocationGradient,
-  findLocationCluster,
-  nearestLocation,
-  type MapCell,
-} from "$lib/hooks/use-map";
+import { createLocationGradient, findLocationCluster, type MapCell } from "$lib/hooks/use-map";
 
 export type LocationState = "locating" | "located" | "error";
 
@@ -24,6 +19,54 @@ type Location = {
   highlightedCellColors: Map<string, string>;
   statusMessage: string;
 };
+
+export type ReverseGeocodeResult = {
+  city?: string;
+  locality?: string;
+  principalSubdivision?: string;
+  principalSubdivisionCode?: string;
+  countryName?: string;
+  countryCode?: string;
+};
+
+const ABBREVIATED_SUBDIVISION_COUNTRIES = new Set(["AU", "BR", "CA", "MX", "US"]);
+
+export function formatGeocodedPlace(result: ReverseGeocodeResult) {
+  const countryCode = result.countryCode?.toUpperCase() ?? "";
+  const city = result.city?.trim() || result.locality?.trim();
+  const subdivisionName = result.principalSubdivision?.trim();
+  const subdivisionCode = result.principalSubdivisionCode?.split("-").slice(1).join("-");
+  const subdivision =
+    ABBREVIATED_SUBDIVISION_COUNTRIES.has(countryCode) && subdivisionCode
+      ? subdivisionCode
+      : subdivisionName;
+
+  if (!city) return subdivision || result.countryName?.trim() || "Current location";
+  if (!subdivision || city.localeCompare(subdivision, undefined, { sensitivity: "accent" }) === 0)
+    return city;
+  return `${city}, ${subdivision}`;
+}
+
+async function reverseGeocode(latitude: number, longitude: number) {
+  const query = new URLSearchParams({
+    latitude: String(latitude),
+    longitude: String(longitude),
+    localityLanguage: navigator.language.split("-")[0] || "en",
+  });
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 6000);
+
+  try {
+    const response = await fetch(
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?${query}`,
+      { signal: controller.signal },
+    );
+    if (!response.ok) throw new Error(`Reverse geocoding failed with ${response.status}`);
+    return (await response.json()) as ReverseGeocodeResult;
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
 
 export function useLocation(
   cells: readonly MapCell[],
@@ -161,24 +204,25 @@ export function useLocation(
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        void updateLocationState((current) => {
+        void (async () => {
           const latitude = position.coords.latitude;
           const longitude = position.coords.longitude;
-          const nearest = nearestLocation(latitude, longitude);
           const cluster = findLocationCluster(cells, latitude, longitude);
+          const resolved = await reverseGeocode(latitude, longitude).catch(() => undefined);
+          const place = resolved ? formatGeocodedPlace(resolved) : "Current location";
 
-          return {
+          await updateLocationState((current) => ({
             ...current,
             latitude,
             longitude,
-            place: nearest.name,
-            countryCode: nearest.countryCode,
+            place,
+            countryCode: resolved?.countryCode?.toUpperCase() ?? "",
             highlightedCells: cluster,
             highlightedCellColors: createLocationGradient(cells, cluster),
             state: "located",
-            statusMessage: `Current location found near ${nearest.name}.`,
-          };
-        });
+            statusMessage: `Current location found near ${place}.`,
+          }));
+        })();
       },
       () => {
         void updateLocationState((current) => ({

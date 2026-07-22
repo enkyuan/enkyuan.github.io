@@ -11,11 +11,10 @@ import {
   createLocationGradient,
   findLocationCluster,
   formatCoordinate,
-  nearestLocation,
-  nearestPlace,
   WORLD_GRID_COLUMNS,
   WORLD_GRID_ROWS,
 } from "../src/lib/hooks/use-map";
+import { formatGeocodedPlace } from "../src/lib/hooks/use-location";
 
 test("uses one symmetric circular dot silhouette for every badge state", () => {
   const rowWidths = DOT_FIELD_DOTS.map(
@@ -82,10 +81,38 @@ test("samples one continuous gradient across the location cluster", () => {
   ).toBeTrue();
 });
 
-test("derives the visible place from the current coordinates", () => {
-  expect(nearestPlace(41.88, -87.63)).toBe("Chicago");
-  expect(nearestPlace(51.51, -0.13)).toBe("London");
-  expect(nearestLocation(33.11, -96.82).countryCode).toBe("US");
+test("formats live reverse-geocoding results for international regions", () => {
+  expect(
+    formatGeocodedPlace({
+      city: "Dallas",
+      principalSubdivision: "Texas",
+      principalSubdivisionCode: "US-TX",
+      countryCode: "US",
+    }),
+  ).toBe("Dallas, TX");
+  expect(
+    formatGeocodedPlace({
+      city: "Toronto",
+      principalSubdivision: "Ontario",
+      principalSubdivisionCode: "CA-ON",
+      countryCode: "CA",
+    }),
+  ).toBe("Toronto, ON");
+  expect(
+    formatGeocodedPlace({
+      city: "Paris",
+      principalSubdivision: "Île-de-France",
+      principalSubdivisionCode: "FR-IDF",
+      countryCode: "FR",
+    }),
+  ).toBe("Paris, Île-de-France");
+  expect(
+    formatGeocodedPlace({
+      locality: "Singapore",
+      principalSubdivision: "Singapore",
+      countryCode: "SG",
+    }),
+  ).toBe("Singapore");
 });
 
 test("rounds coordinates for the privacy-preserving readout", () => {
