@@ -16,7 +16,7 @@
 			<p class="contact-copy">
 				{about.contactPrefix}
 				<a href={about.contacts.email.href} aria-label="Email Enkang">email</a>
-				<span aria-hidden="true">+</span>
+				<span class="contact-separator" aria-hidden="true">/</span>
 				<a
 					class="social-icon"
 					href={about.contacts.x.href}

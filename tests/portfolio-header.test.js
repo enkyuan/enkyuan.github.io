@@ -137,13 +137,16 @@ test("keeps the contact links clean without persistent underlines", () => {
 
 test("uses an optically aligned X logo at the surrounding font size", () => {
   expect(aboutComponent).toContain('class="social-icon"');
+  expect(aboutComponent).toContain('<span class="contact-separator" aria-hidden="true">/</span>');
   expect(aboutComponent).toContain(
     '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">',
   );
   expect(aboutComponent).toContain("M18.244 2.25h3.308l-7.227 8.26");
-  expect(aboutStyles).toContain("width: 1em;");
-  expect(aboutStyles).toContain("height: 1em;");
+  expect(aboutStyles).toContain(".social-icon svg {");
+  expect(aboutStyles).toContain("width: 0.82em;");
+  expect(aboutStyles).toContain("height: 0.82em;");
   expect(aboutStyles).toContain("vertical-align: -0.08em;");
+  expect(aboutStyles).toContain("margin-right: -0.16em;");
   expect(aboutComponent).not.toContain('aria-label="Enkang on X">x</a>');
 });
 

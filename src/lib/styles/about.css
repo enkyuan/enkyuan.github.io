@@ -78,6 +78,11 @@
   color: oklch(0.213 0.008 264.379 / 0.68);
 }
 
+.contact-separator {
+  display: inline-block;
+  margin-right: -0.16em;
+}
+
 .contact-copy a {
   color: oklch(0.213 0.008 264.379);
   font-family: var(--font-about-rounded);
@@ -103,8 +108,8 @@
 
 .social-icon svg {
   display: block;
-  width: 100%;
-  height: 100%;
+  width: 0.82em;
+  height: 0.82em;
   fill: currentColor;
 }
 
