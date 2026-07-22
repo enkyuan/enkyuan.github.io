@@ -48,9 +48,10 @@
     <meta name="theme-color" content="oklch(1 0 0)" />
     <meta name="color-scheme" content="light" />
 
-    <!-- Prevent AI Training -->
-    <meta name="robots" content="noai, noimageai" />
-    <meta name="googlebot" content="noai, noimageai" />
+    <!-- Preserve indexing while withholding content from generated summaries and training -->
+    <meta name="robots" content="nosnippet, noai, noimageai" />
+    <meta name="googlebot" content="nosnippet" />
+    <meta name="applebot" content="nosnippet" />
 
     %sveltekit.head%
   </head>

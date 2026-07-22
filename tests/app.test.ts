@@ -12,3 +12,10 @@ test("uses the Hanzi name as the browser title", () => {
 test("does not load the removed handwriting typeface", () => {
   expect(appStyles).not.toContain("shantell-sans");
 });
+
+test("withholds page content from generated search summaries", () => {
+  expect(appHtml).toContain('<meta name="robots" content="nosnippet, noai, noimageai" />');
+  expect(appHtml).toContain('<meta name="googlebot" content="nosnippet" />');
+  expect(appHtml).toContain('<meta name="applebot" content="nosnippet" />');
+  expect(appHtml).not.toContain('content="noindex');
+});
