@@ -96,15 +96,19 @@ test("follows the map with a concise introduction and contact links", () => {
   expect(aboutComponent).toContain('import { about } from "$lib/constants/about";');
   expect(aboutConstants).toContain("this map is drawn from a 64 × 32 grid");
   expect(aboutConstants).toContain("hey, i'm enkang");
-  expect(aboutConstants).toContain("associate software engineer @ t-mobile");
+  expect(aboutConstants).toContain('rolePrefix: "i\'m currently an associate software engineer @"');
+  expect(aboutConstants).toContain('role: "t-mobile"');
   expect(aboutConstants).toContain('text === "Email"');
   expect(aboutConstants).toContain('text === "Twitter"');
   expect(aboutComponent).toContain('aria-label="Email Enkang"');
   expect(aboutComponent).toContain('aria-label="Enkang on X"');
 });
 
-test("fills the role text with the shared OKLCH brand gradient", () => {
+test("fills only the employer name with the shared OKLCH brand gradient", () => {
   expect(aboutComponent).toContain('import "$lib/styles/about.css";');
+  expect(aboutComponent).toContain('<span class="role-highlight">{about.role}</span>');
+  expect(aboutComponent).not.toContain('<span class="role-highlight">{about.role}</span>.');
+  expect(aboutComponent).not.toContain("</a>.");
   expect(aboutStyles).toContain("oklch(0.892 0.063 355.343)");
   expect(aboutStyles).toContain("oklch(0.818 0.114 355.343)");
   expect(aboutStyles).toContain("oklch(0.617 0.253 355.343)");
