@@ -282,7 +282,7 @@ test("keeps loading pending and renders location failures as a dot-matrix X", ()
   expect(mapStyles).toContain("fill: oklch(0.849 0.083 17.077 / 0.42);");
   expect(mapStyles).toContain("fill: oklch(0.692 0.198 21.503);");
   expect(mapComponent).toContain('<h1 id="location-title">Location not found</h1>');
-  expect(mapStyles).toContain("border-radius: 50%;");
+  expect(mapStyles).not.toContain("border-radius: 50%;");
   expect(mapComponent).not.toContain("RetryIcon");
   expect(mapComponent).not.toContain("retry-button");
 });
@@ -319,6 +319,8 @@ test("selects any country flag through one compact component API", () => {
   expect(flagsComponent).toContain('class="country-flag"');
   expect(flagsComponent).toContain("isCircularDotVisible(row, column)");
   expect(flagsComponent).toContain("fill={`url(#${patternId})`}");
+  expect(flagsComponent).not.toContain("border-radius: 50%");
+  expect(flagsComponent).not.toContain("overflow: hidden");
   expect(flagsComponent).not.toContain("clipPath");
   expect(flagsComponent).not.toContain("<rect");
   expect(flagsComponent).not.toContain("<path");

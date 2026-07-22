@@ -151,10 +151,6 @@
   animation-delay: calc(var(--loader-delay) - 900ms);
 }
 
-.error-field {
-  border-radius: 50%;
-}
-
 .error-field circle {
   fill: oklch(0.849 0.083 17.077 / 0.42);
 }

@@ -76,8 +76,6 @@
 		flex: 0 0 var(--flag-size);
 		width: var(--flag-size);
 		height: var(--flag-size);
-		overflow: hidden;
-		border-radius: 50%;
 		transform: translateY(-0.5px);
 	}
 
