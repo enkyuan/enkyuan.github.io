@@ -26,6 +26,9 @@
 	const locationAnchor = $derived(
 		cells.find((cell) => cell.id === $location.highlightedCells[0]),
 	);
+	const canRetryLocation = $derived(
+		$location.state === "error" && $location.failure?.retryable === true,
+	);
 
 	function cellStyle(row: number, column: number, color: string | undefined) {
 		const delay = Math.min(column * 3 + Math.abs(row - (WORLD_GRID_ROWS - 1) / 2) * 2, 220);
@@ -82,13 +85,10 @@
 			<div class="shared-pill" bind:this={sharedPill}>
 				<Badge
 					class="location-badge"
-					onclick={() => {
-						if ($location.state === "error") void locate();
-					}}
-					disabled={$location.state !== "error"}
-					ariaLabel={$location.state === "error" ? "Try finding your location again" : undefined}
+					onclick={canRetryLocation ? () => void locate() : undefined}
+					ariaLabel={canRetryLocation ? "Try finding your location again" : undefined}
 					ariaLive="polite"
-					title={$location.state === "error" ? "Try again" : undefined}
+					title={canRetryLocation ? "Try again" : undefined}
 				>
 					<div class="pill-state">
 						{#if $location.state === "located" && $location.latitude !== undefined && $location.longitude !== undefined}
@@ -114,9 +114,14 @@
 												{/if}
 											{/each}
 										{/each}
-									</svg>
-								</span>
-								<h1 id="location-title">Location not found</h1>
+										</svg>
+									</span>
+									<div class="pill-copy">
+										<h1 id="location-title">{$location.failure?.title ?? "Location unavailable"}</h1>
+										{#if $location.failure?.hint}
+											<p class="state-hint">{$location.failure.hint}</p>
+										{/if}
+									</div>
 						{:else}
 								<span class="loading-field" aria-hidden="true">
 									<svg viewBox="0 0 34 34" focusable="false">

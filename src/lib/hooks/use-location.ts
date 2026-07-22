@@ -3,6 +3,15 @@ import { get, writable } from "svelte/store";
 import { createLocationGradient, findLocationCluster, type MapCell } from "$lib/hooks/use-map";
 
 type LocationState = "locating" | "located" | "error";
+type LocationFailureKind = "permission-denied" | "position-unavailable" | "timeout" | "unsupported";
+
+export type LocationFailure = {
+  kind: LocationFailureKind;
+  title: string;
+  hint: string;
+  retryable: boolean;
+  statusMessage: string;
+};
 
 type SharedViewTransition = { finished: Promise<void> };
 type ViewTransitionDocument = Document & {
@@ -17,6 +26,7 @@ type Location = {
   longitude?: number;
   highlightedCells: string[];
   highlightedCellColors: Map<string, string>;
+  failure?: LocationFailure;
   statusMessage: string;
 };
 
@@ -53,7 +63,66 @@ const COUNTRY_CODE_FALLBACKS: Readonly<Record<string, string>> = {
   SGP: "SG",
   USA: "US",
 };
+const GEOLOCATION_ERROR_CODES = {
+  permissionDenied: 1,
+  positionUnavailable: 2,
+  timeout: 3,
+} as const;
+export const GEOLOCATION_OPTIONS: PositionOptions = {
+  enableHighAccuracy: false,
+  maximumAge: 5 * 60 * 1000,
+  timeout: 10_000,
+};
+const UNSUPPORTED_LOCATION_FAILURE: LocationFailure = {
+  kind: "unsupported",
+  title: "Location unavailable",
+  hint: "Try another browser",
+  retryable: false,
+  statusMessage: "Location is not available in this browser.",
+};
 let countryCodesByName: Map<string, string> | undefined;
+
+export function describeGeolocationError(error: unknown): LocationFailure {
+  const code =
+    typeof error === "object" && error !== null && "code" in error
+      ? Number(error.code)
+      : GEOLOCATION_ERROR_CODES.positionUnavailable;
+
+  if (code === GEOLOCATION_ERROR_CODES.permissionDenied) {
+    return {
+      kind: "permission-denied",
+      title: "Location access blocked",
+      hint: "Allow it in browser settings",
+      retryable: false,
+      statusMessage:
+        "Location access is blocked. Allow location access in your browser settings, then reload the page.",
+    };
+  }
+
+  if (code === GEOLOCATION_ERROR_CODES.timeout) {
+    return {
+      kind: "timeout",
+      title: "Location timed out",
+      hint: "Tap to try again",
+      retryable: true,
+      statusMessage: "Finding your location took too long. Try again.",
+    };
+  }
+
+  return {
+    kind: "position-unavailable",
+    title: "Location unavailable",
+    hint: "Tap to try again",
+    retryable: true,
+    statusMessage: "Your location is temporarily unavailable. Try again.",
+  };
+}
+
+export function requestCurrentPosition(geolocation: Pick<Geolocation, "getCurrentPosition">) {
+  return new Promise<GeolocationPosition>((resolve, reject) => {
+    geolocation.getCurrentPosition(resolve, reject, GEOLOCATION_OPTIONS);
+  });
+}
 
 function normalizeCountryName(value: string) {
   return value
@@ -258,7 +327,8 @@ export function useLocation(
       await updateLocationState((current) => ({
         ...current,
         state: "error",
-        statusMessage: "Location is not available in this browser.",
+        failure: UNSUPPORTED_LOCATION_FAILURE,
+        statusMessage: UNSUPPORTED_LOCATION_FAILURE.statusMessage,
       }));
       return;
     }
@@ -266,47 +336,47 @@ export function useLocation(
     if (get(location).state === "locating") {
       location.update((current) => ({
         ...current,
+        failure: undefined,
         statusMessage: "Finding your spot on the map.",
       }));
     } else {
       await updateLocationState((current) => ({
         ...current,
         state: "locating",
+        failure: undefined,
         statusMessage: "Finding your spot on the map.",
       }));
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        void (async () => {
-          const latitude = position.coords.latitude;
-          const longitude = position.coords.longitude;
-          const cluster = findLocationCluster(cells, latitude, longitude);
-          const resolved = await reverseGeocode(latitude, longitude).catch(() => undefined);
-          const place = resolved ? formatGeocodedPlace(resolved) : "Current location";
+    try {
+      const position = await requestCurrentPosition(navigator.geolocation);
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      const cluster = findLocationCluster(cells, latitude, longitude);
+      const resolved = await reverseGeocode(latitude, longitude).catch(() => undefined);
+      const place = resolved ? formatGeocodedPlace(resolved) : "Current location";
 
-          await updateLocationState((current) => ({
-            ...current,
-            latitude,
-            longitude,
-            place,
-            countryCode: resolved ? formatGeocodedCountryCode(resolved) : "",
-            highlightedCells: cluster,
-            highlightedCellColors: createLocationGradient(cells, cluster),
-            state: "located",
-            statusMessage: `Current location found near ${place}.`,
-          }));
-        })();
-      },
-      () => {
-        void updateLocationState((current) => ({
-          ...current,
-          state: "error",
-          statusMessage: "Location not found.",
-        }));
-      },
-      { enableHighAccuracy: true, maximumAge: 0 },
-    );
+      await updateLocationState((current) => ({
+        ...current,
+        latitude,
+        longitude,
+        place,
+        countryCode: resolved ? formatGeocodedCountryCode(resolved) : "",
+        highlightedCells: cluster,
+        highlightedCellColors: createLocationGradient(cells, cluster),
+        state: "located",
+        failure: undefined,
+        statusMessage: `Current location found near ${place}.`,
+      }));
+    } catch (error) {
+      const failure = describeGeolocationError(error);
+      await updateLocationState((current) => ({
+        ...current,
+        state: "error",
+        failure,
+        statusMessage: failure.statusMessage,
+      }));
+    }
   }
 
   return { location, locate };

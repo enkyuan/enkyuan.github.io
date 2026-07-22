@@ -113,7 +113,8 @@
 }
 
 .pill-state h1,
-.coordinates {
+.coordinates,
+.state-hint {
   margin: 0;
 }
 
@@ -159,7 +160,8 @@
   fill: oklch(0.692 0.198 21.503);
 }
 
-.coordinates {
+.coordinates,
+.state-hint {
   margin-top: 0.18rem;
   overflow: hidden;
   color: oklch(0.979 0.003 264.542 / 0.62);

@@ -14,7 +14,13 @@ import {
   WORLD_GRID_COLUMNS,
   WORLD_GRID_ROWS,
 } from "../src/lib/hooks/use-map";
-import { formatGeocodedCountryCode, formatGeocodedPlace } from "../src/lib/hooks/use-location";
+import {
+  describeGeolocationError,
+  formatGeocodedCountryCode,
+  formatGeocodedPlace,
+  GEOLOCATION_OPTIONS,
+  requestCurrentPosition,
+} from "../src/lib/hooks/use-location";
 
 test("uses one symmetric circular dot silhouette for every badge state", () => {
   const rowWidths = DOT_FIELD_DOTS.map(
@@ -146,4 +152,52 @@ test("rounds coordinates for the privacy-preserving readout", () => {
   expect(formatCoordinate(41.8819, "N", "S")).toBe("41.88° N");
   expect(formatCoordinate(-87.6278, "E", "W")).toBe("87.63° W");
   expect(formatCoordinate(41.8819, "N", "S", 3)).toBe("41.882° N");
+});
+
+test("classifies browser geolocation failures by retryability", () => {
+  expect(describeGeolocationError({ code: 1 })).toMatchObject({
+    kind: "permission-denied",
+    retryable: false,
+    hint: "Allow it in browser settings",
+  });
+  expect(describeGeolocationError({ code: 2 })).toMatchObject({
+    kind: "position-unavailable",
+    retryable: true,
+  });
+  expect(describeGeolocationError({ code: 3 })).toMatchObject({
+    kind: "timeout",
+    retryable: true,
+  });
+  expect(GEOLOCATION_OPTIONS).toEqual({
+    enableHighAccuracy: false,
+    maximumAge: 300_000,
+    timeout: 10_000,
+  });
+});
+
+test("allows a transient geolocation failure to succeed on retry", async () => {
+  const position = {
+    coords: { latitude: 33.102, longitude: -96.817 },
+    timestamp: Date.now(),
+  };
+  let attempts = 0;
+  const geolocation = {
+    getCurrentPosition(success, failure, options) {
+      expect(options).toEqual(GEOLOCATION_OPTIONS);
+      attempts += 1;
+      if (attempts === 1) {
+        failure({ code: 2 });
+        return;
+      }
+      success(position);
+    },
+  };
+
+  const firstResult = await requestCurrentPosition(geolocation).then(
+    () => undefined,
+    (error) => error,
+  );
+  expect(firstResult).toMatchObject({ code: 2 });
+  expect(await requestCurrentPosition(geolocation)).toBe(position);
+  expect(attempts).toBe(2);
 });

@@ -200,7 +200,7 @@ test("locates automatically and presents the coordinates in a rounded pill", () 
 });
 
 test("derives the map marker from the visiting browser's live coordinates", () => {
-  expect(locationHook).toContain("navigator.geolocation.getCurrentPosition(");
+  expect(locationHook).toContain("requestCurrentPosition(navigator.geolocation)");
   expect(locationHook).toContain("const latitude = position.coords.latitude;");
   expect(locationHook).toContain("const longitude = position.coords.longitude;");
   expect(locationHook).toContain("reverseGeocode(latitude, longitude)");
@@ -213,7 +213,9 @@ test("derives the map marker from the visiting browser's live coordinates", () =
   expect(locationHook).toContain("formatGeocodedPlace(resolved)");
   expect(locationHook).toContain("findLocationCluster(cells, latitude, longitude)");
   expect(locationHook).toContain("createLocationGradient(cells, cluster)");
-  expect(locationHook).toContain("{ enableHighAccuracy: true, maximumAge: 0 }");
+  expect(locationHook).toContain("enableHighAccuracy: false");
+  expect(locationHook).toContain("maximumAge: 5 * 60 * 1000");
+  expect(locationHook).toContain("timeout: 10_000");
   expect(locationHook).not.toContain("localStorage");
   expect(locationHook).not.toContain("sessionStorage");
   expect(mapHook).not.toContain("const PLACES");
@@ -264,14 +266,16 @@ test("morphs loading and error badges in place without a viewport-edge entrance"
   expect(locationHook).toContain("duration: 240");
   expect(locationHook).toContain('easing: "cubic-bezier(0.77, 0, 0.175, 1)"');
   expect(mapComponent).not.toContain("{#key $location.state}");
-  expect(mapComponent).toContain('disabled={$location.state !== "error"}');
+  expect(mapComponent).toContain("onclick={canRetryLocation ? () => void locate() : undefined}");
   expect(mapStyles).toContain("::view-transition-old(root)");
   expect(mapStyles).toContain("::view-transition-new(root)");
 });
 
-test("keeps loading pending and renders location failures as a dot-matrix X", () => {
-  expect(locationHook).toContain("{ enableHighAccuracy: true, maximumAge: 0 }");
-  expect(locationHook).not.toContain("timeout:");
+test("keeps loading pending and renders classified location failures as a dot-matrix X", () => {
+  expect(locationHook).toContain('kind: "permission-denied"');
+  expect(locationHook).toContain('hint: "Allow it in browser settings"');
+  expect(locationHook).toContain('kind: "position-unavailable"');
+  expect(locationHook).toContain('kind: "timeout"');
   expect(mapComponent).toContain('class="error-field"');
   expect(mapComponent).toContain("class:error-mark={isErrorMarkDot(row, column)}");
   expect(dotField).toContain("export const DOT_FIELD_GRID = 13;");
@@ -281,18 +285,19 @@ test("keeps loading pending and renders location failures as a dot-matrix X", ()
   expect(flagsComponent).toContain("r={DOT_FIELD_RADIUS}");
   expect(mapStyles).toContain("fill: oklch(0.849 0.083 17.077 / 0.42);");
   expect(mapStyles).toContain("fill: oklch(0.692 0.198 21.503);");
-  expect(mapComponent).toContain('<h1 id="location-title">Location not found</h1>');
+  expect(mapComponent).toContain('$location.failure?.title ?? "Location unavailable"');
+  expect(mapComponent).toContain('class="state-hint"');
   expect(mapStyles).not.toContain("border-radius: 50%;");
   expect(mapComponent).not.toContain("RetryIcon");
   expect(mapComponent).not.toContain("retry-button");
 });
 
-test("keeps one visitor location session mounted and only makes failed badges interactive", () => {
+test("keeps one visitor location session mounted and only makes recoverable failures interactive", () => {
   expect(page).toContain('hidden={activeTab !== "name"}');
-  expect(mapComponent).toContain('if ($location.state === "error") void locate();');
-  expect(mapComponent).toContain('disabled={$location.state !== "error"}');
+  expect(mapComponent).toContain("$location.failure?.retryable === true");
+  expect(mapComponent).toContain("onclick={canRetryLocation ? () => void locate() : undefined}");
   expect(mapComponent).toContain(
-    'ariaLabel={$location.state === "error" ? "Try finding your location again" : undefined}',
+    'ariaLabel={canRetryLocation ? "Try finding your location again" : undefined}',
   );
   expect(mapComponent).toContain('"Try finding your location again"');
   expect(mapComponent).not.toContain('"Refresh your current location"');
@@ -342,8 +347,8 @@ test("positions the location pill from its rendered marker and resolved map quad
   expect(mapComponent).toContain(
     "style={pillPosition(locationAnchor?.latitude, locationAnchor?.longitude)}",
   );
-  expect(locationHook).toContain("enableHighAccuracy: true");
-  expect(locationHook).toContain("maximumAge: 0");
+  expect(locationHook).toContain("enableHighAccuracy: false");
+  expect(locationHook).toContain("maximumAge: 5 * 60 * 1000");
 });
 
 test("keeps the located badge beside its rendered marker and inside every map edge", () => {
