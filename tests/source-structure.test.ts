@@ -60,7 +60,6 @@ test("keeps map behavior in hooks and substantial component CSS in styles", asyn
     "src/lib/styles/about.css",
     "src/lib/styles/badge.css",
     "src/lib/styles/button.css",
-    "src/lib/styles/card.css",
     "src/lib/styles/map.css",
   ];
 
@@ -78,7 +77,6 @@ test("keeps map behavior in hooks and substantial component CSS in styles", asyn
     ["src/lib/components/about.svelte", 'import "$lib/styles/about.css";'],
     ["src/lib/components/ui/badge.svelte", 'import "$lib/styles/badge.css";'],
     ["src/lib/components/ui/button.svelte", 'import "$lib/styles/button.css";'],
-    ["src/lib/components/ui/card.svelte", 'import "$lib/styles/card.css";'],
     ["src/lib/components/ui/map.svelte", 'import "$lib/styles/map.css";'],
   ] as const;
 

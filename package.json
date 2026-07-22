@@ -15,18 +15,16 @@
     "lint": "oxlint ."
   },
   "dependencies": {
-    "@fontsource/geist": "^5.2.6",
-    "react-grab": "^0.0.87"
+    "@fontsource/geist": "^5.2.6"
   },
   "devDependencies": {
-    "@neoconfetti/svelte": "^2.0.0",
     "@sveltejs/adapter-static": "^3.0.8",
     "@sveltejs/kit": "^2.16.0",
     "@sveltejs/vite-plugin-svelte": "^5.0.0",
-    "@tailwindcss/typography": "^0.5.15",
     "@tailwindcss/vite": "^4.0.0",
     "oxfmt": "^0.24.0",
     "oxlint": "^1.39.0",
+    "react-grab": "^0.0.87",
     "sv-agentation": "^0.4.0",
     "svelte": "^5.25.0",
     "svelte-check": "^4.0.0",

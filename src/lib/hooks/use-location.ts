@@ -2,7 +2,7 @@ import { onMount, tick } from "svelte";
 import { get, writable } from "svelte/store";
 import { createLocationGradient, findLocationCluster, type MapCell } from "$lib/hooks/use-map";
 
-export type LocationState = "locating" | "located" | "error";
+type LocationState = "locating" | "located" | "error";
 
 type SharedViewTransition = { finished: Promise<void> };
 type ViewTransitionDocument = Document & {

@@ -1,4 +1,4 @@
-export const DOT_FIELD_SIZE = 34;
+const DOT_FIELD_SIZE = 34;
 export const DOT_FIELD_GRID = 13;
 export const DOT_FIELD_RADIUS = 1.05;
 export const DOT_FIELD_STEP = DOT_FIELD_SIZE / DOT_FIELD_GRID;
