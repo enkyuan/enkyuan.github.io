@@ -9,7 +9,7 @@ test("lists CV-backed work chronologically without restoring Ato", () => {
     ...milo!.achievements.map((achievement) => achievement.text),
   ].join(" ");
 
-  expect(projects.map((project) => project.name)).toEqual(["AgentKit", "Flux", "Milo"]);
+  expect(projects.map((project) => project.name)).toEqual(["Kaji", "Flux", "Milo"]);
   expect(projects.some((project) => project.name === "Ato")).toBeFalse();
   expect(copy).toContain("SwiftUI");
   expect(copy).toContain("WebSockets");
@@ -17,17 +17,17 @@ test("lists CV-backed work chronologically without restoring Ato", () => {
   expect(copy).toContain("idempotent tool execution");
 });
 
-test("retains the verified Flux and AgentKit project details", () => {
-  const agentKitIndex = projects.findIndex((project) => project.name === "AgentKit");
+test("retains the verified Flux and Kaji project details", () => {
+  const KajiIndex = projects.findIndex((project) => project.name === "Kaji");
   const fluxIndex = projects.findIndex((project) => project.name === "Flux");
-  const agentKit = projects[agentKitIndex];
+  const Kaji = projects[KajiIndex];
   const flux = projects[fluxIndex];
   const copy = [flux.description, ...flux.achievements.map((achievement) => achievement.text)].join(
     " ",
   );
 
-  expect(agentKit.dates).toBe("Present");
-  expect("description" in agentKit).toBeFalse();
+  expect(Kaji.dates).toBe("Present");
+  expect("description" in Kaji).toBeFalse();
   expect(flux.dates).toBe("2026");
   expect(copy).toContain("Honorable Mention at HackIllinois");
   expect(copy).toContain("Tavily");

@@ -1,6 +1,6 @@
 export const projects = [
   {
-    name: "AgentKit",
+    name: "Kaji",
     dates: "Present",
     achievements: [
       {
