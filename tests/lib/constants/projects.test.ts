@@ -2,15 +2,32 @@
 import { expect, test } from "bun:test";
 import { projects } from "../../../src/lib/constants/projects";
 
-test("lists Flux directly above AgentKit with its verified project details", () => {
+test("lists CV-backed work chronologically without restoring Ato", () => {
+  const milo = projects.find((project) => project.name === "Milo");
+  const copy = [
+    milo?.description,
+    ...milo!.achievements.map((achievement) => achievement.text),
+  ].join(" ");
+
+  expect(projects.map((project) => project.name)).toEqual(["AgentKit", "Flux", "Milo"]);
+  expect(projects.some((project) => project.name === "Ato")).toBeFalse();
+  expect(copy).toContain("SwiftUI");
+  expect(copy).toContain("WebSockets");
+  expect(copy).toContain("Redis Streams");
+  expect(copy).toContain("idempotent tool execution");
+});
+
+test("retains the verified Flux and AgentKit project details", () => {
   const agentKitIndex = projects.findIndex((project) => project.name === "AgentKit");
   const fluxIndex = projects.findIndex((project) => project.name === "Flux");
+  const agentKit = projects[agentKitIndex];
   const flux = projects[fluxIndex];
   const copy = [flux.description, ...flux.achievements.map((achievement) => achievement.text)].join(
     " ",
   );
 
-  expect(fluxIndex).toBe(agentKitIndex - 1);
+  expect(agentKit.dates).toBe("Present");
+  expect("description" in agentKit).toBeFalse();
   expect(flux.dates).toBe("2026");
   expect(copy).toContain("Honorable Mention at HackIllinois");
   expect(copy).toContain("Tavily");

@@ -1,5 +1,25 @@
 export const projects = [
   {
+    name: "AgentKit",
+    dates: "Present",
+    achievements: [
+      {
+        text: "Built matching ReAct runtimes around typed tools, event journals, session replay, idempotency, approvals, and bounded execution",
+      },
+      {
+        text: "Added OpenAI and Anthropic providers alongside Gemini, Kimi, and OpenRouter paths, with deterministic mocks and normalized error contracts",
+      },
+      {
+        text: "Kept the SDK core infra-free, moving Redis realtime, FastAPI hosting, and Soniox voice into optional edges so teams can start locally and scale out deliberately",
+      },
+      {
+        text: "Used the runtime beneath Ryo, where small businesses configure agents that answer questions, take orders, and collect payments",
+        link_text: "Alloy",
+        link_href: "https://github.com/enkyuan/alloy",
+      },
+    ],
+  },
+  {
     name: "Flux",
     dates: "2026",
     description:
@@ -25,24 +45,19 @@ export const projects = [
     ],
   },
   {
-    name: "AgentKit",
-    dates: "2025",
+    name: "Milo",
+    dates: "2025 – 2026",
     description:
-      "Embeddable SDK for building production-grade agentic platforms with text and voice.",
+      "A low-latency voice assistant that keeps conversation immediate while longer automations run elsewhere.",
     achievements: [
       {
-        text: "Designed a layered, infra-free core SDK with an in-memory event bus and store, letting developers build and test ReAct-loop agents locally before wiring in Redis and a database",
+        text: "Streamed speech between a SwiftUI client and FastAPI over WebSockets, separating the live dialogue path from long-running TaskIQ jobs",
       },
       {
-        text: "Built a pluggable LLM provider system supporting Gemini, OpenAI, and OpenRouter-backed models, with a mock provider for deterministic testing",
+        text: "Routed transcriptions, tool results, and user updates through Redis Streams + Pub/Sub so services could work independently without making the conversation wait",
       },
       {
-        text: "Implemented a voice modality layer with real-time STT via Soniox and TTS via Gemini and OpenAI, decoupling audio I/O from the agent reasoning loop",
-        link_text: "Soniox",
-        link_href: "https://soniox.com",
-      },
-      {
-        text: "Shipped agentkit-serve, a reference FastAPI + TaskIQ deployment that fans out events over Redis Streams and Pub/Sub across three isolated processes — API, reasoning worker, and tool worker",
+        text: "Built safer integrations around encrypted OAuth tokens, idempotent tool execution, and Redis-backed deduplication and retries",
       },
     ],
   },

@@ -121,12 +121,14 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 							>
 								{entry.title}
 							</h2>
-							<p
-								class="stagger-item"
-								style={`--stagger-delay: ${staggerDelay(entryIndex, 2)}ms`}
-							>
-								{entry.description}
-							</p>
+							{#if entry.description}
+								<p
+									class="stagger-item"
+									style={`--stagger-delay: ${staggerDelay(entryIndex, 2)}ms`}
+								>
+									{entry.description}
+								</p>
+							{/if}
 							{#each entry.achievements as achievement, itemIndex}
 								<p
 									class="stagger-item"
