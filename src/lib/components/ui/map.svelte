@@ -12,34 +12,49 @@
 	import { useLocation } from "$lib/hooks/use-location";
 	import {
 		createWorldGrid,
+		createWorldPathWaves,
 		formatCoordinate,
+		projectLocation,
+		WORLD_CELL_OFFSET,
+		WORLD_CELL_RADIUS,
+		WORLD_CELL_SIZE,
 		WORLD_GRID_COLUMNS,
 		WORLD_GRID_ROWS,
+		type MapCell,
 	} from "$lib/hooks/use-map";
 	import "$lib/styles/map.css";
 
 	let { animate = true } = $props<{ animate?: boolean }>();
 
 	const cells = createWorldGrid();
+	const cellsById = new Map(cells.map((cell) => [cell.id, cell]));
+	const worldPathWaves = createWorldPathWaves(cells);
 	let sharedPill: HTMLDivElement | undefined = $state();
 	const { location, locate } = useLocation(cells, () => animate, () => sharedPill);
-	const locationAnchor = $derived(
-		cells.find((cell) => cell.id === $location.highlightedCells[0]),
+	const hasLocatedPosition = $derived(
+		$location.state === "located" &&
+			$location.latitude !== undefined &&
+			$location.longitude !== undefined,
 	);
 	const canRetryLocation = $derived(
 		$location.state === "error" && $location.failure?.retryable === true,
 	);
+	const locationCells = $derived(
+		$location.highlightedCells.flatMap((id, index) => {
+			const cell = cellsById.get(id);
+			const color = $location.highlightedCellColors.get(id);
+			return cell && color ? [{ ...cell, color, index }] : [];
+		}),
+	);
 
-	function cellStyle(row: number, column: number, color: string | undefined) {
-		const delay = Math.min(column * 3 + Math.abs(row - (WORLD_GRID_ROWS - 1) / 2) * 2, 220);
-		return `grid-column:${column + 1};grid-row:${row + 1};--cell-delay:${delay}ms;--cell-color:${color ?? "oklch(0.931 0.003 264.541)"}`;
+	function locationCellStyle(cell: MapCell & { color: string; index: number }) {
+		return `--cell-delay:${Math.min(cell.index * 18, 160)}ms;--location-color:${cell.color}`;
 	}
 
 	function pillPosition(currentLatitude: number | undefined, currentLongitude: number | undefined) {
 		if (currentLatitude === undefined || currentLongitude === undefined) return undefined;
-		const x = ((currentLongitude + 180) / 360) * 100;
-		const y = ((90 - currentLatitude) / 180) * 100;
-		return `--anchor-x:${x}%;--anchor-y:${y}%`;
+		const { xPercent, yPercent } = projectLocation(currentLatitude, currentLongitude);
+		return `--anchor-x:${xPercent}%;--anchor-y:${yPercent}%`;
 	}
 
 	function loadingDotDelay(row: number, column: number) {
@@ -49,8 +64,10 @@
 
 <section class:animate class="map" aria-labelledby="location-title">
 	<div class="map-stage">
-		<div
+		<svg
 			class="map-grid"
+			viewBox={`0 0 ${WORLD_GRID_COLUMNS} ${WORLD_GRID_ROWS}`}
+			preserveAspectRatio="xMidYMid meet"
 			role="img"
 			aria-label={$location.state === "located"
 				? `Pixel world map highlighting your current location near ${$location.place}`
@@ -58,29 +75,48 @@
 					? "Pixel world map; current location not found"
 					: "Pixel world map awaiting your location"}
 		>
-			{#each cells as cell}
-				{@const locationColor = $location.highlightedCellColors.get(cell.id)}
-				<span
-					class:location-cell={locationColor !== undefined}
-					class:location-anchor={cell.id === $location.highlightedCells[0]}
-					class="map-cell"
-					style={cellStyle(cell.row, cell.column, locationColor)}
+			{#each worldPathWaves as wave}
+				<path
+					class="map-land-wave"
+					d={wave.path}
+					style={`--wave-index:${wave.index}`}
 					aria-hidden="true"
-				></span>
+				></path>
 			{/each}
-		</div>
+			{#each locationCells as cell (cell.id)}
+				<rect
+					class:location-anchor={cell.index === 0}
+					class="location-cell"
+					x={cell.column + WORLD_CELL_OFFSET}
+					y={cell.row + WORLD_CELL_OFFSET}
+					width={WORLD_CELL_SIZE}
+					height={WORLD_CELL_SIZE}
+					rx={WORLD_CELL_RADIUS}
+					style={locationCellStyle(cell)}
+					aria-hidden="true"
+				></rect>
+			{/each}
+		</svg>
+
+		{#if hasLocatedPosition}
+			<span
+				class="location-point-anchor"
+				style={pillPosition($location.latitude, $location.longitude)}
+				aria-hidden="true"
+			></span>
+		{/if}
 
 		<div
 			class:error={$location.state === "error"}
 			class:locating={$location.state === "locating"}
 			class:bottom-state={$location.state !== "located"}
-			class:located={$location.state === "located" && locationAnchor !== undefined}
-			class:opens-right={locationAnchor === undefined || locationAnchor.longitude < 0}
-			class:opens-left={locationAnchor !== undefined && locationAnchor.longitude >= 0}
-			class:opens-below={locationAnchor === undefined || locationAnchor.latitude >= 0}
-			class:opens-above={locationAnchor !== undefined && locationAnchor.latitude < 0}
+			class:located={hasLocatedPosition}
+			class:opens-right={$location.longitude === undefined || $location.longitude < 0}
+			class:opens-left={$location.longitude !== undefined && $location.longitude >= 0}
+			class:opens-below={$location.latitude === undefined || $location.latitude >= 0}
+			class:opens-above={$location.latitude !== undefined && $location.latitude < 0}
 			class="location-badge-anchor"
-			style={pillPosition(locationAnchor?.latitude, locationAnchor?.longitude)}
+			style={pillPosition($location.latitude, $location.longitude)}
 		>
 			<div class="shared-pill" bind:this={sharedPill}>
 				<Badge

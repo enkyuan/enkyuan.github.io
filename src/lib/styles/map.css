@@ -10,41 +10,57 @@
 }
 
 .map-grid {
-  display: grid;
-  grid-template-columns: repeat(64, minmax(0, 1fr));
-  grid-template-rows: repeat(32, minmax(0, 1fr));
-  gap: clamp(2px, 0.45vw, 3px);
+  display: block;
   width: 100%;
   aspect-ratio: 2 / 1;
+  overflow: visible;
 }
 
-.map-cell {
-  aspect-ratio: 1;
-  border-radius: clamp(1px, 0.24vw, 2px);
-  background: var(--cell-color);
+.map-land-wave {
+  fill: oklch(0.931 0.003 264.541);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.animate .map-land-wave {
+  animation: map-wave-enter 250ms var(--ease-out) both;
+  animation-delay: calc(var(--wave-index) * 30ms);
+}
+
+.location-cell {
+  fill: var(--location-color);
+  transform: scale(1.08);
+  transform-box: fill-box;
+  transform-origin: center;
   transition: transform 220ms var(--ease-out);
 }
 
-.animate .map-cell {
-  animation: map-cell-enter 300ms var(--ease-out) var(--cell-delay) backwards;
+.animate .location-cell:not(.location-anchor) {
+  animation: location-cell-reveal 220ms var(--ease-out) var(--cell-delay) both;
 }
 
-.map-cell.location-cell {
+.location-cell.location-anchor {
   transform: scale(1.08);
 }
 
-.map-cell.location-anchor {
+.location-point-anchor {
+  position: absolute;
+  top: var(--anchor-y);
+  left: var(--anchor-x);
+  width: 1px;
+  height: 1px;
   anchor-name: --current-location;
+  pointer-events: none;
 }
 
-.animate .map-cell.location-anchor {
+.animate .location-cell.location-anchor {
   z-index: 2;
   animation: location-cell-drop 420ms var(--ease-out) 60ms both;
 }
 
 .location-badge-anchor {
-  --badge-offset-block: 8px;
-  --badge-offset-inline: 10px;
+  --badge-offset-block: clamp(3px, 0.3vw, 4px);
+  --badge-offset-inline: clamp(3px, 0.35vw, 5px);
 
   position: absolute;
   z-index: 3;
@@ -231,15 +247,37 @@
   animation: none;
 }
 
-@keyframes map-cell-enter {
+@keyframes map-wave-enter {
   from {
     opacity: 0;
-    transform: scale(0.72);
+    transform: translateY(2px) scale(0.96);
   }
 
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes map-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes location-cell-reveal {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1.08);
   }
 }
 
@@ -309,11 +347,15 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .map-cell,
-  .map-cell.location-anchor,
+  .location-cell,
   .location-badge-anchor {
     animation: none;
     transition-duration: 0ms;
+  }
+
+  .animate .map-land-wave {
+    animation: map-fade 160ms var(--ease-out) both;
+    animation-delay: 0ms;
   }
 
   .loading-field circle {

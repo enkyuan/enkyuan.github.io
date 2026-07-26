@@ -3,7 +3,7 @@ import { expect, test } from "bun:test";
 import { about } from "../../../src/lib/constants/about";
 
 test("defines the map note and personal introduction", () => {
-  expect(about.mapNote).toContain("this map is drawn from a 64 × 32 grid");
+  expect(about.mapNote).toContain("this map is drawn from a 96 × 48 grid");
   expect(about.heading).toBe("hey, i'm enkang");
   expect(about.rolePrefix).toBe("i'm currently an associate software engineer intern @");
   expect(about.role).toBe("t-mobile");

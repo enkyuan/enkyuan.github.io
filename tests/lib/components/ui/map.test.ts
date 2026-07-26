@@ -18,13 +18,23 @@ test("presents live coordinates in the map badge", () => {
   expect(mapComponent).toContain('import "$lib/styles/map.css";');
   expect(mapComponent).toContain('from "$lib/hooks/use-map";');
   expect(mapComponent).toContain('class="map"');
+  expect(mapComponent).toContain("const worldPathWaves = createWorldPathWaves(cells);");
+  expect(mapComponent).toContain("{#each worldPathWaves as wave}");
+  expect(mapComponent).toContain('class="map-land-wave"');
+  expect(mapComponent).toContain("style={`--wave-index:${wave.index}`}");
+  expect(mapComponent).toContain("{#each locationCells as cell (cell.id)}");
+  expect(mapComponent).not.toContain("{#each cells as cell}");
+  expect(mapStyles).toContain("animation: map-wave-enter 250ms");
+  expect(mapStyles).toContain("animation-delay: calc(var(--wave-index) * 30ms);");
+  expect(mapStyles).toContain("animation: location-cell-reveal 220ms");
+  expect(mapStyles).not.toContain(".animate .map-cell");
   expect(mapComponent).toContain('class="location-badge"');
-  expect(mapComponent).toContain(
-    "class:location-anchor={cell.id === $location.highlightedCells[0]}",
-  );
+  expect(mapComponent).toContain("class:location-anchor={cell.index === 0}");
   expect(mapComponent).toContain("<Flags countryCode={$location.countryCode} />");
   expect(mapStyles).toContain("@keyframes location-cell-drop");
-  expect(mapStyles).not.toContain(".map-cell.location-cell {\n\tbackground: linear-gradient");
+  expect(mapStyles).not.toContain(".map-cell.location-cell");
+  expect(mapStyles).toContain("animation: map-fade 160ms");
+  expect(mapStyles).toContain("animation-delay: 0ms;");
   expect(mapComponent).not.toContain("pill-pin-icon");
   expect(mapComponent).not.toContain("Use current location");
 });
@@ -89,20 +99,21 @@ test("makes only recoverable location failures interactive", () => {
 });
 
 test("positions the location badge beside its marker across every map edge", () => {
-  expect(mapComponent).toContain("cells.find((cell) => cell.id === $location.highlightedCells[0])");
+  expect(mapComponent).toContain("projectLocation,");
+  expect(mapComponent).toContain('class="location-point-anchor"');
   expect(mapComponent).toContain(
     "function pillPosition(currentLatitude: number | undefined, currentLongitude: number | undefined)",
   );
-  expect(mapComponent).toContain("((currentLongitude + 180) / 360) * 100");
-  expect(mapComponent).toContain("((90 - currentLatitude) / 180) * 100");
-  expect(mapComponent).toContain("--anchor-x:${x}%;--anchor-y:${y}%");
+  expect(mapComponent).toContain(
+    "const { xPercent, yPercent } = projectLocation(currentLatitude, currentLongitude);",
+  );
+  expect(mapComponent).toContain("--anchor-x:${xPercent}%;--anchor-y:${yPercent}%");
   expect(mapComponent).toContain("class:opens-right");
   expect(mapComponent).toContain("class:opens-left");
   expect(mapComponent).toContain("class:opens-below");
   expect(mapComponent).toContain("class:opens-above");
-  expect(mapComponent).toContain(
-    "style={pillPosition(locationAnchor?.latitude, locationAnchor?.longitude)}",
-  );
+  expect(mapComponent).toContain("style={pillPosition($location.latitude, $location.longitude)}");
+  expect(mapStyles).toContain(".location-point-anchor {");
   expect(mapStyles).toContain("anchor-name: --current-location;");
   expect(mapStyles).toContain("@supports (anchor-name: --current-location)");
   expect(mapStyles).toContain("position-anchor: --current-location;");
@@ -116,8 +127,8 @@ test("positions the location badge beside its marker across every map edge", () 
   expect(mapStyles).toContain("max-width: calc(100% - 1rem);");
   expect(mapStyles).toContain("min-width: 0;");
   expect(mapStyles).toContain("text-overflow: ellipsis;");
-  expect(mapStyles).toContain("--badge-offset-block: 8px;");
-  expect(mapStyles).toContain("--badge-offset-inline: 10px;");
+  expect(mapStyles).toContain("--badge-offset-block: clamp(3px, 0.3vw, 4px);");
+  expect(mapStyles).toContain("--badge-offset-inline: clamp(3px, 0.35vw, 5px);");
   expect(mapStyles).toContain("margin: var(--badge-offset-block) var(--badge-offset-inline);");
   expect(mapStyles).toContain(
     "translate(calc(-100% - var(--badge-offset-inline)), var(--badge-offset-block))",
