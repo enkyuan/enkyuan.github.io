@@ -113,7 +113,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 				role="tabpanel"
 				aria-labelledby={`${activeTab}-tab`}
 			>
-				{#each activeEntries as entry, entryIndex}
+				{#each activeEntries as entry, entryIndex (`${activeTab}-${entryIndex}`)}
 					<article class="timeline-entry">
 						<p
 							class="entry-date stagger-item"

@@ -46,11 +46,13 @@ test("staggers Timeline and Work content without animating keyboard navigation",
   expect(page).toContain('import "./portfolio-entries.css";');
   expect(page).toContain('activeTab === "timeline" ? timelineEntries');
   expect(page).toContain('activeTab === "work" ? workEntries : []');
-  expect(page).toContain("{#each activeEntries as entry, entryIndex}");
+  expect(page).toContain(
+    "{#each activeEntries as entry, entryIndex (`${activeTab}-${entryIndex}`)}",
+  );
   expect(page).toContain("class:animate-content={animateContent}");
-  expect(page).toContain("animateContent = !fromKeyboard");
+  expect(page).toContain("animateContent = firstVisit");
   expect(page).toContain("function staggerDelay(entryIndex: number, itemIndex: number)");
-  expect(page).toContain("Math.min(entryIndex * 70 + itemIndex * 35, 280)");
+  expect(page).toContain("Math.min(entryIndex * 55, 180) + itemIndex * 28");
   expect(portfolioEntryStyles).toContain(
     "animation: content-enter 260ms var(--ease-out) var(--stagger-delay, 0ms) both;",
   );
@@ -61,12 +63,12 @@ test("staggers Timeline and Work content without animating keyboard navigation",
 
 test("renders the current-location map in the name tab", () => {
   expect(page).toContain('import Map from "$lib/components/ui/map.svelte";');
-  expect(page).toContain("<Map animate={animateContent} />");
+  expect(page).toContain("<Map animate={animateMap} />");
   expect(page).toContain('hidden={activeTab !== "name"}');
   expect(page).not.toContain("location-map.svelte");
 });
 
 test("places the introduction directly after the map", () => {
   expect(page).toContain('import About from "$lib/components/about.svelte";');
-  expect(page).toContain("<Map animate={animateContent} />\n\t\t\t<About />");
+  expect(page).toContain("<Map animate={animateMap} />\n\t\t\t<About />");
 });
