@@ -2,6 +2,12 @@
   padding-top: clamp(3rem, 7vh, 4.25rem);
 }
 
+/*
+ * Keyframe (not a transition) because the entrance must re-run when switching
+ * between Timeline and Work, which reuse the same nodes. The {#each} is keyed on
+ * activeTab so items remount and the keyframe fires; a transition + @starting-style
+ * can't re-fire on reused nodes. At this scale (~30 text nodes) the remount is free.
+ */
 .animate-content .stagger-item {
   animation: content-enter 260ms var(--ease-out) var(--stagger-delay, 0ms) both;
 }
