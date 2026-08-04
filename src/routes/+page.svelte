@@ -4,7 +4,7 @@ import About from "$lib/components/about.svelte";
 import Map from "$lib/components/ui/map.svelte";
 import { experiences } from "$lib/constants/experiences";
 import { projects } from "$lib/constants/projects";
-import "./portfolio-entries.css";
+import "$lib/styles/entries.css";
 
 type Tab = "name" | "timeline" | "work";
 
@@ -167,10 +167,6 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 		font-display: block;
 		font-style: normal;
 		font-weight: 400;
-	}
-
-	:global(:root) {
-		--ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 	}
 
 	:global(body) {

@@ -2,8 +2,8 @@
 import { expect, test } from "bun:test";
 
 const page = await Bun.file(new URL("../../src/routes/+page.svelte", import.meta.url)).text();
-const portfolioEntryStyles = await Bun.file(
-  new URL("../../src/routes/portfolio-entries.css", import.meta.url),
+const entryStyles = await Bun.file(
+  new URL("../../src/lib/styles/entries.css", import.meta.url),
 ).text();
 
 test("renders the Ndot Hanzi name inline in the header", () => {
@@ -43,7 +43,7 @@ test("removes the Connect section without leaving stale route styles", () => {
 
 test("staggers Timeline and Work content without animating keyboard navigation", () => {
   expect(page).not.toContain("PortfolioPanel");
-  expect(page).toContain('import "./portfolio-entries.css";');
+  expect(page).toContain('import "$lib/styles/entries.css";');
   expect(page).toContain('activeTab === "timeline" ? timelineEntries');
   expect(page).toContain('activeTab === "work" ? workEntries : []');
   expect(page).toContain(
@@ -53,12 +53,12 @@ test("staggers Timeline and Work content without animating keyboard navigation",
   expect(page).toContain("animateContent = firstVisit");
   expect(page).toContain("function staggerDelay(entryIndex: number, itemIndex: number)");
   expect(page).toContain("Math.min(entryIndex * 55, 180) + itemIndex * 28");
-  expect(portfolioEntryStyles).toContain(
+  expect(entryStyles).toContain(
     "animation: content-enter 260ms var(--ease-out) var(--stagger-delay, 0ms) both;",
   );
-  expect(portfolioEntryStyles).toContain("transform: translateY(0.45rem)");
-  expect(portfolioEntryStyles).toContain("@media (prefers-reduced-motion: reduce)");
-  expect(portfolioEntryStyles).toContain("animation: none");
+  expect(entryStyles).toContain("transform: translateY(0.45rem)");
+  expect(entryStyles).toContain("@media (prefers-reduced-motion: reduce)");
+  expect(entryStyles).toContain("animation: none");
 });
 
 test("renders the current-location map in the name tab", () => {

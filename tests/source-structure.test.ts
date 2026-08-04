@@ -89,6 +89,7 @@ test("keeps map behavior in hooks and substantial component CSS in styles", asyn
     "src/lib/styles/about.css",
     "src/lib/styles/badge.css",
     "src/lib/styles/button.css",
+    "src/lib/styles/entries.css",
     "src/lib/styles/map.css",
   ];
 
