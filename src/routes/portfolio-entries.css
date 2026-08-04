@@ -82,6 +82,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /*
+   * Dropping the animation is safe ONLY because .stagger-item has no base
+   * opacity/transform of its own, so it falls back to opacity:1. Do not add
+   * opacity:0 to the base .stagger-item rule, or reduced-motion users get
+   * invisible content. The from-state lives in the keyframe on purpose.
+   */
   .animate-content .stagger-item {
     animation: none;
   }
