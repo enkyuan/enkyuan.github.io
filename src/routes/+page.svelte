@@ -18,20 +18,27 @@ const workEntries = projects.map(({ name, ...entry }) => ({ title: name, ...entr
 
 let activeTab = $state<Tab>("name");
 let suppressTransition = $state(false);
-let animateContent = $state(true);
+// Panels animate their staged entrance only the first time they're shown; revisits are instant.
+const entered = new Set<Tab>(["name"]);
+let animateContent = $state(false);
+let animateMap = $state(true);
 let tabButtons: HTMLButtonElement[] = [];
 let activeEntries = $derived(
 	activeTab === "timeline" ? timelineEntries : activeTab === "work" ? workEntries : [],
 );
 
 function staggerDelay(entryIndex: number, itemIndex: number) {
-	return Math.min(entryIndex * 70 + itemIndex * 35, 280);
+	// Cap the per-entry base, not the total, so item order never collides on later entries.
+	return Math.min(entryIndex * 55, 180) + itemIndex * 28;
 }
 
 async function selectTab(tab: Tab, fromKeyboard = false) {
 	if (tab === activeTab) return;
 	suppressTransition = fromKeyboard;
-	animateContent = !fromKeyboard;
+	const firstVisit = !entered.has(tab);
+	entered.add(tab);
+	animateContent = firstVisit;
+	animateMap = firstVisit;
 	activeTab = tab;
 	await tick();
 	if (fromKeyboard) {
@@ -94,7 +101,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 			aria-labelledby="name-tab"
 			hidden={activeTab !== "name"}
 		>
-			<Map animate={animateContent} />
+			<Map animate={animateMap} />
 			<About />
 		</div>
 
