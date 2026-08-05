@@ -34,3 +34,8 @@ test("preserves conventional search indexing", () => {
   expect(robots).toContain("User-agent: Bingbot\nAllow: /");
   expect(robots).not.toContain("User-agent: *\nDisallow: /\n");
 });
+
+test("points at the sitemap on the production domain", () => {
+  expect(robots).toContain("Sitemap: https://enkyuan.me/sitemap.xml");
+  expect(robots).not.toContain("enkyuan.github.io");
+});

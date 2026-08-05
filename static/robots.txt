@@ -7,6 +7,7 @@ Disallow: /draft/
 Disallow: /temp/
 Disallow: /*.json$
 Disallow: /*.xml$
+Allow: /sitemap.xml
 Disallow: /*?*
 
 # OpenAI: training, search, and user-directed retrieval
@@ -72,4 +73,4 @@ Allow: /
 Crawl-delay: 10
 
 # Sitemap location
-Sitemap: https://enkyuan.github.io/sitemap.xml
+Sitemap: https://enkyuan.me/sitemap.xml
