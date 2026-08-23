@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: actions / deploy
 
 on:
   push:
@@ -9,17 +9,17 @@ jobs:
   build_site:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: checkout
         uses: actions/checkout@v4
 
       # Install Bun
-      - name: Setup Bun
+      - name: setup bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest # you can pin a specific version here, e.g. "1.4.9" :contentReference[oaicite:0]{index=0}
 
       # Cache Bun’s dependencies
-      - name: Cache Bun cache
+      - name: cache bun deps
         uses: actions/cache@v3
         with:
           path: |
@@ -27,15 +27,15 @@ jobs:
             bun.lockb
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lockb') }}
 
-      - name: Install dependencies
+      - name: install deps
         run: bun install
 
-      - name: Build
+      - name: build
         env:
           BASE_PATH: "/${{ github.event.repository.name }}"
         run: bun run build
 
-      - name: Upload Artifacts
+      - name: upload artifacts
         uses: actions/upload-pages-artifact@v3
         with:
           path: build/
@@ -51,6 +51,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Deploy
+      - name: deploy
         id: deployment
         uses: actions/deploy-pages@v4

@@ -1,4 +1,4 @@
-name: CI
+name: actions / ci
 
 on:
   push:
@@ -11,19 +11,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: checkout
         uses: actions/checkout@v4
 
-      - name: Install Bun
+      - name: install bun
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
 
-      - name: Install dependencies
+      - name: install deps
         run: bun install
 
-      - name: Run Lint
+      - name: lint
         run: bun run lint
 
-      - name: Check Formatting
+      - name: format
         run: bun run check:format
