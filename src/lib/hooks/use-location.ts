@@ -211,6 +211,36 @@ async function reverseGeocode(latitude: number, longitude: number) {
   }
 }
 
+/**
+ * Derives a precision factor in [0, 1] from GPS accuracy and geocoded admin level.
+ *
+ * 0 = pinpoint (small cluster) · 1 = country-level (large cluster)
+ *
+ * GPS accuracy is log-scaled from 30 m (0.0) to 50 km (1.0).
+ * Admin-level corrections:
+ *   - City / District resolved  → −0.20 (tighten cluster)
+ *   - Region / Territory only   →  0.00 (neutral)
+ *   - Country only              → +0.15 (broaden cluster)
+ */
+function resolveClusterPrecision(
+  accuracyMeters: number,
+  geocodeResult?: ReverseGeocodeResult,
+): number {
+  const LOG_MIN = Math.log10(30);
+  const LOG_MAX = Math.log10(50_000);
+  const accuracyFactor = Math.max(
+    0,
+    Math.min(1, (Math.log10(Math.max(accuracyMeters, 30)) - LOG_MIN) / (LOG_MAX - LOG_MIN)),
+  );
+
+  const address = geocodeResult?.address;
+  const hasCity = Boolean(address?.City?.trim() || address?.District?.trim());
+  const hasRegion = Boolean(address?.Region?.trim() || address?.Territory?.trim());
+  const adminCorrection = hasCity ? -0.2 : hasRegion ? 0.0 : 0.15;
+
+  return Math.max(0, Math.min(1, accuracyFactor + adminCorrection));
+}
+
 export function useLocation(
   cells: readonly MapCell[],
   shouldAnimate: () => boolean,
@@ -352,9 +382,11 @@ export function useLocation(
       const position = await requestCurrentPosition(navigator.geolocation);
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
-      const cluster = findLocationCluster(cells, latitude, longitude);
+      const accuracy = position.coords.accuracy;
       const resolved = await reverseGeocode(latitude, longitude).catch(() => undefined);
       const place = resolved ? formatGeocodedPlace(resolved) : "Current location";
+      const precisionFactor = resolveClusterPrecision(accuracy, resolved);
+      const cluster = findLocationCluster(cells, latitude, longitude, { precisionFactor });
 
       await updateLocationState((current) => ({
         ...current,

@@ -138,17 +138,21 @@ function findLandNeighborhood(cells: readonly MapCell[], anchor: MapCell) {
   return neighborhood;
 }
 
-function adaptiveClusterSize(neighborhood: readonly MapCell[]) {
+function adaptiveClusterSize(neighborhood: readonly MapCell[], precisionFactor = 1) {
   const equalAreaCellCount = neighborhood.reduce(
     (total, cell) => total + Math.max(Math.cos((cell.latitude * Math.PI) / 180), 0),
     0,
   );
-  const calculatedSize = Math.round(MIN_LOCATION_CLUSTER_SIZE + Math.sqrt(equalAreaCellCount));
-
-  return Math.min(
-    neighborhood.length,
-    Math.max(MIN_LOCATION_CLUSTER_SIZE, Math.min(calculatedSize, MAX_LOCATION_CLUSTER_SIZE)),
+  const geographicSize = Math.round(MIN_LOCATION_CLUSTER_SIZE + Math.sqrt(equalAreaCellCount));
+  const clampedMax = Math.max(
+    MIN_LOCATION_CLUSTER_SIZE,
+    Math.min(geographicSize, MAX_LOCATION_CLUSTER_SIZE),
   );
+  const size = Math.round(
+    MIN_LOCATION_CLUSTER_SIZE + precisionFactor * (clampedMax - MIN_LOCATION_CLUSTER_SIZE),
+  );
+
+  return Math.min(neighborhood.length, Math.max(MIN_LOCATION_CLUSTER_SIZE, size));
 }
 
 export function createWorldGrid(): MapCell[] {
@@ -222,7 +226,7 @@ export function findLocationCluster(
   cells: readonly MapCell[],
   latitude: number,
   longitude: number,
-  count?: number,
+  options?: { count?: number; precisionFactor?: number },
 ) {
   const projectedLocation = projectLocation(latitude, longitude);
   const sortedCells = [...cells].sort(
@@ -234,7 +238,7 @@ export function findLocationCluster(
   if (!anchor) return [];
 
   const neighborhood = findLandNeighborhood(cells, anchor);
-  const clusterSize = count ?? adaptiveClusterSize(neighborhood);
+  const clusterSize = options?.count ?? adaptiveClusterSize(neighborhood, options?.precisionFactor);
 
   return neighborhood
     .sort(
