@@ -37,7 +37,7 @@
 			$location.longitude !== undefined,
 	);
 	const canRetryLocation = $derived(
-		$location.state === "error" && $location.failure?.retryable === true,
+		$location.failure?.retryable === true,
 	);
 	const locationCells = $derived(
 		$location.highlightedCells.flatMap((id, index) => {
@@ -131,6 +131,7 @@
 								<Flags countryCode={$location.countryCode} />
 								<div class="pill-copy">
 									<h1 id="location-title">{$location.place}</h1>
+                                {#if $location.failure}<p class="state-hint">{$location.failure.hint}</p>{/if}
 									<p class="coordinates">
 										{formatCoordinate($location.latitude, "N", "S", 3)} · {formatCoordinate($location.longitude, "E", "W", 3)}
 									</p>

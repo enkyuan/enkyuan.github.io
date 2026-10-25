@@ -15,7 +15,8 @@
     "lint": "oxlint ."
   },
   "dependencies": {
-    "@fontsource/geist": "^5.2.6"
+    "@fontsource/geist": "^5.2.6",
+    "country-flag-icons": "^1.6.20"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.8",

@@ -2,8 +2,21 @@ import { onMount, tick } from "svelte";
 import { get, writable } from "svelte/store";
 import { createLocationGradient, findLocationCluster, type MapCell } from "$lib/hooks/use-map";
 
+import {
+  formatGeocodedCountryCode,
+  formatGeocodedPlace,
+  reverseGeocode,
+  type ReverseGeocodeResult,
+} from "./geocoding";
+export { formatGeocodedCountryCode, formatGeocodedPlace, reverseGeocode } from "./geocoding";
+
 type LocationState = "locating" | "located" | "error";
-type LocationFailureKind = "permission-denied" | "position-unavailable" | "timeout" | "unsupported";
+type LocationFailureKind =
+  | "permission-denied"
+  | "position-unavailable"
+  | "timeout"
+  | "unsupported"
+  | "geocoding";
 
 export type LocationFailure = {
   kind: LocationFailureKind;
@@ -30,39 +43,6 @@ type Location = {
   statusMessage: string;
 };
 
-export type ReverseGeocodeResult = {
-  address?: {
-    City?: string;
-    District?: string;
-    Region?: string;
-    RegionAbbr?: string;
-    Territory?: string;
-    CntryName?: string;
-    CountryCode?: string;
-  };
-  error?: {
-    code?: number;
-    message?: string;
-  };
-};
-
-const ABBREVIATED_SUBDIVISION_COUNTRIES = new Set(["AUS", "BRA", "CAN", "MEX", "USA"]);
-const COUNTRY_CODE_FALLBACKS: Readonly<Record<string, string>> = {
-  AUS: "AU",
-  BRA: "BR",
-  CAN: "CA",
-  CHN: "CN",
-  DEU: "DE",
-  ESP: "ES",
-  FRA: "FR",
-  GBR: "GB",
-  IND: "IN",
-  JPN: "JP",
-  KOR: "KR",
-  MEX: "MX",
-  SGP: "SG",
-  USA: "US",
-};
 const GEOLOCATION_ERROR_CODES = {
   permissionDenied: 1,
   positionUnavailable: 2,
@@ -80,7 +60,6 @@ const UNSUPPORTED_LOCATION_FAILURE: LocationFailure = {
   retryable: false,
   statusMessage: "Location is not available in this browser.",
 };
-let countryCodesByName: Map<string, string> | undefined;
 
 export function describeGeolocationError(error: unknown): LocationFailure {
   const code =
@@ -92,10 +71,10 @@ export function describeGeolocationError(error: unknown): LocationFailure {
     return {
       kind: "permission-denied",
       title: "Location access blocked",
-      hint: "Allow it in browser settings",
-      retryable: false,
+      hint: "Allow access in settings, then tap to retry",
+      retryable: true,
       statusMessage:
-        "Location access is blocked. Allow location access in your browser settings, then reload the page.",
+        "Location access is blocked. Allow location access in your browser settings, then try again.",
     };
   }
 
@@ -122,93 +101,6 @@ export function requestCurrentPosition(geolocation: Pick<Geolocation, "getCurren
   return new Promise<GeolocationPosition>((resolve, reject) => {
     geolocation.getCurrentPosition(resolve, reject, GEOLOCATION_OPTIONS);
   });
-}
-
-function normalizeCountryName(value: string) {
-  return value
-    .normalize("NFKD")
-    .replace(/\p{Diacritic}/gu, "")
-    .replace(/[^a-z0-9]+/gi, " ")
-    .trim()
-    .toLowerCase();
-}
-
-function getCountryCodesByName() {
-  if (countryCodesByName) return countryCodesByName;
-
-  const codes = new Map<string, string>();
-  if (typeof Intl.DisplayNames === "function") {
-    const displayNames = new Intl.DisplayNames(["en"], { type: "region" });
-
-    for (let first = 65; first <= 90; first += 1) {
-      for (let second = 65; second <= 90; second += 1) {
-        const code = String.fromCharCode(first, second);
-        const name = displayNames.of(code);
-        if (name && name !== code && name !== "Unknown Region") {
-          codes.set(normalizeCountryName(name), code);
-        }
-      }
-    }
-  }
-
-  countryCodesByName = codes;
-  return codes;
-}
-
-export function formatGeocodedCountryCode(result: ReverseGeocodeResult) {
-  const sourceCode = result.address?.CountryCode?.trim().toUpperCase() ?? "";
-  if (/^[A-Z]{2}$/.test(sourceCode)) return sourceCode;
-
-  const countryName = result.address?.CntryName?.trim();
-  if (countryName) {
-    const resolvedCode = getCountryCodesByName().get(normalizeCountryName(countryName));
-    if (resolvedCode) return resolvedCode;
-  }
-
-  return COUNTRY_CODE_FALLBACKS[sourceCode] ?? "";
-}
-
-export function formatGeocodedPlace(result: ReverseGeocodeResult) {
-  const address = result.address;
-  const countryCode = address?.CountryCode?.toUpperCase() ?? "";
-  const city = address?.City?.trim() || address?.District?.trim();
-  const subdivisionName = address?.Region?.trim() || address?.Territory?.trim();
-  const subdivisionCode = address?.RegionAbbr?.trim();
-  const subdivision =
-    ABBREVIATED_SUBDIVISION_COUNTRIES.has(countryCode) && subdivisionCode
-      ? subdivisionCode
-      : subdivisionName;
-
-  if (!city) return subdivision || address?.CntryName?.trim() || "Current location";
-  if (!subdivision || city.localeCompare(subdivision, undefined, { sensitivity: "accent" }) === 0)
-    return city;
-  return `${city}, ${subdivision}`;
-}
-
-async function reverseGeocode(latitude: number, longitude: number) {
-  const query = new URLSearchParams({
-    location: `${longitude},${latitude}`,
-    featureTypes: "Locality",
-    langCode: "en",
-    f: "json",
-  });
-  const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), 6000);
-
-  try {
-    const response = await fetch(
-      `https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode?${query}`,
-      { signal: controller.signal },
-    );
-    if (!response.ok) throw new Error(`Reverse geocoding failed with ${response.status}`);
-    const result = (await response.json()) as ReverseGeocodeResult;
-    if (result.error || !result.address) {
-      throw new Error(result.error?.message ?? "Reverse geocoding returned no locality");
-    }
-    return result;
-  } finally {
-    window.clearTimeout(timeout);
-  }
 }
 
 /**
@@ -254,6 +146,7 @@ export function useLocation(
     highlightedCellColors: new Map(),
     statusMessage: "Finding your spot on the map.",
   });
+  let inFlight = false;
   let prefersReducedMotion = false;
   let sharedPillAnimation: Animation | undefined;
 
@@ -276,80 +169,87 @@ export function useLocation(
     const applyUpdate = () => location.set(nextLocation);
     const staysAtBottom = currentLocation.state !== "located" && nextLocation.state !== "located";
     const viewTransitionDocument = document as ViewTransitionDocument;
-    if (!shouldAnimate() || prefersReducedMotion) {
-      applyUpdate();
-      await tick();
-      return;
-    }
+    try {
+      if (!shouldAnimate() || prefersReducedMotion) {
+        applyUpdate();
+        await tick();
+        return;
+      }
 
-    if (staysAtBottom) {
+      if (staysAtBottom) {
+        const sharedPill = getSharedPill();
+        const firstRect = sharedPill?.getBoundingClientRect();
+        applyUpdate();
+        await tick();
+        const lastRect = sharedPill?.getBoundingClientRect();
+        if (!sharedPill || !firstRect || !lastRect || lastRect.width === 0) return;
+
+        sharedPillAnimation?.cancel();
+        sharedPillAnimation = sharedPill.animate(
+          [
+            {
+              opacity: 0.82,
+              filter: "blur(2px)",
+              transform: `scaleX(${firstRect.width / lastRect.width})`,
+              transformOrigin: "center bottom",
+            },
+            {
+              opacity: 1,
+              filter: "blur(0)",
+              transform: "scaleX(1)",
+              transformOrigin: "center bottom",
+            },
+          ],
+          {
+            duration: 240,
+            easing: "cubic-bezier(0.77, 0, 0.175, 1)",
+            fill: "both",
+          },
+        );
+        await sharedPillAnimation.finished.catch(() => undefined);
+        return;
+      }
+
+      if (viewTransitionDocument.startViewTransition) {
+        const transition = viewTransitionDocument.startViewTransition(async () => {
+          applyUpdate();
+          await tick();
+        });
+        await transition.finished.catch(() => undefined);
+        return;
+      }
+
       const sharedPill = getSharedPill();
       const firstRect = sharedPill?.getBoundingClientRect();
       applyUpdate();
       await tick();
       const lastRect = sharedPill?.getBoundingClientRect();
-      if (!sharedPill || !firstRect || !lastRect || lastRect.width === 0) return;
+      if (!sharedPill || !firstRect || !lastRect || lastRect.width === 0 || lastRect.height === 0)
+        return;
 
       sharedPillAnimation?.cancel();
       sharedPillAnimation = sharedPill.animate(
         [
           {
-            opacity: 0.82,
-            filter: "blur(2px)",
-            transform: `scaleX(${firstRect.width / lastRect.width})`,
-            transformOrigin: "center bottom",
+            opacity: 0.86,
+            filter: "blur(4px)",
+            transform: `translate(${firstRect.left - lastRect.left}px, ${firstRect.top - lastRect.top}px) scale(${firstRect.width / lastRect.width}, ${firstRect.height / lastRect.height})`,
           },
-          {
-            opacity: 1,
-            filter: "blur(0)",
-            transform: "scaleX(1)",
-            transformOrigin: "center bottom",
-          },
+          { opacity: 1, filter: "blur(0)", transform: "translate(0, 0) scale(1)" },
         ],
         {
-          duration: 240,
-          easing: "cubic-bezier(0.77, 0, 0.175, 1)",
+          duration: 280,
+          easing: "cubic-bezier(0.32, 0.72, 0, 1)",
           fill: "both",
         },
       );
       await sharedPillAnimation.finished.catch(() => undefined);
-      return;
+    } catch {
+      // Optional browser animation support must never turn valid coordinates
+      // into a geolocation error. The state update is safe to apply again.
+      applyUpdate();
+      await tick();
     }
-
-    if (viewTransitionDocument.startViewTransition) {
-      const transition = viewTransitionDocument.startViewTransition(async () => {
-        applyUpdate();
-        await tick();
-      });
-      await transition.finished.catch(() => undefined);
-      return;
-    }
-
-    const sharedPill = getSharedPill();
-    const firstRect = sharedPill?.getBoundingClientRect();
-    applyUpdate();
-    await tick();
-    const lastRect = sharedPill?.getBoundingClientRect();
-    if (!sharedPill || !firstRect || !lastRect || lastRect.width === 0 || lastRect.height === 0)
-      return;
-
-    sharedPillAnimation?.cancel();
-    sharedPillAnimation = sharedPill.animate(
-      [
-        {
-          opacity: 0.86,
-          filter: "blur(4px)",
-          transform: `translate(${firstRect.left - lastRect.left}px, ${firstRect.top - lastRect.top}px) scale(${firstRect.width / lastRect.width}, ${firstRect.height / lastRect.height})`,
-        },
-        { opacity: 1, filter: "blur(0)", transform: "translate(0, 0) scale(1)" },
-      ],
-      {
-        duration: 280,
-        easing: "cubic-bezier(0.32, 0.72, 0, 1)",
-        fill: "both",
-      },
-    );
-    await sharedPillAnimation.finished.catch(() => undefined);
   }
 
   async function locate() {
@@ -363,20 +263,16 @@ export function useLocation(
       return;
     }
 
-    if (get(location).state === "locating") {
-      location.update((current) => ({
-        ...current,
-        failure: undefined,
-        statusMessage: "Finding your spot on the map.",
-      }));
-    } else {
-      await updateLocationState((current) => ({
-        ...current,
-        state: "locating",
-        failure: undefined,
-        statusMessage: "Finding your spot on the map.",
-      }));
-    }
+    if (inFlight) return;
+    inFlight = true;
+    // Keep the browser request in the click's user-activation task. Awaiting
+    // a badge animation first can lose that activation on permission retries.
+    location.update((current) => ({
+      ...current,
+      state: "locating",
+      failure: undefined,
+      statusMessage: "Finding your spot on the map.",
+    }));
 
     try {
       const position = await requestCurrentPosition(navigator.geolocation);
@@ -388,6 +284,7 @@ export function useLocation(
       const precisionFactor = resolveClusterPrecision(accuracy, resolved);
       const cluster = findLocationCluster(cells, latitude, longitude, { precisionFactor });
 
+      inFlight = false;
       await updateLocationState((current) => ({
         ...current,
         latitude,
@@ -397,11 +294,22 @@ export function useLocation(
         highlightedCells: cluster,
         highlightedCellColors: createLocationGradient(cells, cluster),
         state: "located",
-        failure: undefined,
-        statusMessage: `Current location found near ${place}.`,
+        failure: resolved
+          ? undefined
+          : {
+              kind: "geocoding",
+              title: "Place name unavailable",
+              hint: "Tap to retry the place name",
+              retryable: true,
+              statusMessage: "Coordinates found. Place name unavailable. Tap to retry.",
+            },
+        statusMessage: resolved
+          ? `Current location found near ${place}.`
+          : "Coordinates found. Place name unavailable. Tap to retry.",
       }));
     } catch (error) {
       const failure = describeGeolocationError(error);
+      inFlight = false;
       await updateLocationState((current) => ({
         ...current,
         state: "error",

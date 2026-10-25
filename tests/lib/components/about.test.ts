@@ -57,7 +57,7 @@ test("uses one rounded type system and a readable map-note measure", () => {
     '".SF NS Rounded", "SF Pro Rounded", "Portfolio Rounded", sans-serif;',
   );
   expect(aboutStyles.match(/font-family: var\(--font-about-rounded\);/g)).toHaveLength(3);
-  expect(aboutStyles).toContain("max-width: 58ch;");
+  expect(aboutStyles).toContain("max-width: none;");
   expect(aboutStyles).toContain("text-wrap: pretty;");
   expect(aboutStyles).toContain("font-size: 0.8125rem;");
   expect(aboutStyles).toContain("line-height: 1.55;");
