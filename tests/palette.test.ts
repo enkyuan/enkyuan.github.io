@@ -79,7 +79,7 @@ test("keeps the authored palette in sRGB and text contrast safe through gradient
     }
   }
   expect(
-    contrast(declaration(badge, "color"), declaration(badge, "background")),
+    contrast(declaration(badge, "color"), declaration(badge, "--surface-fill")),
   ).toBeGreaterThanOrEqual(4.5);
   expect(contrast(declaration(page, "color"), white)).toBeGreaterThanOrEqual(4.5);
 });

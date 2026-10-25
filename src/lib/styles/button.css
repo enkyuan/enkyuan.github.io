@@ -1,13 +1,15 @@
 .btn {
+  --surface-radius: 14;
+  --surface-fill: oklch(0.46 0 0);
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5em;
   border: none;
-  border-radius: 9999px;
+  border-radius: 14px;
   outline: none;
-  background: oklch(0.46 0 0);
+  background: var(--surface-fill);
   font-family: var(--font-body);
   font-weight: 500;
   text-decoration: none;
@@ -37,48 +39,61 @@
 
 .btn.primary {
   border: 1.5px solid oklch(0.9 0 0);
-  background: oklch(0.9 0 0 / 0.7);
+  --surface-fill: oklch(0.9 0 0 / 0.7);
+  --surface-border: oklch(0.9 0 0);
+  --surface-border-width: 1.5px;
+  background: var(--surface-fill);
   color: oklch(0 0 0);
 }
 
 .btn.primary:hover:not(.disabled) {
-  background: oklch(0.9 0 0 / 0.85);
+  --surface-fill: oklch(0.9 0 0 / 0.85);
+  background: var(--surface-fill);
   filter: brightness(0.95);
 }
 
 .btn.secondary {
-  background: var(--gray1);
+  --surface-fill: var(--gray1);
+  background: var(--surface-fill);
   color: var(--fg);
 }
 
 .btn.secondary:hover:not(.disabled) {
-  background: var(--gray2);
+  --surface-fill: var(--gray2);
+  background: var(--surface-fill);
 }
 
 .btn.outline {
+  --surface-border: var(--blue-type);
+  --surface-border-width: 1.5px;
   border: 1.5px solid var(--blue-type);
-  background: transparent;
+  --surface-fill: transparent;
+  background: var(--surface-fill);
   color: var(--fg);
 }
 
 .btn.outline:hover:not(.disabled) {
-  background: var(--blue-type);
+  --surface-fill: var(--blue-type);
+  background: var(--surface-fill);
   color: var(--white);
 }
 
 .btn.ghost {
-  background: transparent;
+  --surface-fill: transparent;
+  background: var(--surface-fill);
   color: var(--fg);
 }
 
 .btn.ghost:hover:not(.disabled) {
-  background: var(--visual-select-bg);
+  --surface-fill: var(--visual-select-bg);
+  background: var(--surface-fill);
 }
 
 .btn.link {
   border: none;
   padding: 0;
-  background: none;
+  --surface-fill: transparent;
+  background: var(--surface-fill);
   color: var(--blue-type);
   text-decoration: underline;
 }
@@ -88,15 +103,18 @@
 }
 
 .btn.destructive {
-  background: var(--red-err);
+  --surface-fill: var(--red-err);
+  background: var(--surface-fill);
   color: var(--white);
 }
 
 .btn.destructive:hover:not(.disabled) {
-  background: var(--red-key-w);
+  --surface-fill: var(--red-key-w);
+  background: var(--surface-fill);
 }
 
 .btn.sm {
+  --surface-radius: 10;
   min-height: 32px;
   padding: 0.3em 0.8em;
   font-size: 0.92em;
@@ -109,6 +127,7 @@
 }
 
 .btn.lg {
+  --surface-radius: 16;
   min-height: 48px;
   padding: 0.7em 1.6em;
   font-size: 1.12em;

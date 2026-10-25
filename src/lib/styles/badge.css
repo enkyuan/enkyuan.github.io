@@ -1,4 +1,9 @@
 .badge {
+  --surface-radius: 18;
+  --surface-fill: oklch(0 0 0);
+  --surface-shadow: drop-shadow(0 1px 2px oklch(0 0 0 / 0.18))
+    drop-shadow(0 5px 12px oklch(0 0 0 / 0.12));
+  position: relative;
   box-sizing: border-box;
   display: inline-flex;
   width: fit-content;
@@ -7,9 +12,9 @@
   align-items: center;
   gap: 10px;
   border: 0;
-  border-radius: 999px;
+  border-radius: 18px;
   padding: 10px 16px 10px 10px;
-  background: oklch(0 0 0);
+  background: var(--surface-fill);
   box-shadow:
     0 1px 2px oklch(0 0 0 / 0.18),
     0 5px 12px oklch(0 0 0 / 0.12);
@@ -38,7 +43,9 @@ button.badge:focus-visible {
 
 @media (hover: hover) and (pointer: fine) {
   button.badge:hover:not(:disabled) {
-    background: oklch(0.16 0 0);
+    --surface-fill: oklch(0.16 0 0);
+    --surface-shadow: drop-shadow(0 2px 4px oklch(0 0 0 / 0.18))
+      drop-shadow(0 8px 18px oklch(0 0 0 / 0.14));
     box-shadow:
       0 2px 4px oklch(0 0 0 / 0.18),
       0 8px 18px oklch(0 0 0 / 0.14);

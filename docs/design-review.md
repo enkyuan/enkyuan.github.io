@@ -3,6 +3,12 @@
 Mode: full for the changed location, flag, badge, palette and shimmer surfaces.
 Svelte 5 with existing plain CSS and native WAAPI; no new motion library.
 
+## Continuous corners
+
+Badges (including loading/error status surfaces) and reusable buttons use the community `figma-squircle` utility with 60% corner smoothing. Badge radius is 18px; button radii are 10/14/16px by size. The SVG surface resizes with its parent without clipping text, shadows, or focus. The focus contour shares the parent center and expands its radius by the same 3px as its outward inset. Non-JavaScript rendering retains a rounded-rectangle fallback. Dot-matrix flags and circular activity indicators retain their semantic geometry.
+
+Chromium checks covered mobile error and located states, resizing, and the error-page button. Measured surface/parent center differences were zero on both axes; the mobile badge retained its 24px bottom gap. Keyboard focus uses the matching SVG contour. Native Safari/Firefox remain unverified.
+
 | Category    | Evidence inspected                         | Result                                                                     |
 | ----------- | ------------------------------------------ | -------------------------------------------------------------------------- |
 | Typography  | Page, map and about styles                 | Stable coordinate numerals; readable contrast                              |

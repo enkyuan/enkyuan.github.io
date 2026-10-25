@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "@fontsource/geist": "^5.2.6",
-    "country-flag-icons": "^1.6.20"
+    "country-flag-icons": "^1.6.20",
+    "figma-squircle": "^1.1.0"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.8",

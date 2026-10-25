@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from "svelte";
+	import { squircle } from "$lib/actions/squircle";
 	import "$lib/styles/badge.css";
 
 	let {
@@ -23,6 +24,7 @@
 
 {#if onclick}
 	<button
+		use:squircle
 		class="badge {className}"
 		type="button"
 		{onclick}
@@ -34,7 +36,7 @@
 		{@render children()}
 	</button>
 {:else}
-	<div class="badge {className}" aria-live={ariaLive}>
+	<div use:squircle class="badge {className}" aria-live={ariaLive}>
 		{@render children()}
 	</div>
 {/if}
