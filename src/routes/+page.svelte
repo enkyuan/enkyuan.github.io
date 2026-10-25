@@ -174,7 +174,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 		min-height: 100vh;
 		height: auto;
 		background: oklch(1 0 0);
-		color: oklch(0.213 0.008 264.379);
+		color: oklch(0.2 0 0);
 	}
 
 	:global(button),
@@ -212,7 +212,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 		border: 0;
 		padding: 0;
 		background: transparent;
-		color: oklch(0.213 0.008 264.379 / 0.48);
+		color: oklch(0.46 0 0);
 		font-size: 1rem;
 		font-weight: 400;
 		letter-spacing: -0.018em;
@@ -224,7 +224,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 
 	.tab-list button.active,
 	.tab-list button:focus-visible {
-		color: oklch(0.213 0.008 264.379);
+		color: oklch(0.2 0 0);
 	}
 
 	.tab-list button:focus-visible {
@@ -245,11 +245,11 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 	.hanzi-name {
 		display: block;
 		background: linear-gradient(
-			145deg,
-			oklch(0.151 0.03 261.872) 2%,
-			oklch(0.373 0.13 262.31) 52%,
-			oklch(0.702 0.088 253.74) 82%,
-			oklch(0.922 0.016 239.116) 100%
+			145deg in oklab,
+			oklch(0.345 0.159 262.398) 2%,
+			oklch(0.445 0.205 262.398) 52%,
+			oklch(0.495 0.229 262.398) 82%,
+			oklch(0.495 0.229 262.398) 100%
 		);
 		background-clip: text;
 		color: transparent;
@@ -264,7 +264,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 	}
 
 	.tab-list .identity-tab:focus-visible {
-		outline-color: oklch(0.373 0.13 262.31);
+		outline-color: oklch(0.445 0.205 262.398);
 	}
 
 	.secondary-tab {
@@ -292,7 +292,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 
 	@media (hover: hover) and (pointer: fine) {
 		.tab-list button:hover {
-			color: oklch(0.213 0.008 264.379);
+			color: oklch(0.2 0 0);
 		}
 	}
 

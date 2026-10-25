@@ -280,7 +280,7 @@
         width: var(--dot-size);
         height: var(--dot-size);
         border-radius: 50%;
-        background: oklch(0.967 0.003 264.542);
+        background: oklch(0.97 0 0);
         flex-shrink: 0;
     }
 

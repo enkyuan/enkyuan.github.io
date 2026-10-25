@@ -9,11 +9,11 @@
   border: 0;
   border-radius: 999px;
   padding: 10px 16px 10px 10px;
-  background: oklch(0.185 0.005 248.107);
+  background: oklch(0 0 0);
   box-shadow:
-    0 1px 2px oklch(0.151 0.03 261.872 / 0.18),
-    0 5px 12px oklch(0.151 0.03 261.872 / 0.12);
-  color: oklch(0.979 0.003 264.542);
+    0 1px 2px oklch(0 0 0 / 0.18),
+    0 5px 12px oklch(0 0 0 / 0.12);
+  color: oklch(1 0 0);
   font: inherit;
   text-align: left;
 }
@@ -32,21 +32,22 @@ button.badge:disabled {
 }
 
 button.badge:focus-visible {
-  outline: 2px solid oklch(0.185 0.005 248.107 / 0.34);
+  outline: 2px solid oklch(0.545 0.244 262.398);
   outline-offset: 3px;
 }
 
 @media (hover: hover) and (pointer: fine) {
   button.badge:hover:not(:disabled) {
-    background: oklch(0.22 0.007 248.165);
+    background: oklch(0.16 0 0);
     box-shadow:
-      0 2px 4px oklch(0.151 0.03 261.872 / 0.18),
-      0 8px 18px oklch(0.151 0.03 261.872 / 0.14);
+      0 2px 4px oklch(0 0 0 / 0.18),
+      0 8px 18px oklch(0 0 0 / 0.14);
     transform: translateY(-1px);
   }
 }
 
 button.badge:active:not(:disabled) {
+  transition-duration: 100ms;
   transform: scale(0.96);
 }
 

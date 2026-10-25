@@ -17,7 +17,7 @@
 }
 
 .map-land-wave {
-  fill: oklch(0.931 0.003 264.541);
+  fill: oklch(0.88 0 0);
   transform-box: fill-box;
   transform-origin: center;
 }
@@ -55,7 +55,7 @@
 
 .animate .location-cell.location-anchor {
   z-index: 2;
-  animation: location-cell-drop 420ms var(--ease-out) 60ms both;
+  animation: location-cell-drop 280ms var(--ease-out) 60ms both;
 }
 
 .location-badge-anchor {
@@ -168,18 +168,19 @@
 }
 
 .error-field circle {
-  fill: oklch(0.849 0.083 17.077 / 0.42);
+  fill: oklch(0.845 0.074 262.398 / 0.42);
 }
 
 .error-field circle.error-mark {
-  fill: oklch(0.692 0.198 21.503);
+  fill: oklch(1 0 0);
 }
 
 .coordinates,
 .state-hint {
+  font-variant-numeric: tabular-nums;
   margin-top: 0.18rem;
   overflow: hidden;
-  color: oklch(0.979 0.003 264.542 / 0.62);
+  color: oklch(1 0 0);
   font-size: 0.75rem;
   letter-spacing: -0.01em;
   line-height: 1.2;
@@ -234,7 +235,7 @@
 }
 
 ::view-transition-old(location-pill) {
-  animation: liquid-pill-out 120ms cubic-bezier(0.4, 0, 1, 1) both;
+  animation: liquid-pill-out 120ms var(--ease-out) both;
 }
 
 ::view-transition-new(location-pill) {
@@ -307,27 +308,18 @@
 @keyframes liquid-pill-out {
   to {
     opacity: 0;
-    filter: blur(4px);
-    transform: scale(0.94, 0.88);
+    transform: scale(0.97);
   }
 }
 
 @keyframes liquid-pill-in {
   from {
     opacity: 0;
-    filter: blur(4px);
-    transform: scale(0.94, 1.04);
-  }
-
-  62% {
-    opacity: 1;
-    filter: blur(0);
-    transform: scale(1.01, 0.99);
+    transform: scale(0.97);
   }
 
   to {
     opacity: 1;
-    filter: blur(0);
     transform: scale(1);
   }
 }
@@ -342,6 +334,23 @@
     max-width: calc(100% - 1rem);
     bottom: 0.5rem;
     left: 0.5rem;
+  }
+
+  /* All mobile states share the same safe-area-aware bottom position. */
+  .location-badge-anchor.located:is(.opens-right, .opens-left):is(.opens-below, .opens-above) {
+    position-anchor: auto;
+    position-area: none;
+    position-try-fallbacks: none;
+    inset: auto;
+    position: fixed;
+    z-index: 20;
+    top: auto;
+    bottom: max(1.5rem, env(safe-area-inset-bottom));
+    left: 50%;
+    width: max-content;
+    max-width: calc(100% - 2rem);
+    margin: 0;
+    transform: translateX(-50%);
   }
 }
 
