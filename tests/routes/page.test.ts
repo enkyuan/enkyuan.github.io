@@ -72,3 +72,12 @@ test("places the introduction directly after the map", () => {
   expect(page).toContain('import About from "$lib/components/about.svelte";');
   expect(page).toContain("<Map animate={animateMap} />\n\t\t\t<About />");
 });
+
+test("uses project-specific hover colors without hover underlines", () => {
+  expect(page).toContain("data-project={entry.title}");
+  expect(entryStyles).toContain("--link-hover: var(--color-vermilion);");
+  expect(entryStyles).toContain('.entry-link[data-project="Kaze"]');
+  expect(entryStyles).toContain("--link-hover: var(--color-indigo-600);");
+  const hover = entryStyles.match(/\.entry-link:hover\s*\{([^}]+)\}/)?.[1];
+  expect(hover).toContain("text-decoration: none;");
+});

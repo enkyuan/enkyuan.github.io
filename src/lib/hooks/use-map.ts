@@ -29,10 +29,10 @@ const CARDINAL_NEIGHBORS = [
 ] as const;
 
 const MAP_GRADIENT_STOPS: readonly GradientStop[] = [
-  { at: 0, color: "oklch(0.245 0.113 262.398)" },
-  { at: 0.42, color: "oklch(0.545 0.244 262.398)" },
-  { at: 0.73, color: "oklch(0.745 0.126 262.398)" },
-  { at: 1, color: "oklch(0.945 0.025 262.398)" },
+  { at: 0, color: "var(--color-cobalt-950)" },
+  { at: 0.42, color: "var(--color-cobalt-500)" },
+  { at: 0.73, color: "var(--color-cobalt-200)" },
+  { at: 1, color: "var(--color-cobalt-50)" },
 ];
 
 // Generated from Natural Earth's public-domain 1:50m land polygons using

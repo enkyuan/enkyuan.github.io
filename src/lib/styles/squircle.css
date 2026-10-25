@@ -25,7 +25,7 @@
 
 .squircle-focus {
   fill: none;
-  stroke: oklch(0.545 0.244 262.398);
+  stroke: var(--color-cobalt-500);
   stroke-width: 2px;
   opacity: 0;
 }

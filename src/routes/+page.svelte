@@ -126,7 +126,11 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 								class="stagger-item"
 								style={`--stagger-delay: ${staggerDelay(entryIndex, 1)}ms`}
 							>
-								{entry.title}
+								{#if "href" in entry && entry.href}
+									<a class="entry-link" data-project={entry.title} href={entry.href}>{entry.title}</a>
+								{:else}
+									{entry.title}
+								{/if}
 							</h2>
 							{#if entry.description}
 								<p
@@ -142,6 +146,9 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 									style={`--stagger-delay: ${staggerDelay(entryIndex, itemIndex + 3)}ms`}
 								>
 									{achievement.text}
+									{#if "link_href" in achievement && achievement.link_href}
+										<a class="entry-link" data-project={entry.title} href={achievement.link_href}>{achievement.link_text}</a>
+									{/if}
 								</p>
 							{/each}
 						</div>
@@ -173,8 +180,8 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 		min-width: 320px;
 		min-height: 100vh;
 		height: auto;
-		background: oklch(1 0 0);
-		color: oklch(0.2 0 0);
+		background: var(--color-white);
+		color: var(--color-graphite);
 	}
 
 	:global(button),
@@ -185,7 +192,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 	.portfolio-shell {
 		position: relative;
 		min-height: 100svh;
-		background: oklch(1 0 0);
+		background: var(--color-white);
 		overflow: hidden;
 	}
 
@@ -212,7 +219,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 		border: 0;
 		padding: 0;
 		background: transparent;
-		color: oklch(0.46 0 0);
+		color: var(--color-gray);
 		font-size: 1rem;
 		font-weight: 400;
 		letter-spacing: -0.018em;
@@ -224,7 +231,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 
 	.tab-list button.active,
 	.tab-list button:focus-visible {
-		color: oklch(0.2 0 0);
+		color: var(--color-graphite);
 	}
 
 	.tab-list button:focus-visible {
@@ -246,10 +253,10 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 		display: block;
 		background: linear-gradient(
 			145deg in oklab,
-			oklch(0.345 0.159 262.398) 2%,
-			oklch(0.445 0.205 262.398) 52%,
-			oklch(0.495 0.229 262.398) 82%,
-			oklch(0.495 0.229 262.398) 100%
+			var(--color-cobalt-800) 2%,
+			var(--color-cobalt-700) 52%,
+			var(--color-cobalt-600) 82%,
+			var(--color-cobalt-600) 100%
 		);
 		background-clip: text;
 		color: transparent;
@@ -264,7 +271,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 	}
 
 	.tab-list .identity-tab:focus-visible {
-		outline-color: oklch(0.445 0.205 262.398);
+		outline-color: var(--color-cobalt-700);
 	}
 
 	.secondary-tab {
@@ -292,7 +299,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 
 	@media (hover: hover) and (pointer: fine) {
 		.tab-list button:hover {
-			color: oklch(0.2 0 0);
+			color: var(--color-graphite);
 		}
 	}
 

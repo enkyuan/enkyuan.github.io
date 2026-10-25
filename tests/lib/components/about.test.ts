@@ -19,9 +19,9 @@ test("fills only the employer name with the shared OKLCH brand gradient", () => 
   expect(aboutComponent).toContain('<span class="role-highlight">{about.role}</span>');
   expect(aboutComponent).not.toContain('<span class="role-highlight">{about.role}</span>.');
   expect(aboutComponent).not.toContain("</a>.");
-  expect(aboutStyles).toContain("oklch(0.590057 0.238555 1.313)");
-  expect(aboutStyles).toContain("oklch(0.565 0.228 1.313)");
-  expect(aboutStyles).toContain("oklch(0.54 0.218 1.313)");
+  expect(aboutStyles).toContain("var(--color-magenta-500)");
+  expect(aboutStyles).toContain("var(--color-magenta-600)");
+  expect(aboutStyles).toContain("var(--color-magenta-700)");
   expect(aboutStyles).toContain("background-clip: text;");
   expect(aboutStyles).toContain("-webkit-text-fill-color: transparent;");
   expect(aboutStyles).toContain("background-size: 200% 100%;");
@@ -35,9 +35,8 @@ test("fills only the employer name with the shared OKLCH brand gradient", () => 
 test("keeps contact links clean and aligned with the surrounding text", () => {
   expect(aboutStyles).toContain("text-decoration: none;");
   expect(aboutStyles).toContain("transition: color 150ms var(--ease-out);");
-  expect(aboutStyles).toContain("--map-gradient-blue: oklch(0.545 0.244 262.398);");
-  expect(aboutStyles).toContain("color: var(--map-gradient-blue);");
-  expect(aboutStyles).toContain("outline: 2px solid var(--map-gradient-blue);");
+  expect(aboutStyles).toContain("color: var(--color-vermilion);");
+  expect(aboutStyles).toContain("outline: 2px solid var(--color-cobalt-500);");
   expect(aboutStyles).not.toContain("text-decoration-line: underline;");
   expect(aboutComponent).toContain('class="social-icon"');
   expect(aboutComponent).toContain('<span class="contact-separator" aria-hidden="true">/</span>');

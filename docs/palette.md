@@ -62,3 +62,7 @@ Every changed authored color is listed below, including alpha variants.
 | `oklch(0.972 0.003 247.858)`        | `oklch(0.945 0.025 262.398)`        |
 | `oklch(0.979 0.003 264.542 / 0.62)` | `oklch(1 0 0)`                      |
 | `oklch(0.979 0.003 264.542)`        | `oklch(1 0 0)`                      |
+
+## Current token names
+
+The table above documents the original reference-palette migration. [The hue-named token migration](color-tokens.md) records the current shared definitions, crimson error accent, vermilion link hover, and complete Before/After mapping.

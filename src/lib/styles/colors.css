@@ -1,0 +1,29 @@
+/* Authored palette: hue names identify primitives; components assign their roles. */
+:root {
+  --color-white: oklch(1 0 0);
+  --color-black: oklch(0 0 0);
+  --color-charcoal: oklch(0.16 0 0);
+  --color-graphite: oklch(0.2 0 0);
+  --color-gray: oklch(0.46 0 0);
+  --color-silver: oklch(0.88 0 0);
+  --color-platinum: oklch(0.9 0 0);
+  --color-snow: oklch(0.97 0 0);
+
+  --color-cobalt-950: oklch(0.245 0.113 262.398);
+  --color-cobalt-800: oklch(0.345 0.159 262.398);
+  --color-cobalt-700: oklch(0.445 0.205 262.398);
+  --color-cobalt-600: oklch(0.495 0.229 262.398);
+  --color-cobalt-500: oklch(0.545 0.244 262.398);
+  --color-cobalt-200: oklch(0.745 0.126 262.398);
+  --color-cobalt-100: oklch(0.845 0.074 262.398);
+  --color-cobalt-50: oklch(0.945 0.025 262.398);
+
+  /* Extra precision preserves the requested brand colors at 8-bit sRGB. */
+  --color-magenta-500: oklch(0.590057 0.238555 1.313);
+  --color-magenta-600: oklch(0.565 0.228 1.313);
+  --color-magenta-700: oklch(0.54 0.218 1.313);
+  --color-crimson-400: oklch(0.72 0.17 18);
+  --color-crimson-700: oklch(0.513 0.173 20.342);
+  --color-vermilion: oklch(0.671825 0.186467 41.136498);
+  --color-indigo-600: oklch(0.468237 0.133217 271.114561);
+}

@@ -31,16 +31,20 @@ function contrast(foreground, background) {
   return (high + 0.05) / (low + 0.05);
 }
 function declaration(source, property) {
-  const value = source.match(new RegExp(`${property}:\\s*(oklch\\([^;]+\\));`))?.[1];
-  expect(value, `${property} must retain a literal fallback`).toBeDefined();
-  return colors(value)[0];
+  const value = source.match(new RegExp(`(?:^|\\n)\\s*${property}:\\s*([^;]+);`))?.[1];
+  expect(value, `${property} must be declared`).toBeDefined();
+  const name = value.match(/^var\((--color-[\w-]+)\)$/)?.[1];
+  return name ? declaration(palette, name) : colors(value)[0];
 }
+
+const palette = await read("src/lib/styles/colors.css");
 
 // Value: protects=authored colors fit sRGB and text remains WCAG AA throughout the shimmer;
 // fails_when=chroma clips or a text stop loses contrast; why_new=existing tests only check color syntax;
 // seam=none; no_claim=browser rasterization and visual balance require browser QA.
 test("keeps the authored palette in sRGB and text contrast safe through gradient stops", async () => {
   const paths = [
+    "src/lib/styles/colors.css",
     "src/app.css",
     "src/routes/+error.svelte",
     "src/routes/+page.svelte",
@@ -64,8 +68,11 @@ test("keeps the authored palette in sRGB and text contrast safe through gradient
   const badge = await read("src/lib/styles/badge.css");
   const page = await read("src/routes/+page.svelte");
   const white = [1, 0, 0];
-  const stops = ["--employer-deep-magenta", "--employer-magenta", "--employer-shimmer"].map(
-    (name) => declaration(about, name),
+  const stops = ["--color-magenta-700", "--color-magenta-600", "--color-magenta-500"].map(
+    (name) => {
+      expect(about).toContain(`var(${name})`);
+      return declaration(palette, name);
+    },
   );
   for (const stop of stops) expect(contrast(stop, white)).toBeGreaterThanOrEqual(4.5);
   // The shared hue means interpolation in OKLab is linear in these L/C channels.
@@ -82,4 +89,32 @@ test("keeps the authored palette in sRGB and text contrast safe through gradient
     contrast(declaration(badge, "color"), declaration(badge, "--surface-fill")),
   ).toBeGreaterThanOrEqual(4.5);
   expect(contrast(declaration(page, "color"), white)).toBeGreaterThanOrEqual(4.5);
+});
+
+test("resolves every authored hue token and keeps literals in the shared palette", async () => {
+  const declared = new Set([...palette.matchAll(/(--color-[\w-]+):/g)].map((match) => match[1]));
+  for (const path of new Bun.Glob("src/**/*.{css,svelte,ts}").scanSync({ cwd: root.pathname })) {
+    const source = await read(path);
+    if (path !== "src/lib/styles/colors.css") expect(source, path).not.toContain("oklch(");
+    for (const match of source.matchAll(/var\((--color-[\w-]+)\)/g)) {
+      expect(declared.has(match[1]), `${path}: ${match[1]} has a shared definition`).toBe(true);
+    }
+  }
+});
+
+test("preserves brand bytes and makes the crimson error mark visible on black", () => {
+  const bytes = (name) =>
+    linearRgb(declaration(palette, name)).map((value) =>
+      Math.round(255 * (value <= 0.0031308 ? 12.92 * value : 1.055 * value ** (1 / 2.4) - 0.055)),
+    );
+  expect(bytes("--color-magenta-500")).toEqual([226, 0, 116]);
+  expect(bytes("--color-vermilion")).toEqual([240, 100, 39]);
+  expect(bytes("--color-indigo-600")).toEqual([64, 82, 164]);
+  const crimson = declaration(palette, "--color-crimson-400");
+  expect(crimson[2]).toBeGreaterThan(10);
+  expect(crimson[2]).toBeLessThan(30);
+  expect(contrast(crimson, declaration(palette, "--color-black"))).toBeGreaterThanOrEqual(3);
+  expect(
+    contrast(declaration(palette, "--color-crimson-700"), declaration(palette, "--color-white")),
+  ).toBeGreaterThanOrEqual(4.5);
 });

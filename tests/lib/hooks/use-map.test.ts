@@ -90,7 +90,8 @@ test("samples one continuous gradient across the location cluster", () => {
   expect(new Set(colors.values()).size).toBeGreaterThan(3);
   expect(
     [...colors.values()].every(
-      (color) => color.startsWith("color-mix(in oklab, oklch(") && !color.includes("rgb("),
+      (color) =>
+        color.startsWith("color-mix(in oklab, var(--color-cobalt-") && !color.includes("rgb("),
     ),
   ).toBeTrue();
 });

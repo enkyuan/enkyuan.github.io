@@ -26,12 +26,12 @@
 	function usColor(row: number, column: number) {
 		if (row < 7 && column < 7) {
 			return STARS.has(`${row}-${column}`)
-				? "oklch(1 0 0)"
-				: "oklch(0.545 0.244 262.398)";
+				? "var(--color-white)"
+				: "var(--color-cobalt-500)";
 		}
 		return row % 2 === 0
-			? "oklch(0.513 0.173 20.342)"
-			: "oklch(1 0 0)";
+			? "var(--color-crimson-700)"
+			: "var(--color-white)";
 	}
 </script>
 

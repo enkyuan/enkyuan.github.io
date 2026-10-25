@@ -81,8 +81,10 @@ test("renders classified failures with the shared dot-matrix X", () => {
   expect(mapComponent).toContain("class:error-mark={isErrorMarkDot(row, column)}");
   expect(mapComponent).toContain('$location.failure?.title ?? "Location unavailable"');
   expect(mapComponent).toContain('class="state-hint"');
-  expect(mapStyles).toContain("fill: oklch(0.845 0.074 262.398 / 0.42);");
-  expect(mapStyles).toContain("fill: oklch(1 0 0);");
+  expect(mapStyles).toContain(
+    "fill: color-mix(in oklab, var(--color-crimson-400) 32%, transparent);",
+  );
+  expect(mapStyles).toContain("fill: var(--color-crimson-400);");
   expect(mapStyles).not.toContain("border-radius: 50%;");
   expect(mapComponent).not.toContain("RetryIcon");
   expect(mapComponent).not.toContain("retry-button");

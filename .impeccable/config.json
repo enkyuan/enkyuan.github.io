@@ -1,0 +1,15 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": ["src/lib/styles/about.css"],
+        "createdAt": "2026-10-25T20:25:27.179Z",
+        "reason": "user confirmed: explicitly requested keeping the T-Mobile magenta shimmer"
+      }
+    ]
+  }
+}

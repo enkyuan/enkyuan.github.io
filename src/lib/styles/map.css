@@ -17,7 +17,7 @@
 }
 
 .map-land-wave {
-  fill: oklch(0.88 0 0);
+  fill: var(--color-silver);
   transform-box: fill-box;
   transform-origin: center;
 }
@@ -168,11 +168,11 @@
 }
 
 .error-field circle {
-  fill: oklch(0.845 0.074 262.398 / 0.42);
+  fill: color-mix(in oklab, var(--color-crimson-400) 32%, transparent);
 }
 
 .error-field circle.error-mark {
-  fill: oklch(1 0 0);
+  fill: var(--color-crimson-400);
 }
 
 .coordinates,
@@ -180,7 +180,7 @@
   font-variant-numeric: tabular-nums;
   margin-top: 0.18rem;
   overflow: hidden;
-  color: oklch(1 0 0);
+  color: var(--color-white);
   font-size: 0.75rem;
   letter-spacing: -0.01em;
   line-height: 1.2;
