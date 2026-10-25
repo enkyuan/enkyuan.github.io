@@ -1,0 +1,46 @@
+.squircle-ready {
+  isolation: isolate;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.squircle-surface {
+  position: absolute;
+  z-index: -1;
+  inset: -4px;
+  width: calc(100% + 8px);
+  height: calc(100% + 8px);
+  overflow: visible;
+  pointer-events: none;
+}
+
+.squircle-background {
+  fill: var(--surface-fill);
+  stroke: var(--surface-border, transparent);
+  stroke-width: var(--surface-border-width, 0px);
+  transition: fill 160ms var(--ease-out);
+  filter: var(--surface-shadow, none);
+}
+
+.squircle-focus {
+  fill: none;
+  stroke: var(--color-cobalt-500);
+  stroke-width: 2px;
+  opacity: 0;
+}
+
+.badge.squircle-ready:focus-visible,
+.btn.squircle-ready:focus-visible {
+  outline: none;
+}
+
+.squircle-ready:focus-visible > .squircle-surface > .squircle-focus {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .squircle-background {
+    transition-duration: 0ms;
+  }
+}

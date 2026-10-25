@@ -1,8 +1,4 @@
 .about {
-  --brand-lavender-blush: oklch(0.892 0.063 355.343);
-  --brand-orchid: oklch(0.818 0.114 355.343);
-  --brand-magenta: oklch(0.617 0.253 355.343);
-  --map-gradient-blue: oklch(0.373 0.13 262.31);
   --font-about-rounded: ".SF NS Rounded", "SF Pro Rounded", "Portfolio Rounded", sans-serif;
 
   padding-bottom: clamp(5rem, 11vh, 8rem);
@@ -15,7 +11,7 @@
 .map-note {
   max-width: none;
   margin: 0;
-  color: oklch(0.213 0.008 264.379 / 0.5);
+  color: var(--color-gray);
   font-family: var(--font-about-rounded);
   font-size: 0.8125rem;
   letter-spacing: -0.01em;
@@ -53,21 +49,21 @@
 
 .role-highlight {
   background-image: linear-gradient(
-    90deg,
-    var(--brand-magenta) 0%,
-    var(--brand-orchid) 12.5%,
-    var(--brand-lavender-blush) 25%,
-    var(--brand-orchid) 37.5%,
-    var(--brand-magenta) 50%,
-    var(--brand-orchid) 62.5%,
-    var(--brand-lavender-blush) 75%,
-    var(--brand-orchid) 87.5%,
-    var(--brand-magenta) 100%
+    90deg in oklab,
+    var(--color-magenta-700) 0%,
+    var(--color-magenta-600) 12.5%,
+    var(--color-magenta-500) 25%,
+    var(--color-magenta-600) 37.5%,
+    var(--color-magenta-700) 50%,
+    var(--color-magenta-600) 62.5%,
+    var(--color-magenta-500) 75%,
+    var(--color-magenta-600) 87.5%,
+    var(--color-magenta-700) 100%
   );
   background-position: 0% 50%;
   background-size: 200% 100%;
   background-clip: text;
-  color: var(--brand-orchid);
+  color: var(--color-magenta-600);
   font-weight: 500;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -75,7 +71,7 @@
 }
 
 .contact-copy {
-  color: oklch(0.213 0.008 264.379 / 0.68);
+  color: var(--color-gray);
 }
 
 .contact-separator {
@@ -84,7 +80,7 @@
 }
 
 .contact-copy a {
-  color: oklch(0.213 0.008 264.379);
+  color: var(--color-graphite);
   font-family: var(--font-about-rounded);
   font-size: 1em;
   font-weight: 500;
@@ -115,13 +111,13 @@
 
 .contact-copy a:focus-visible {
   border-radius: 2px;
-  outline: 2px solid var(--map-gradient-blue);
+  outline: 2px solid var(--color-cobalt-500);
   outline-offset: 3px;
 }
 
 @media (hover: hover) and (pointer: fine) {
   .contact-copy a:hover {
-    color: var(--map-gradient-blue);
+    color: var(--color-vermilion);
   }
 }
 

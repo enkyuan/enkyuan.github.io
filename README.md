@@ -14,3 +14,5 @@ bun run dev
 ```bash
 bun run build
 ```
+
+Design notes: [palette and contrast](docs/palette.md), [interface and motion review](docs/design-review.md).

@@ -25,7 +25,7 @@
 
 .entry-date {
   margin: 0;
-  color: oklch(0.213 0.008 264.379 / 0.47);
+  color: var(--color-gray);
   font-size: 0.975rem;
   line-height: 1.5;
   letter-spacing: -0.012em;
@@ -44,12 +44,37 @@
   text-wrap: pretty;
 }
 
+.entry-link {
+  --link-hover: var(--color-vermilion);
+  color: inherit;
+  text-decoration: none;
+  text-underline-offset: 0.18em;
+  transition: color 150ms var(--ease-out);
+}
+
+.entry-link[data-project="Kaze"] {
+  --link-hover: var(--color-indigo-600);
+}
+
+.entry-link:focus-visible {
+  border-radius: 2px;
+  outline: 2px solid var(--color-cobalt-500);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .entry-link:hover {
+    color: var(--link-hover);
+    text-decoration: none;
+  }
+}
+
 .entry-copy h2 {
   font-weight: 500;
 }
 
 .entry-copy p {
-  color: oklch(0.213 0.008 264.379 / 0.9);
+  color: color-mix(in oklab, var(--color-graphite) 90%, transparent);
 }
 
 .entry-copy h2 + p,
@@ -82,6 +107,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .entry-link {
+    transition: none;
+  }
   /*
    * Dropping the animation is safe ONLY because .stagger-item has no base
    * opacity/transform of its own, so it falls back to opacity:1. Do not add

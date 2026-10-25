@@ -1,5 +1,6 @@
 <script lang="ts">
 import "$lib/styles/button.css";
+import { squircle } from "$lib/actions/squircle";
 
 export const variant:
 	| "primary"
@@ -17,6 +18,7 @@ export const type: "button" | "submit" | "reset" = "button";
 
 {#if href}
     <a
+        use:squircle
         {href}
         class="btn {variant} {size} {disabled ? 'disabled' : ''}"
         tabindex={disabled ? -1 : 0}
@@ -35,6 +37,7 @@ export const type: "button" | "submit" | "reset" = "button";
     </a>
 {:else}
     <button
+        use:squircle
         {type}
         class="btn {variant} {size} {disabled ? 'disabled' : ''}"
         disabled={disabled || loading}

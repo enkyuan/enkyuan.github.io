@@ -2,20 +2,36 @@ export const projects = [
   {
     name: "Kaji",
     dates: "Present",
+    href: "https://kaji.build/",
+    description:
+      "A dependency-free TypeScript library for controlling application actions triggered by agents, automations, or API callers.",
     achievements: [
       {
-        text: "Built matching ReAct runtimes around typed tools, event journals, session replay, idempotency, approvals, and bounded execution",
+        text: "Each action is a capability: a validated input schema, a permission check, an optional approval requirement, and the function that performs the work. Kaji runs these checks in order before allowing a side effect.",
       },
       {
-        text: "Added OpenAI and Anthropic providers alongside Gemini, Kimi, and OpenRouter paths, with deterministic mocks and normalized error contracts",
+        text: "A request identity combines the action, caller, and idempotency key. With an atomic store, repeated requests read or await the original result; reusing a key with different input never runs the action.",
       },
       {
-        text: "Kept the SDK core infra-free, moving Redis realtime, FastAPI hosting, and Soniox voice into optional edges so teams can start locally and scale out deliberately",
+        text: "Outcomes distinguish a confirmed failure from an unknown result, such as a refund whose reply was lost after the payment provider committed it. The application supplies identity, policy, approval handling, and durable storage.",
+      },
+    ],
+  },
+  {
+    name: "Kaze",
+    dates: "Present",
+    href: "https://github.com/hiyoriOS/kaze",
+    description:
+      "A draft protocol and Rust reference implementation for admitting AI agents under terms set by the platform they access.",
+    achievements: [
+      {
+        text: "The platform signs an Offer describing an action's requirements, price, limits, and permitted access path. The agent presents a mandate defining what its principal authorized, where that authority applies, and how much it may commit.",
       },
       {
-        text: "Used the runtime beneath Ryo, where small businesses configure agents that answer questions, take orders, and collect payments",
-        link_text: "Alloy",
-        link_href: "https://github.com/enkyuan/alloy",
+        text: "Web Bot Auth verifies the operator behind the request. Key-bound mandates connect the agent to its delegated authority; liability claims can name the accountable operator and attest its coverage.",
+      },
+      {
+        text: "A deterministic verifier checks the signed evidence without network access or a system clock, with the same core available as WebAssembly. Platforms retain replay tracking, quotas, and settlement, while payment and receipts reuse x402, MPP, and AP2 conventions.",
       },
     ],
   },

@@ -1,13 +1,15 @@
 .btn {
+  --surface-radius: 14;
+  --surface-fill: var(--color-gray);
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5em;
   border: none;
-  border-radius: 9999px;
+  border-radius: 14px;
   outline: none;
-  background: oklch(0.264 0.016 264.249 / 0.7);
+  background: var(--surface-fill);
   font-family: var(--font-body);
   font-weight: 500;
   text-decoration: none;
@@ -36,67 +38,84 @@
 }
 
 .btn.primary {
-  border: 1.5px solid oklch(0.928 0.006 264.531);
-  background: oklch(0.928 0.006 264.531 / 0.7);
-  color: oklch(0 0 0);
+  border: 1.5px solid var(--color-platinum);
+  --surface-fill: color-mix(in oklab, var(--color-platinum) 70%, transparent);
+  --surface-border: var(--color-platinum);
+  --surface-border-width: 1.5px;
+  background: var(--surface-fill);
+  color: var(--color-black);
 }
 
 .btn.primary:hover:not(.disabled) {
-  background: oklch(0.928 0.006 264.531 / 0.85);
+  --surface-fill: color-mix(in oklab, var(--color-platinum) 85%, transparent);
+  background: var(--surface-fill);
   filter: brightness(0.95);
 }
 
 .btn.secondary {
-  background: var(--gray1);
-  color: var(--fg);
+  --surface-fill: var(--color-platinum);
+  background: var(--surface-fill);
+  color: var(--color-graphite);
 }
 
 .btn.secondary:hover:not(.disabled) {
-  background: var(--gray2);
+  --surface-fill: var(--color-silver);
+  background: var(--surface-fill);
 }
 
 .btn.outline {
-  border: 1.5px solid var(--blue-type);
-  background: transparent;
-  color: var(--fg);
+  --surface-border: var(--color-cobalt-500);
+  --surface-border-width: 1.5px;
+  border: 1.5px solid var(--color-cobalt-500);
+  --surface-fill: transparent;
+  background: var(--surface-fill);
+  color: var(--color-graphite);
 }
 
 .btn.outline:hover:not(.disabled) {
-  background: var(--blue-type);
-  color: var(--white);
+  --surface-fill: var(--color-cobalt-500);
+  background: var(--surface-fill);
+  color: var(--color-white);
 }
 
 .btn.ghost {
-  background: transparent;
-  color: var(--fg);
+  --surface-fill: transparent;
+  background: var(--surface-fill);
+  color: var(--color-graphite);
 }
 
 .btn.ghost:hover:not(.disabled) {
-  background: var(--visual-select-bg);
+  --surface-fill: var(--color-cobalt-50);
+  background: var(--surface-fill);
 }
 
 .btn.link {
   border: none;
   padding: 0;
-  background: none;
-  color: var(--blue-type);
+  --surface-fill: transparent;
+  background: var(--surface-fill);
+  color: var(--color-cobalt-500);
   text-decoration: underline;
 }
 
 .btn.link:hover:not(.disabled) {
-  color: var(--accent);
+  color: var(--color-vermilion);
+  text-decoration: none;
 }
 
 .btn.destructive {
-  background: var(--red-err);
-  color: var(--white);
+  --surface-fill: var(--color-crimson-700);
+  background: var(--surface-fill);
+  color: var(--color-white);
 }
 
 .btn.destructive:hover:not(.disabled) {
-  background: var(--red-key-w);
+  --surface-fill: color-mix(in oklab, var(--color-crimson-700) 90%, var(--color-black));
+  background: var(--surface-fill);
 }
 
 .btn.sm {
+  --surface-radius: 10;
   min-height: 32px;
   padding: 0.3em 0.8em;
   font-size: 0.92em;
@@ -109,6 +128,7 @@
 }
 
 .btn.lg {
+  --surface-radius: 16;
   min-height: 48px;
   padding: 0.7em 1.6em;
   font-size: 1.12em;
@@ -125,8 +145,8 @@
   display: inline-block;
   width: 1em;
   height: 1em;
-  border: 2px solid var(--white1);
-  border-top: 2px solid var(--blue-type);
+  border: 2px solid var(--color-platinum);
+  border-top: 2px solid var(--color-cobalt-500);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }

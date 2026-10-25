@@ -203,7 +203,7 @@
         left: 0;
         width: 100vw;
         height: 100vh;
-        background: oklch(1 0 0);
+        background: var(--color-white);
         display: flex;
         flex-direction: column;
         z-index: 9999;
@@ -212,7 +212,7 @@
 
     .error-content {
         text-align: center;
-        color: oklch(0 0 0);
+        color: var(--color-black);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -230,7 +230,7 @@
     .error-label {
         font-weight: 500;
         font-size: 1.1rem;
-        color: oklch(0 0 0);
+        color: var(--color-black);
         letter-spacing: 0.15em;
         text-transform: uppercase;
         opacity: 0.6;
@@ -280,7 +280,7 @@
         width: var(--dot-size);
         height: var(--dot-size);
         border-radius: 50%;
-        background: oklch(0.967 0.003 264.542);
+        background: var(--color-snow);
         flex-shrink: 0;
     }
 

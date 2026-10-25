@@ -71,7 +71,7 @@ test("morphs loading and error badges in place", () => {
   expect(mapStyles).toContain("view-transition-name: location-pill;");
   expect(mapStyles).toContain("::view-transition-group(location-pill)");
   expect(mapStyles).toContain("@keyframes liquid-pill-in");
-  expect(mapStyles).toContain("transform: scale(1.01, 0.99);");
+  expect(mapStyles).toContain("transform: scale(0.97);");
   expect(mapComponent).not.toContain("in:fade");
   expect(mapComponent).not.toContain("out:fade");
 });
@@ -81,8 +81,10 @@ test("renders classified failures with the shared dot-matrix X", () => {
   expect(mapComponent).toContain("class:error-mark={isErrorMarkDot(row, column)}");
   expect(mapComponent).toContain('$location.failure?.title ?? "Location unavailable"');
   expect(mapComponent).toContain('class="state-hint"');
-  expect(mapStyles).toContain("fill: oklch(0.849 0.083 17.077 / 0.42);");
-  expect(mapStyles).toContain("fill: oklch(0.692 0.198 21.503);");
+  expect(mapStyles).toContain(
+    "fill: color-mix(in oklab, var(--color-crimson-400) 32%, transparent);",
+  );
+  expect(mapStyles).toContain("fill: var(--color-crimson-400);");
   expect(mapStyles).not.toContain("border-radius: 50%;");
   expect(mapComponent).not.toContain("RetryIcon");
   expect(mapComponent).not.toContain("retry-button");

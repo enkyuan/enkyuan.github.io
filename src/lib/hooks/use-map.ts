@@ -29,10 +29,10 @@ const CARDINAL_NEIGHBORS = [
 ] as const;
 
 const MAP_GRADIENT_STOPS: readonly GradientStop[] = [
-  { at: 0, color: "oklch(0.151 0.03 261.872)" },
-  { at: 0.42, color: "oklch(0.373 0.13 262.31)" },
-  { at: 0.73, color: "oklch(0.702 0.088 253.74)" },
-  { at: 1, color: "oklch(0.972 0.003 247.858)" },
+  { at: 0, color: "var(--color-cobalt-950)" },
+  { at: 0.42, color: "var(--color-cobalt-500)" },
+  { at: 0.73, color: "var(--color-cobalt-200)" },
+  { at: 1, color: "var(--color-cobalt-50)" },
 ];
 
 // Generated from Natural Earth's public-domain 1:50m land polygons using
@@ -260,7 +260,7 @@ function sampleLocationGradient(progress: number) {
   const endPercentage = Number((amount * 100).toFixed(3));
   const startPercentage = Number((100 - endPercentage).toFixed(3));
 
-  return `color-mix(in srgb, ${start.color} ${startPercentage}%, ${end.color} ${endPercentage}%)`;
+  return `color-mix(in oklab, ${start.color} ${startPercentage}%, ${end.color} ${endPercentage}%)`;
 }
 
 export function createLocationGradient(cells: readonly MapCell[], cellIds: readonly string[]) {
