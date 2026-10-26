@@ -35,7 +35,7 @@ test("fills only the employer name with the shared OKLCH brand gradient", () => 
 test("keeps contact links clean and aligned with the surrounding text", () => {
   expect(aboutStyles).toContain("text-decoration: none;");
   expect(aboutStyles).toContain("transition: color 150ms var(--ease-out);");
-  expect(aboutStyles).toContain("color: var(--color-vermilion);");
+  expect(aboutStyles).toContain("color: var(--color-cobalt-600);");
   expect(aboutStyles).toContain("outline: 2px solid var(--color-cobalt-500);");
   expect(aboutStyles).not.toContain("text-decoration-line: underline;");
   expect(aboutComponent).toContain('class="social-icon"');

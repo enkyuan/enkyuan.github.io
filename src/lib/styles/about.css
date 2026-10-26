@@ -117,7 +117,7 @@
 
 @media (hover: hover) and (pointer: fine) {
   .contact-copy a:hover {
-    color: var(--color-vermilion);
+    color: var(--color-cobalt-600);
   }
 }
 
