@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { onMount } from "svelte";
+	import { blur } from "svelte/transition";
+	import { TextMorph } from "torph";
 	import Badge from "$lib/components/ui/badge.svelte";
 	import Flags from "$lib/components/ui/flags.svelte";
 	import {
@@ -23,6 +26,7 @@
 		type MapCell,
 	} from "$lib/hooks/use-map";
 	import "$lib/styles/map.css";
+	import "$lib/styles/location-morph.css";
 
 	let { animate = true } = $props<{ animate?: boolean }>();
 
@@ -46,6 +50,64 @@
 			return cell && color ? [{ ...cell, color, index }] : [];
 		}),
 	);
+
+	let dismissed = $state(false);
+	$effect(() => {
+		if ($location.state !== "error") dismissed = false;
+	});
+	let reducedMotion = $state(false);
+	let keyboardRetry = $state(false);
+	onMount(() => {
+		const preference = matchMedia("(prefers-reduced-motion: reduce)");
+		const update = () => {
+			reducedMotion = preference.matches;
+		};
+		update();
+		preference.addEventListener("change", update);
+		return () => preference.removeEventListener("change", update);
+	});
+	const title = $derived(
+		$location.state === "located" ? $location.place
+			: $location.state === "error" ? $location.failure?.title ?? "Location unavailable"
+				: "Finding your spot on the map…",
+	);
+	const hint = $derived($location.failure?.hint ?? "");
+
+	function morphText(node: HTMLElement, text: string) {
+		let clear: Animation | undefined;
+		let disabled = !animate || keyboardRetry;
+		const create = () => new TextMorph({
+			element: node,
+			duration: 240,
+			ease: "cubic-bezier(0.23, 1, 0.32, 1)",
+			disabled,
+			onAnimationStart: () => {
+				if (!animate || reducedMotion || keyboardRetry) return;
+				clear?.cancel();
+				clear = node.animate(
+					[{ filter: "blur(2px)" }, { filter: "blur(0px)" }],
+					{ duration: 220, easing: "cubic-bezier(0.23, 1, 0.32, 1)" },
+				);
+			},
+		});
+		let morph = create();
+		morph.update(text);
+		return {
+			update(value: string) {
+				if (disabled !== (!animate || keyboardRetry)) {
+					clear?.cancel();
+					morph.destroy();
+					disabled = !animate || keyboardRetry;
+					morph = create();
+				}
+				morph.update(value);
+			},
+			destroy() {
+				clear?.cancel();
+				morph.destroy();
+			},
+		};
+	}
 
 	function locationCellStyle(cell: MapCell & { color: string; index: number }) {
 		return `--cell-delay:${Math.min(cell.index * 18, 160)}ms;--location-color:${cell.color}`;
@@ -118,26 +180,25 @@
 			class="location-badge-anchor"
 			style={pillPosition($location.latitude, $location.longitude)}
 		>
-			<div class="shared-pill" bind:this={sharedPill}>
+			<div class="shared-pill" class:dismissed={dismissed} inert={dismissed} aria-hidden={dismissed} bind:this={sharedPill}>
 				<Badge
 					class="location-badge"
-					onclick={canRetryLocation ? () => void locate() : undefined}
+					onclick={(event) => {
+						keyboardRetry = event.detail === 0;
+						if (canRetryLocation) void locate();
+					}}
+					disabled={!canRetryLocation}
 					ariaLabel={canRetryLocation ? "Try finding your location again" : undefined}
 					ariaLive="polite"
 					title={canRetryLocation ? "Try again" : undefined}
 				>
 					<div class="pill-state">
-						{#if $location.state === "located" && $location.latitude !== undefined && $location.longitude !== undefined}
+<span class="pill-icon-frame">						{#if $location.state === "located" && $location.latitude !== undefined && $location.longitude !== undefined}
 								<Flags countryCode={$location.countryCode} />
-								<div class="pill-copy">
-									<h1 id="location-title">{$location.place}</h1>
-                                {#if $location.failure}<p class="state-hint">{$location.failure.hint}</p>{/if}
-									<p class="coordinates">
-										{formatCoordinate($location.latitude, "N", "S", 3)} · {formatCoordinate($location.longitude, "E", "W", 3)}
-									</p>
-								</div>
 						{:else if $location.state === "error"}
-								<span class="error-field" aria-hidden="true">
+								<span class="error-field"
+ in:blur={{ duration: animate && !reducedMotion && !keyboardRetry ? 180 : 0, amount: 4 }}
+ out:blur={{ duration: animate && !reducedMotion && !keyboardRetry ? 120 : 0, amount: 4 }} aria-hidden="true">
 									<svg viewBox="0 0 34 34" focusable="false">
 										{#each DOT_FIELD_DOTS as row}
 											{#each DOT_FIELD_DOTS as column}
@@ -153,14 +214,10 @@
 										{/each}
 										</svg>
 									</span>
-									<div class="pill-copy">
-										<h1 id="location-title">{$location.failure?.title ?? "Location unavailable"}</h1>
-										{#if $location.failure?.hint}
-											<p class="state-hint">{$location.failure.hint}</p>
-										{/if}
-									</div>
 						{:else}
-								<span class="loading-field" aria-hidden="true">
+								<span class="loading-field"
+ in:blur={{ duration: animate && !reducedMotion && !keyboardRetry ? 180 : 0, amount: 4 }}
+ out:blur={{ duration: animate && !reducedMotion && !keyboardRetry ? 120 : 0, amount: 4 }} aria-hidden="true">
 									<svg viewBox="0 0 34 34" focusable="false">
 										{#each DOT_FIELD_DOTS as row}
 											{#each DOT_FIELD_DOTS as column}
@@ -176,10 +233,30 @@
 										{/each}
 									</svg>
 								</span>
-								<h1 id="location-title">Finding your spot on the map…</h1>
-						{/if}
+
+						{/if}</span>
+						<div class="pill-copy">
+							<h1 id="location-title"><span use:morphText={title}>Finding your spot on the map…</span></h1>
+							<p class="state-hint" class:empty={!hint}><span use:morphText={hint}></span></p>
+							{#if hasLocatedPosition && $location.latitude !== undefined && $location.longitude !== undefined}
+								<p class="coordinates">{formatCoordinate($location.latitude, "N", "S", 3)} · {formatCoordinate($location.longitude, "E", "W", 3)}</p>
+							{/if}
+						</div>
 					</div>
 				</Badge>
+				{#if $location.state === "error"}
+					<button
+						class="toast-dismiss"
+						type="button"
+						aria-label="Dismiss location error"
+						onclick={(event) => {
+						event.stopPropagation();
+						dismissed = true;
+					}}
+					>
+						Dismiss
+					</button>
+				{/if}
 			</div>
 		</div>
 	</div>

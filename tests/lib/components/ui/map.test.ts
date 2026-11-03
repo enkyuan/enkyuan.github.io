@@ -92,7 +92,8 @@ test("renders classified failures with the shared dot-matrix X", () => {
 
 test("makes only recoverable location failures interactive", () => {
   expect(mapComponent).toContain("$location.failure?.retryable === true");
-  expect(mapComponent).toContain("onclick={canRetryLocation ? () => void locate() : undefined}");
+  expect(mapComponent).toContain("if (canRetryLocation) void locate();");
+  expect(mapComponent).toContain("disabled={!canRetryLocation}");
   expect(mapComponent).toContain(
     'ariaLabel={canRetryLocation ? "Try finding your location again" : undefined}',
   );

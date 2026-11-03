@@ -1,0 +1,123 @@
+.pill-icon-frame {
+  position: relative;
+  display: block;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+}
+
+.pill-icon-frame > * {
+  position: absolute;
+  inset: 0;
+}
+
+.state-hint.empty {
+  display: none;
+}
+
+.pill-copy h1 {
+  min-height: 1.2em;
+}
+
+.shared-pill {
+  position: relative;
+  transition:
+    opacity 140ms var(--ease-out),
+    filter 140ms var(--ease-out),
+    visibility 140ms;
+}
+
+.shared-pill.dismissed {
+  opacity: 0;
+  filter: blur(4px);
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.pill-state {
+  transition:
+    filter 160ms var(--ease-out),
+    opacity 160ms var(--ease-out);
+}
+
+.toast-dismiss {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 18px;
+  background: transparent;
+  color: var(--color-white);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 160ms var(--ease-out),
+    scale 100ms var(--ease-out);
+}
+
+.toast-dismiss:active {
+  scale: 0.96;
+}
+
+.toast-dismiss:focus-visible {
+  outline: 2px solid var(--color-cobalt-500);
+  outline-offset: 2px;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.error .shared-pill:has(.toast-dismiss:focus-visible) .pill-state {
+  filter: blur(3px);
+  opacity: 0.4;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .error .shared-pill:hover .pill-state {
+    filter: blur(3px);
+    opacity: 0.4;
+  }
+
+  .error .shared-pill:hover .toast-dismiss {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .error .location-badge {
+    padding-right: 86px;
+  }
+
+  .toast-dismiss {
+    inset: auto;
+    top: 50%;
+    left: auto;
+    right: 4px;
+    width: 76px;
+    height: 44px;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shared-pill,
+  .pill-state,
+  .toast-dismiss {
+    transition: none;
+  }
+
+  .shared-pill.dismissed {
+    filter: none;
+  }
+}
