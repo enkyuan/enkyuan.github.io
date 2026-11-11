@@ -206,27 +206,36 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 	.tab-list {
 		display: flex;
 		align-items: center;
-		gap: clamp(1.25rem, 4vw, 1.75rem);
-		min-height: 44px;
+		gap: clamp(0.5rem, calc(4vw - 0.75rem), 1rem);
+		margin-inline: -0.375rem;
+		min-height: 28px;
 	}
 
 	.tab-list button {
 		position: relative;
 		display: inline-flex;
-		min-height: 44px;
+		min-height: 28px;
 		align-items: center;
 		justify-content: center;
 		border: 0;
-		padding: 0;
+		padding: 0.25rem 0.375rem;
 		background: transparent;
 		color: var(--color-gray);
 		font-size: 1rem;
 		font-weight: 400;
 		letter-spacing: -0.018em;
+		line-height: 1.25;
+		white-space: nowrap;
 		cursor: pointer;
 		transition:
 			color 160ms ease,
 			transform 140ms var(--ease-out);
+	}
+
+	.tab-list button::before {
+		content: "";
+		position: absolute;
+		inset: -6px 0;
 	}
 
 	.tab-list button.active,
@@ -235,8 +244,8 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 	}
 
 	.tab-list button:focus-visible {
-		outline: 2px solid currentColor;
-		outline-offset: 5px;
+		outline: 2px solid var(--color-cobalt-500);
+		outline-offset: 3px;
 		border-radius: 2px;
 	}
 
@@ -270,10 +279,6 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 		-webkit-text-fill-color: transparent;
 	}
 
-	.tab-list .identity-tab:focus-visible {
-		outline-color: var(--color-cobalt-700);
-	}
-
 	.secondary-tab {
 		font-family: ".SF NS Rounded", "SF Pro Rounded", "Portfolio Rounded", sans-serif;
 		animation: secondary-tab-enter 240ms var(--ease-out) 180ms both;
@@ -303,6 +308,12 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 		}
 	}
 
+	@media (pointer: coarse) {
+		.tab-list button::before {
+			inset: -8px 0;
+		}
+	}
+
 	@media (max-width: 560px) {
 		.portfolio-frame {
 			width: min(100% - 2.25rem, 38rem);
@@ -310,7 +321,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 		}
 
 		.tab-list {
-			gap: 1.1rem;
+			gap: 0.35rem;
 		}
 	}
 
