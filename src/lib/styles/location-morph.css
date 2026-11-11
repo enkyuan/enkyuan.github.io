@@ -93,6 +93,10 @@
 }
 
 @media (hover: none), (pointer: coarse) {
+  .error .location-badge {
+    padding-right: 40px;
+  }
+
   .toast-dismiss {
     width: 44px;
     height: 44px;
